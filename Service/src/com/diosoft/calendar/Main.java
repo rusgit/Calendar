@@ -5,7 +5,8 @@ import com.diosoft.calendar.common.Person;
 import com.diosoft.calendar.datastore.DataStore;
 import com.diosoft.calendar.datastore.DataStoreImpl;
 import com.diosoft.calendar.service.CalendarServiceImpl;
-
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import java.util.*;
 
 public class Main {
@@ -32,66 +33,48 @@ public class Main {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Mega Party")
                 .description("It will be a great party!")
-                .startDate(new GregorianCalendar(2014, 10, 11))
-                .endDate(new GregorianCalendar(2014, 10, 11))
+                .startDate(new LocalDateTime().withDate(2014, 9, 7).withTime(12, 15, 12, 0))
+                .endDate(new LocalDateTime().withDate(2014, 9, 7).withTime(15, 15, 12, 0))
                 .attendersList(attenders).build();
 
 // Create event2
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Mega Party")
                 .description("It will be a great party!")
-                .startDate(new GregorianCalendar(2014, 9, 10))
-                .endDate(new GregorianCalendar(2014, 10, 11))
+                .startDate(new LocalDateTime().withDate(2014,9,7).withTime(12,15,12,0))
+                .endDate(new LocalDateTime().withDate(2014,9,7).withTime(15,15,12,0))
                 .attendersList(attenders).build();
 
 // Create event3
         Event event3 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Ney Year")
                 .description("It will be a great party!")
-                .startDate(new GregorianCalendar(2014, 9, 10))
-                .endDate(new GregorianCalendar(2014, 10, 11))
+                .startDate(new LocalDateTime().withDate(2015,1,1).withTime(0,0,0,0))
+                .endDate(new LocalDateTime().withDate(2015,1,1).withTime(0,0,1,0))
                 .attendersList(attenders).build();
 
+// Test CalendarServiceImpl
 // Create DataStore
         DataStore dataStore = new DataStoreImpl();
-        System.out.println("Test: " + dataStore.getEventById(UUID.randomUUID()));
-
-// Test add event
-        dataStore.publish(event1);
-        Event eventTest1 = dataStore.getEventById(event1.getId());
-        System.out.println("Added event");
-        System.out.println(eventTest1);
-
-// Test remove event
-        dataStore.remove(event3.getId());
-        Event eventTest2 = dataStore.getEventById(event3.getId());
-        System.out.println("Remove event");
-        System.out.println(eventTest2);
-
-// Test search by title
-       dataStore.publish(event2);
-       dataStore.publish(event3);
-       System.out.println("Search by title:");
-       List<Event> ev2 = dataStore.getEventByTitle("Mega Party");
-       for (Event e:ev2) {
-           System.out.println(e);
-       }
-
-// Test CalendarServiceImpl
-// Create DataStore2
-        DataStore dataStore2 = new DataStoreImpl();
 // Create CalendarServiceImpl
-        CalendarServiceImpl calendarService = new CalendarServiceImpl(dataStore2);
-// Test add events
+        CalendarServiceImpl calendarService = new CalendarServiceImpl(dataStore);
+// add events
         calendarService.add(event1);
         calendarService.add(event2);
         calendarService.add(event3);
         System.out.println("Added 3 events");
-        System.out.println(calendarService);
-// Test remove event
-        calendarService.remove(event2.getId());
+        System.out.println(dataStore);
+// remove event
+        calendarService.remove(event3.getId());
         System.out.println("Remove 1 event");
-        System.out.println(calendarService);
-
+        System.out.println(dataStore);
+// searchByTitle
+        List<Event> eventsByTitle = calendarService.searchByTitle("Mega Party");
+        System.out.println("searchByTitle");
+        System.out.println(eventsByTitle);
+// searchByDate
+        List<Event> eventsByDate = calendarService.searchByDay(new LocalDate(2014,9,7));
+        System.out.println("searchByDate");
+        System.out.println(eventsByDate);
     }
 }

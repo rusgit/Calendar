@@ -49,8 +49,8 @@ public class Person implements Comparable<Person> {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Person { ");
         sb.append(name).append(", ")
-                .append(lastName).append(", ")
-                .append(email).append(" } \n");
+          .append(lastName).append(", ")
+          .append(email).append(" } \n");
 
         return sb.toString();
     }

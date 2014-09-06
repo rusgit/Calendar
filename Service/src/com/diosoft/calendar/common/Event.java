@@ -1,6 +1,6 @@
 package com.diosoft.calendar.common;
 
-import java.util.Calendar;
+import org.joda.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,9 +9,10 @@ public class Event implements Comparable<Event> {
     private final UUID id;
     private final String title;
     private final String description;
-    private final Calendar startDate;
-    private final Calendar endDate;
+    private final LocalDateTime startDate;
+    private final LocalDateTime endDate;
     private final List<Person> attenders;
+
 
     public UUID getId() {
         return id;
@@ -22,10 +23,10 @@ public class Event implements Comparable<Event> {
     public String getDescription() {
         return description;
     }
-    public Calendar getStartDate() {
+    public LocalDateTime  getStartDate() {
         return startDate;
     }
-    public Calendar getEndDate() {
+    public LocalDateTime  getEndDate() {
         return endDate;
     }
     public List<Person> getAttender() {
@@ -43,6 +44,7 @@ public class Event implements Comparable<Event> {
 
     @Override
     public boolean equals(Object obj) {
+        startDate.toDateTime();
         if (obj == null) return false;
         if (!(obj instanceof Event)) return false;
         if (this == obj) return true;
@@ -88,11 +90,11 @@ public class Event implements Comparable<Event> {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Event { ");
         sb.append(id).append(", ")
-                .append(title).append(", ")
-                .append(description).append(", ")
-                .append(startDate.getTime()).append(", ")
-                .append(endDate.getTime()).append(", ")
-                .append(attenders).append(" } \n");
+          .append(title).append(", ")
+          .append(description).append(", ")
+          .append(startDate).append(", ")
+          .append(endDate).append(", ")
+          .append(attenders).append(" } \n");
 
         return sb.toString();
     }
@@ -101,8 +103,8 @@ public class Event implements Comparable<Event> {
         private UUID id;
         private String title;
         private String description;
-        private Calendar startDate;
-        private Calendar endDate;
+        private LocalDateTime  startDate;
+        private LocalDateTime  endDate;
         private List<Person> attenders;
 
         public EventBuilder() {
@@ -132,12 +134,12 @@ public class Event implements Comparable<Event> {
             return this;
         }
 
-        public EventBuilder startDate(Calendar startDate) {
+        public EventBuilder startDate(LocalDateTime  startDate) {
             this.startDate = startDate;
             return this;
         }
 
-        public EventBuilder endDate(Calendar endDate) {
+        public EventBuilder endDate(LocalDateTime  endDate) {
             this.endDate = endDate;
             return this;
         }

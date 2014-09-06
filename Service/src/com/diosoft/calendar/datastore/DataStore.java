@@ -1,8 +1,7 @@
 package com.diosoft.calendar.datastore;
 
 import com.diosoft.calendar.common.Event;
-
-import java.util.Calendar;
+import org.joda.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,5 +15,5 @@ public interface DataStore {
 
     List<Event> getEventByTitle(String title);
 
-    List<Event> getEventByDate(Calendar date);
+    List<Event> getEventByDate(LocalDate day);
 }

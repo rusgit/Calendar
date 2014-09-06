@@ -1,20 +1,22 @@
 package com.diosoft.calendar.datastore;
 
 import com.diosoft.calendar.common.Event;
+import org.joda.time.LocalDate;
 import java.util.*;
 
 public class DataStoreImpl implements DataStore {
 
     private Map<UUID,Event> eventStore = new HashMap<UUID,Event>();
     private Map<String, List<UUID>> indexTitle = new HashMap<String, List<UUID>>();
-    private Map<Calendar, List<UUID>> indexDate = new HashMap<Calendar, List<UUID>>();
+    private Map<LocalDate, List<UUID>> indexDate = new HashMap<LocalDate, List<UUID>>();
 
     @Override
     public void publish(Event event) {
         if (event==null) throw new IllegalArgumentException();
 
 // add event
-        eventStore.put(event.getId(), event);
+        UUID id = event.getId();
+        eventStore.put(id, event);
 
 // index by title
         List<UUID> uuidsTitle = indexTitle.get(event.getTitle());
@@ -27,11 +29,12 @@ public class DataStoreImpl implements DataStore {
         }
 
 // index by date
-        List<UUID> uuidsDate = indexDate.get(event.getStartDate());
+        LocalDate localDate = event.getStartDate().toLocalDate();
+        List<UUID> uuidsDate = indexDate.get(localDate);
         if(uuidsDate==null) {
             uuidsDate = new ArrayList<UUID>();
             uuidsDate.add(event.getId());
-            indexDate.put(event.getStartDate(),uuidsDate);
+            indexDate.put(localDate, uuidsDate);
         } else {
             uuidsDate.add(event.getId());
         }
@@ -44,22 +47,21 @@ public class DataStoreImpl implements DataStore {
        Event event = eventStore.get(id);
        if (event==null) return;
 
-// remove index title. If indexTitle contained only one id for title(key), than we can remove key and value.
-// if indexTitle contained list of id for title(more than one element), we remove only concrete id from list id.
-        List<UUID> idsTitle = indexTitle.get(event.getTitle());
+// remove index title
+       List<UUID> idsTitle = indexTitle.get(event.getTitle());
        if (idsTitle.size()==1) {
             indexTitle.remove(event.getTitle());
        } else {
            idsTitle.remove(id);
        }
-// remove index date. If indexDate contained only one id for date(key), than we can remove key and value.
-// if indexDate contained list of id for date(more than one element), we remove only concrete id from list id.
-        List<UUID> idsDate = indexDate.get(event.getStartDate());
-        if (idsDate.size()==1) {
-            indexDate.remove(event.getStartDate());
-        } else {
-            idsDate.remove(id);
-        }
+// remove index date
+       LocalDate localDate = event.getStartDate().toLocalDate();
+       List<UUID> idsDate = indexDate.get(localDate);
+       if (idsDate.size()==1) {
+           indexDate.remove(localDate);
+       } else {
+           idsDate.remove(id);
+       }
 // remove event in eventStore
         eventStore.remove(id);
    }
@@ -86,10 +88,10 @@ public class DataStoreImpl implements DataStore {
    }
 
    @Override
-   public List<Event> getEventByDate(Calendar startDate) {
-        if (startDate==null) throw new IllegalArgumentException();
+   public List<Event> getEventByDate(LocalDate day) {
+        if (day==null) throw new IllegalArgumentException();
 
-        List<UUID> ids = indexDate.get(startDate);
+        List<UUID> ids = indexDate.get(day);
         List<Event> events = new ArrayList<Event>();
         if (ids!=null) {
             for (UUID id : ids) {
@@ -103,10 +105,10 @@ public class DataStoreImpl implements DataStore {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DataStoreImpl{");
-        sb.append("eventStore=").append(eventStore);
-        sb.append(", indexTitle=").append(indexTitle);
-        sb.append(", indexDate=").append(indexDate);
-        sb.append('}');
+        sb.append("eventStore=").append(eventStore)
+          .append(", indexTitle=").append(indexTitle)
+          .append(", indexDate=").append(indexDate)
+          .append('}');
         return sb.toString();
     }
 }

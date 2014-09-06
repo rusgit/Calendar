@@ -1,7 +1,7 @@
 package com.diosoft.calendar.service;
 
 import com.diosoft.calendar.common.Event;
-import java.util.Date;
+import org.joda.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,5 +13,5 @@ public interface CalendarService {
 
     List<Event> searchByTitle(String title);
 
-    List<Event> searchByDay(Date day);
+    List<Event> searchByDay(LocalDate day);
 }
