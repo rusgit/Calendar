@@ -10,14 +10,6 @@ public class CalendarServiceImpl implements CalendarService {
 
     private final DataStore dataStore;
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("CalendarServiceImpl{");
-        sb.append("dataStore=").append(dataStore.toString());
-        sb.append('}');
-        return sb.toString();
-    }
-
     public CalendarServiceImpl(DataStore dataStore) {
         this.dataStore = dataStore;
     }
@@ -42,5 +34,13 @@ public class CalendarServiceImpl implements CalendarService {
     @Override
     public List<Event> searchByDay(Date day) {
         return null;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("CalendarServiceImpl{");
+        sb.append("dataStore=").append(dataStore.toString());
+        sb.append('}');
+        return sb.toString();
     }
 }
