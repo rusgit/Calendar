@@ -54,25 +54,26 @@ public class Main {
 
 // Create DateStore
 
-        DataStore dataStore = new DataStoreImpl();
+        DataStore eventStore = new DataStoreImpl();
+        System.out.println("Test: " + eventStore.getEventById(UUID.randomUUID()));
 
 // Test add event
-        dataStore.publish(event1);
-        Event eventTest1 = dataStore.getEventById(event1.getId());
+        eventStore.publish(event1);
+        Event eventTest1 = eventStore.getEventById(event1.getId());
         System.out.println("Added event");
         System.out.println(eventTest1);
 
 // Test remove event
-        dataStore.remove(event1.getId());
-        Event eventTest2 = dataStore.getEventById(event1.getId());
+        eventStore.remove(event3.getId());
+        Event eventTest2 = eventStore.getEventById(event3.getId());
         System.out.println("Remove event");
         System.out.println(eventTest2);
 
 // Test search by title
-       dataStore.publish(event2);
-       dataStore.publish(event3);
+       eventStore.publish(event2);
+       eventStore.publish(event3);
        System.out.println("Search by title:");
-       List<Event> ev2 = dataStore.getEventByTitle("Mega Party");
+       List<Event> ev2 = eventStore.getEventByTitle("Mega Party");
        for (Event e:ev2) {
            System.out.println(e);
        }

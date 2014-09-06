@@ -35,21 +35,23 @@ public class DataStoreImpl implements DataStore {
         } else {
             uuidsDate.add(event.getId());
         }
-    }
+   }
 
    @Override
    public void remove(UUID id) {
-        if (id==null) throw new IllegalArgumentException();
-        Event event = eventStore.get(id);
+       if (id==null) throw new IllegalArgumentException();
+
+       Event event = eventStore.get(id);
+       if (event==null) return;
 
 // remove index title. If indexTitle contained only one id for title(key), than we can remove key and value.
 // if indexTitle contained list of id for title(more than one element), we remove only concrete id from list id.
         List<UUID> idsTitle = indexTitle.get(event.getTitle());
-        if (idsTitle.size()==1) {
+       if (idsTitle.size()==1) {
             indexTitle.remove(event.getTitle());
-        } else {
-            idsTitle.remove(id);
-        }
+       } else {
+           idsTitle.remove(id);
+       }
 // remove index date. If indexDate contained only one id for date(key), than we can remove key and value.
 // if indexDate contained list of id for date(more than one element), we remove only concrete id from list id.
         List<UUID> idsDate = indexDate.get(event.getStartDate());
@@ -60,13 +62,13 @@ public class DataStoreImpl implements DataStore {
         }
 // remove event in eventStore
         eventStore.remove(id);
-    }
+   }
 
    @Override
    public Event getEventById(UUID id) {
         if (id==null) throw new IllegalArgumentException();
         return eventStore.get(id);
-    }
+   }
 
    @Override
    public List<Event> getEventByTitle(String title) {
@@ -81,7 +83,7 @@ public class DataStoreImpl implements DataStore {
             }
         }
         return events;
-    }
+   }
 
    @Override
    public List<Event> getEventByDate(Calendar startDate) {
@@ -96,5 +98,5 @@ public class DataStoreImpl implements DataStore {
             }
         }
         return events;
-    }
+   }
 }
