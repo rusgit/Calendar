@@ -10,6 +10,16 @@ public class DataStoreImpl implements DataStore {
     private Map<Calendar, List<UUID>> indexDate = new HashMap<Calendar, List<UUID>>();
 
     @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("DataStoreImpl{");
+        sb.append("eventStore=").append(eventStore);
+        sb.append(", indexTitle=").append(indexTitle);
+        sb.append(", indexDate=").append(indexDate);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
     public void publish(Event event) {
         if (event==null) throw new IllegalArgumentException();
 

@@ -10,18 +10,28 @@ public class CalendarServiceImpl implements CalendarService {
 
     private final DataStore dataStore;
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("CalendarServiceImpl{");
+        sb.append("dataStore=").append(dataStore.toString());
+        sb.append('}');
+        return sb.toString();
+    }
+
     public CalendarServiceImpl(DataStore dataStore) {
         this.dataStore = dataStore;
     }
 
     @Override
     public void add(Event event) {
-
+        if (event == null) throw new IllegalArgumentException();
+        dataStore.publish(event);
     }
 
     @Override
     public void remove(UUID id) {
-
+        if (id == null) throw new IllegalArgumentException();
+        dataStore.remove(id);
     }
 
     @Override

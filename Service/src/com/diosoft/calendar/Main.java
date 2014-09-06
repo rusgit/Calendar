@@ -4,6 +4,8 @@ import com.diosoft.calendar.common.Event;
 import com.diosoft.calendar.common.Person;
 import com.diosoft.calendar.datastore.DataStore;
 import com.diosoft.calendar.datastore.DataStoreImpl;
+import com.diosoft.calendar.service.CalendarServiceImpl;
+
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -45,6 +47,7 @@ public class Main {
                 .endDate(new GregorianCalendar(2014, 10, 11))
                 .attendersList(attenders).build();
 
+// Create event3
         Event event3 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Ney Year")
                 .description("It will be a great party!")
@@ -52,7 +55,7 @@ public class Main {
                 .endDate(new GregorianCalendar(2014, 10, 11))
                 .attendersList(attenders).build();
 
-// Create DateStore
+// Create DataStore
         DataStore dataStore = new DataStoreImpl();
         System.out.println("Test: " + dataStore.getEventById(UUID.randomUUID()));
 
@@ -68,6 +71,7 @@ public class Main {
         System.out.println("Remove event");
         System.out.println(eventTest2);
 
+
 // Test search by title
        dataStore.publish(event2);
        dataStore.publish(event3);
@@ -76,5 +80,22 @@ public class Main {
        for (Event e:ev2) {
            System.out.println(e);
        }
+
+// Test CalendarServiceImpl
+// Create DataStore2
+        DataStore dataStore2 = new DataStoreImpl();
+// Create CalendarServiceImpl
+        CalendarServiceImpl calendarService = new CalendarServiceImpl(dataStore2);
+// Test add events
+        calendarService.add(event1);
+        calendarService.add(event2);
+        calendarService.add(event3);
+        System.out.println("Added 3 events");
+        System.out.println(calendarService);
+// Test remove event
+        calendarService.remove(event2.getId());
+        System.out.println("Remove 1 event");
+        System.out.println(calendarService);
+
     }
 }
