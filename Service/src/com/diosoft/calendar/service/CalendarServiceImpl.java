@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class CalendarServiceImpl implements CalendarService {
 
-    private DataStore dataStore;
+    private final DataStore dataStore;
 
     public CalendarServiceImpl(DataStore dataStore) {
         this.dataStore = dataStore;

@@ -7,6 +7,7 @@ import com.diosoft.calendar.datastore.DataStoreImpl;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.UUID;
 
 public class Main {
 
@@ -30,7 +31,7 @@ public class Main {
 
 // Create event1
         Event event1 = new Event.EventBuilder()
-                .id().title("Mega Party")
+                .id(UUID.randomUUID()).title("Mega Party")
                 .description("It will be a great party!")
                 .startDate(new GregorianCalendar(2014, 9, 10))
                 .endDate(new GregorianCalendar(2014, 10, 11))
@@ -38,7 +39,14 @@ public class Main {
 
 // Create event2
         Event event2 = new Event.EventBuilder()
-                .id().title("Mega Part")
+                .id(UUID.randomUUID()).title("Mega Party")
+                .description("It will be a great party!")
+                .startDate(new GregorianCalendar(2014, 9, 10))
+                .endDate(new GregorianCalendar(2014, 10, 11))
+                .attendersList(attenders).build();
+
+        Event event3 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Ney Year")
                 .description("It will be a great party!")
                 .startDate(new GregorianCalendar(2014, 9, 10))
                 .endDate(new GregorianCalendar(2014, 10, 11))
@@ -46,7 +54,7 @@ public class Main {
 
 // Create DateStore
 
-   DataStore dataStore = new DataStoreImpl();
+        DataStore dataStore = new DataStoreImpl();
 
 // Test add event
         dataStore.publish(event1);
@@ -61,13 +69,12 @@ public class Main {
         System.out.println(eventTest2);
 
 // Test search by title
-       dataStore.publish(event1);
        dataStore.publish(event2);
+       dataStore.publish(event3);
        System.out.println("Search by title:");
        List<Event> ev2 = dataStore.getEventByTitle("Mega Party");
        for (Event e:ev2) {
            System.out.println(e);
        }
-
     }
 }

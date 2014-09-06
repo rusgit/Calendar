@@ -65,9 +65,8 @@ public class Event implements Comparable<Event> {
     // Compare: first by startDate, after that by endDate, after that by title and for end - by description.
     // Without compare by id and list of attenders
     @Override
-    public int compareTo(Event obj) {
-        if (obj == null) return 1;
-        Event event = (Event) obj;
+    public int compareTo(Event event) {
+        if (event == null) return 1;
         int result = startDate.compareTo(event.startDate);
         if (result != 0) return (int) (result / Math.abs(result));
         result = endDate.compareTo(event.endDate);
@@ -112,9 +111,8 @@ public class Event implements Comparable<Event> {
             this.attenders = originalEvent.attenders;
         }
 
-        // Create UUID
-        public EventBuilder id() {
-            this.id = UUID.randomUUID();
+        public EventBuilder id(UUID id) {
+            this.id = id;
             return this;
         }
 
