@@ -41,7 +41,6 @@ public class Event implements Comparable<Event> {
         this.attenders = eventBuilder.attenders;
     }
 
-    // We have UUID, that's why we can use only compare by id in equals method
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
@@ -50,17 +49,24 @@ public class Event implements Comparable<Event> {
 
         Event event = (Event) obj;
 
-        if (!id.equals(event.id)) return false;
+        if (attenders != null ? !attenders.equals(event.attenders) : event.attenders != null) return false;
+        if (description != null ? !description.equals(event.description) : event.description != null) return false;
+        if (endDate != null ? !endDate.equals(event.endDate) : event.endDate != null) return false;
+        if (startDate != null ? !startDate.equals(event.startDate) : event.startDate != null) return false;
+        if (title != null ? !title.equals(event.title) : event.title != null) return false;
 
         return true;
     }
 
-    // We have UUID, that's why we can use only id in hashCode method
     @Override
     public int hashCode() {
-        return id.hashCode();
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
+        result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
+        result = 31 * result + (attenders != null ? attenders.hashCode() : 0);
+        return result;
     }
-
 
     // Compare: first by startDate, after that by endDate, after that by title and for end - by description.
     // Without compare by id and list of attenders

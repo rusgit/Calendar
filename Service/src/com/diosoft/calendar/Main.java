@@ -6,10 +6,7 @@ import com.diosoft.calendar.datastore.DataStore;
 import com.diosoft.calendar.datastore.DataStoreImpl;
 import com.diosoft.calendar.service.CalendarServiceImpl;
 
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Main {
 
@@ -35,7 +32,7 @@ public class Main {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Mega Party")
                 .description("It will be a great party!")
-                .startDate(new GregorianCalendar(2014, 9, 10))
+                .startDate(new GregorianCalendar(2014, 10, 11))
                 .endDate(new GregorianCalendar(2014, 10, 11))
                 .attendersList(attenders).build();
 
@@ -70,7 +67,6 @@ public class Main {
         Event eventTest2 = dataStore.getEventById(event3.getId());
         System.out.println("Remove event");
         System.out.println(eventTest2);
-
 
 // Test search by title
        dataStore.publish(event2);

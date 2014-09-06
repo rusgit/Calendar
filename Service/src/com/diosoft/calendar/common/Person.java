@@ -30,18 +30,18 @@ public class Person implements Comparable<Person> {
 
         Person person = (Person) obj;
 
-        if (!name.equals(person.name)) return false;
-        if (!lastName.equals(person.lastName)) return false;
-        if (!email.equals(person.email)) return false;
+        if (email != null ? !email.equals(person.email) : person.email != null) return false;
+        if (lastName != null ? !lastName.equals(person.lastName) : person.lastName != null) return false;
+        if (name != null ? !name.equals(person.name) : person.name != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + lastName.hashCode();
-        result = 31 * result + email.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
         return result;
     }
 
