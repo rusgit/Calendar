@@ -5,8 +5,8 @@ import com.diosoft.calendar.common.Person;
 import com.diosoft.calendar.datastore.DataStore;
 import com.diosoft.calendar.datastore.DataStoreImpl;
 import com.diosoft.calendar.service.CalendarServiceImpl;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Main {
@@ -33,24 +33,24 @@ public class Main {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Mega Party")
                 .description("It will be a great party!")
-                .startDate(new LocalDateTime().withDate(2014, 9, 7).withTime(12, 15, 12, 0))
-                .endDate(new LocalDateTime().withDate(2014, 9, 7).withTime(15, 15, 12, 0))
+                .startDate(LocalDateTime.of(2014,9,7,15,0))
+                .endDate(LocalDateTime.of(2014,9,7,19,0))
                 .attendersList(attenders).build();
 
 // Create event2
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Mega Party")
                 .description("It will be a great party!")
-                .startDate(new LocalDateTime().withDate(2014,9,7).withTime(12,15,12,0))
-                .endDate(new LocalDateTime().withDate(2014,9,7).withTime(15,15,12,0))
+                .startDate(LocalDateTime.of(2014,9,7,15,0))
+                .endDate(LocalDateTime.of(2014,9,7,18,0))
                 .attendersList(attenders).build();
 
 // Create event3
         Event event3 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Ney Year")
                 .description("It will be a great party!")
-                .startDate(new LocalDateTime().withDate(2015,1,1).withTime(0,0,0,0))
-                .endDate(new LocalDateTime().withDate(2015,1,1).withTime(0,0,1,0))
+                .startDate(LocalDateTime.of(2015,1,1,0,0))
+                .endDate(LocalDateTime.of(2015,1,1,0,1))
                 .attendersList(attenders).build();
 
 // Test CalendarServiceImpl
@@ -73,7 +73,7 @@ public class Main {
         System.out.println("searchByTitle");
         System.out.println(eventsByTitle);
 // searchByDate
-        List<Event> eventsByDate = calendarService.searchByDay(new LocalDate(2014,9,7));
+        List<Event> eventsByDate = calendarService.searchByDay(LocalDate.of(2014,9,7));
         System.out.println("searchByDate");
         System.out.println(eventsByDate);
     }

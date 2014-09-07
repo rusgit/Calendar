@@ -1,7 +1,7 @@
 package com.diosoft.calendar.datastore;
 
 import com.diosoft.calendar.common.Event;
-import org.joda.time.LocalDate;
+import java.time.LocalDate;
 import java.util.*;
 
 public class DataStoreImpl implements DataStore {

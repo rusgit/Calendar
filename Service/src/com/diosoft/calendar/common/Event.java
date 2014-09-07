@@ -1,6 +1,6 @@
 package com.diosoft.calendar.common;
 
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +44,6 @@ public class Event implements Comparable<Event> {
 
     @Override
     public boolean equals(Object obj) {
-        startDate.toDateTime();
         if (obj == null) return false;
         if (!(obj instanceof Event)) return false;
         if (this == obj) return true;
