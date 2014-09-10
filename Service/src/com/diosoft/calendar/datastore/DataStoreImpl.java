@@ -13,55 +13,23 @@ public class DataStoreImpl implements DataStore {
     @Override
     public void publish(Event event) {
         if (event==null) throw new IllegalArgumentException();
-
 // add event
-        UUID id = event.getId();
-        eventStore.put(id, event);
-
+        eventStore.put(event.getId(), event);
 // index by title
-        List<UUID> uuidsTitle = indexTitle.get(event.getTitle());
-        if(uuidsTitle==null) {
-            uuidsTitle = new ArrayList<UUID>();
-            uuidsTitle.add(event.getId());
-            indexTitle.put(event.getTitle(),uuidsTitle);
-        } else {
-            uuidsTitle.add(event.getId());
-        }
-
+        createIndexTitle(event);
 // index by date
-        LocalDate localDate = event.getStartDate().toLocalDate();
-        List<UUID> uuidsDate = indexDate.get(localDate);
-        if(uuidsDate==null) {
-            uuidsDate = new ArrayList<UUID>();
-            uuidsDate.add(event.getId());
-            indexDate.put(localDate, uuidsDate);
-        } else {
-            uuidsDate.add(event.getId());
-        }
+        createIndexDate(event);
    }
 
    @Override
    public void remove(UUID id) {
        if (id==null) throw new IllegalArgumentException();
-
        Event event = eventStore.get(id);
        if (event==null) return;
-
-// remove index title
-       List<UUID> idsTitle = indexTitle.get(event.getTitle());
-       if (idsTitle.size()==1) {
-            indexTitle.remove(event.getTitle());
-       } else {
-           idsTitle.remove(id);
-       }
 // remove index date
-       LocalDate localDate = event.getStartDate().toLocalDate();
-       List<UUID> idsDate = indexDate.get(localDate);
-       if (idsDate.size()==1) {
-           indexDate.remove(localDate);
-       } else {
-           idsDate.remove(id);
-       }
+       removeIndexDate(event);
+// remove index title
+       removeIndexTitle(event);
 // remove event in eventStore
         eventStore.remove(id);
    }
@@ -88,7 +56,7 @@ public class DataStoreImpl implements DataStore {
    }
 
    @Override
-   public List<Event> getEventByDate(LocalDate day) {
+   public List<Event> getEventByDay(LocalDate day) {
         if (day==null) throw new IllegalArgumentException();
 
         List<UUID> ids = indexDate.get(day);
@@ -110,5 +78,44 @@ public class DataStoreImpl implements DataStore {
           .append(", indexDate=").append(indexDate)
           .append('}');
         return sb.toString();
+    }
+
+    private void createIndexTitle(Event event) {
+        List<UUID> idsTitle = indexTitle.get(event.getTitle());
+        if (idsTitle == null) {
+            idsTitle = new ArrayList<UUID>();
+            idsTitle.add(event.getId());
+            indexTitle.put(event.getTitle(), idsTitle);
+        } else {
+            idsTitle.add(event.getId());
+        }
+    }
+    private void createIndexDate(Event event) {
+        LocalDate localDate = event.getStartDate().toLocalDate();
+        List<UUID> idsDate = indexDate.get(localDate);
+        if(idsDate==null) {
+            idsDate = new ArrayList<UUID>();
+            idsDate.add(event.getId());
+            indexDate.put(localDate, idsDate);
+        } else {
+            idsDate.add(event.getId());
+        }
+    }
+    private void removeIndexTitle(Event event) {
+        List<UUID> idsTitle = indexTitle.get(event.getTitle());
+        if (idsTitle.size() <= 1) {
+            indexTitle.remove(event.getTitle());
+        } else {
+            idsTitle.remove(event.getId());
+        }
+    }
+    private void removeIndexDate(Event event) {
+        LocalDate localDate = event.getStartDate().toLocalDate();
+        List<UUID> idsDate = indexDate.get(localDate);
+        if (idsDate.size() <= 1) {
+            indexDate.remove(localDate);
+        } else {
+            idsDate.remove(event.getId());
+        }
     }
 }

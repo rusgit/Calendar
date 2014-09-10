@@ -47,7 +47,7 @@ public class Main {
 
 // Create event3
         Event event3 = new Event.EventBuilder()
-                .id(UUID.randomUUID()).title("Ney Year")
+                .id(UUID.randomUUID()).title("New Year")
                 .description("It will be a great party!")
                 .startDate(LocalDateTime.of(2015,1,1,0,0))
                 .endDate(LocalDateTime.of(2015,1,1,0,1))
@@ -62,19 +62,11 @@ public class Main {
         calendarService.add(event1);
         calendarService.add(event2);
         calendarService.add(event3);
-        System.out.println("Added 3 events");
-        System.out.println(dataStore);
 // remove event
         calendarService.remove(event3.getId());
-        System.out.println("Remove 1 event");
-        System.out.println(dataStore);
 // searchByTitle
-        List<Event> eventsByTitle = calendarService.searchByTitle("Mega Party");
-        System.out.println("searchByTitle");
-        System.out.println(eventsByTitle);
+        calendarService.searchByTitle("Mega Party");
 // searchByDate
-        List<Event> eventsByDate = calendarService.searchByDay(LocalDate.of(2014,9,7));
-        System.out.println("searchByDate");
-        System.out.println(eventsByDate);
+        calendarService.searchByDay(LocalDate.of(2014,9,7));
     }
 }
