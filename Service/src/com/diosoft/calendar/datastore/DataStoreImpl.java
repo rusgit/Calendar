@@ -31,7 +31,7 @@ public class DataStoreImpl implements DataStore {
 // remove index title
        removeIndexTitle(event);
 // remove event in eventStore
-        eventStore.remove(id);
+       eventStore.remove(id);
    }
 
    @Override

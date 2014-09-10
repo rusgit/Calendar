@@ -1,6 +1,8 @@
 package com.diosoft.calendar.service;
 
 import com.diosoft.calendar.common.Event;
+import com.diosoft.calendar.common.Person;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -36,4 +38,13 @@ public interface CalendarService {
      * @return List of events by day
      */
     List<Event> searchByDay(LocalDate day);
+
+    /**
+     * Create event with given array descriptions.
+     * @param descriptions [0]: "title", [1]: "description", [2]: "startDate" , [3]: "endDate";
+     * format of 'startDate' and 'endDate': "yyyy, MM, dd, hh, mm". Example: "2014, 1, 5, 10, 0".
+     * @param persons attenders
+     * @return event
+     */
+    Event createEvent(String[] descriptions, List<Person> attenders);
 }

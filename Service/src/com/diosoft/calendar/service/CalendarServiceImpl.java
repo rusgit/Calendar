@@ -1,9 +1,12 @@
 package com.diosoft.calendar.service;
 
 import com.diosoft.calendar.common.Event;
+import com.diosoft.calendar.common.Person;
 import com.diosoft.calendar.datastore.DataStore;
+import com.diosoft.calendar.util.DateParser;
 import org.apache.log4j.Logger;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +17,24 @@ public class CalendarServiceImpl implements CalendarService {
 
     public CalendarServiceImpl(DataStore dataStore) {
         this.dataStore = dataStore;
+    }
+
+    @Override
+    public Event createEvent(String[] descriptions, List<Person> attenders) {
+
+        if (descriptions.length!=4) throw new IllegalArgumentException();
+
+        LocalDateTime startDate = DateParser.StringToDate(descriptions[2]);
+        LocalDateTime endDate = DateParser.StringToDate(descriptions[3]);
+
+        Event event = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title(descriptions[0])
+                .description(descriptions[1])
+                .startDate(startDate)
+                .endDate(endDate)
+                .attendersList(attenders).build();
+
+        return event;
     }
 
     @Override
