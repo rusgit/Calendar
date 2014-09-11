@@ -1,6 +1,8 @@
-package com.diosoft.calendar.common;
+package com.diosoft.calendar.server.common;
 
-public class Person implements Comparable<Person> {
+import java.io.Serializable;
+
+public class Person implements Comparable<Person>,Serializable {
 
     private final String name;
     private final String lastName;

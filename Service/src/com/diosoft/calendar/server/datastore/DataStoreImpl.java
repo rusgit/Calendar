@@ -1,6 +1,8 @@
-package com.diosoft.calendar.datastore;
+package com.diosoft.calendar.server.datastore;
 
-import com.diosoft.calendar.common.Event;
+import com.diosoft.calendar.server.common.Event;
+
+import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -11,7 +13,7 @@ public class DataStoreImpl implements DataStore {
     private Map<LocalDate, List<UUID>> indexDate = new HashMap<LocalDate, List<UUID>>();
 
     @Override
-    public void publish(Event event) {
+    public void publish(Event event) throws IllegalArgumentException  {
         if (event==null) throw new IllegalArgumentException();
 // add event
         eventStore.put(event.getId(), event);
@@ -22,7 +24,7 @@ public class DataStoreImpl implements DataStore {
    }
 
    @Override
-   public void remove(UUID id) {
+   public void remove(UUID id) throws IllegalArgumentException {
        if (id==null) throw new IllegalArgumentException();
        Event event = eventStore.get(id);
        if (event==null) return;
@@ -35,13 +37,13 @@ public class DataStoreImpl implements DataStore {
    }
 
    @Override
-   public Event getEventById(UUID id) {
+   public Event getEventById(UUID id) throws IllegalArgumentException  {
         if (id==null) throw new IllegalArgumentException();
         return eventStore.get(id);
    }
 
    @Override
-   public List<Event> getEventByTitle(String title) {
+   public List<Event> getEventByTitle(String title) throws IllegalArgumentException  {
         if (title==null) throw new IllegalArgumentException();
 
         List<UUID> ids = indexTitle.get(title);
@@ -56,7 +58,7 @@ public class DataStoreImpl implements DataStore {
    }
 
    @Override
-   public List<Event> getEventByDay(LocalDate day) {
+   public List<Event> getEventByDay(LocalDate day) throws IllegalArgumentException   {
         if (day==null) throw new IllegalArgumentException();
 
         List<UUID> ids = indexDate.get(day);

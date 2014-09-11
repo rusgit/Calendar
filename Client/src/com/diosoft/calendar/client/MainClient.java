@@ -1,24 +1,23 @@
-package com.diosoft.calendar;
+package com.diosoft.calendar.client;
 
-import com.diosoft.calendar.common.Event;
-import com.diosoft.calendar.common.Person;
-import com.diosoft.calendar.datastore.DataStore;
-import com.diosoft.calendar.datastore.DataStoreImpl;
-import com.diosoft.calendar.service.CalendarServiceImpl;
-import com.diosoft.calendar.util.DateParser;
-
+import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.service.CalendarService;
+import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import java.rmi.RemoteException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Main {
+public class MainClient {
+    private static final Logger LOG = Logger.getLogger(MainClient.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException {
 
-// Create DataStore
-        DataStore dataStore = new DataStoreImpl();
-// Create CalendarServiceImpl
-        CalendarServiceImpl calendarService = new CalendarServiceImpl(dataStore);
+        ApplicationContext factory = new ClassPathXmlApplicationContext("app-context-client.xml");
+        CalendarService calendarService = (CalendarService) factory.getBean("calendarService");
 
 // Create person1 (attender)
         Person person1 = new Person.PersonBuilder()
@@ -37,9 +36,11 @@ public class Main {
                 .build();
 // Create List attenders
         List<Person> attenders = new ArrayList<Person>();
+        LOG.info("Addind 3 attenders...");
         attenders.add(person1);
         attenders.add(person2);
         attenders.add(person3);
+        LOG.info("Added 3 attenders.");
 // Create events
         String[] descriptions1 = {"Mega Party", "It will be a great party!", "2014, 9, 7, 15, 0", "2014, 9, 7, 19, 0"};
         Event event1 = calendarService.createEvent(descriptions1, attenders);
@@ -48,14 +49,26 @@ public class Main {
         String[] descriptions3 = {"New Year", "Happy New Year!", "2015, 1, 1, 0, 0", "2015, 1, 1, 0, 1"};
         Event event3 = calendarService.createEvent(descriptions3, attenders);
 // add events
+        LOG.info("Addind 3 events...");
         calendarService.add(event1);
         calendarService.add(event2);
         calendarService.add(event3);
+        LOG.info("Added 3 events.");
 // remove event
+        LOG.info("Removing event...");
         calendarService.remove(event3.getId());
+        LOG.info("Removed event.");
 // searchByTitle
-        calendarService.searchByTitle("Mega Party");
+        LOG.info("Searching event by title 'Mega Party':");
+        List<Event> events1 = calendarService.searchByTitle("Mega Party");
+        for (Event event: events1) {
+            System.out.println(event);
+        }
 // searchByDate
-        calendarService.searchByDay(LocalDate.of(2014,9,7));
+        LOG.info("Searching event by day '2014.9.7':");
+        List<Event> events2 = calendarService.searchByDay(LocalDate.of(2014, 9, 7));
+        for (Event event: events2) {
+            System.out.println(event);
+        }
     }
 }

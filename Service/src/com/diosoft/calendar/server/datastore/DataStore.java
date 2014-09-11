@@ -1,6 +1,9 @@
-package com.diosoft.calendar.datastore;
+package com.diosoft.calendar.server.datastore;
 
-import com.diosoft.calendar.common.Event;
+import com.diosoft.calendar.server.common.Event;
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -11,20 +14,20 @@ public interface DataStore {
      * Adds given event to the data store
      * @param event which adds
      */
-    void publish(Event event);
+    void publish(Event event) throws IllegalArgumentException;
 
     /**
      * Removes event for given id from the data store
      * @param id of event
      */
-    void remove(UUID id);
+    void remove(UUID id) throws IllegalArgumentException;
 
     /**
      * Search event for given id in the data store and return it
      * @param id for search
      * @return event by id
      */
-    Event getEventById(UUID id);
+    Event getEventById(UUID id) throws IllegalArgumentException;
 
     /**
      * Search event for given title in the data store and return it.
@@ -32,7 +35,7 @@ public interface DataStore {
      * @param title for search
      * @return List of events by title
      */
-    List<Event> getEventByTitle(String title);
+    List<Event> getEventByTitle(String title) throws IllegalArgumentException;
 
     /**
      * Search event for given particular day in the data store and return it.
@@ -40,5 +43,5 @@ public interface DataStore {
      * @param day for search
      * @return List of events by date
      */
-    List<Event> getEventByDay(LocalDate day);
+    List<Event> getEventByDay(LocalDate day) throws IllegalArgumentException;
 }

@@ -1,4 +1,4 @@
-package com.diosoft.calendar.util;
+package com.diosoft.calendar.server.util;
 
 import java.time.LocalDateTime;
 

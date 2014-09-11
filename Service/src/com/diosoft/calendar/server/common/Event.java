@@ -1,10 +1,11 @@
-package com.diosoft.calendar.common;
+package com.diosoft.calendar.server.common;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class Event implements Comparable<Event> {
+public class Event implements Comparable<Event>, Serializable {
 
     private final UUID id;
     private final String title;

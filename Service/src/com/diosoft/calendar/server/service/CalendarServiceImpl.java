@@ -1,10 +1,12 @@
-package com.diosoft.calendar.service;
+package com.diosoft.calendar.server.service;
 
-import com.diosoft.calendar.common.Event;
-import com.diosoft.calendar.common.Person;
-import com.diosoft.calendar.datastore.DataStore;
-import com.diosoft.calendar.util.DateParser;
+import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.datastore.DataStore;
+import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
+
+import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +22,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEvent(String[] descriptions, List<Person> attenders) {
+    public Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException {
 
         if (descriptions.length!=4) throw new IllegalArgumentException();
 
@@ -38,7 +40,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public void add(Event event) {
+    public void add(Event event) throws RemoteException, IllegalArgumentException {
         if (event == null) throw new IllegalArgumentException();
 
         LOG.info("Adding event with title '" + event.getTitle() + "'");
@@ -47,7 +49,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public void remove(UUID id) {
+    public void remove(UUID id) throws RemoteException, IllegalArgumentException {
         if (id == null) throw new IllegalArgumentException();
 
         LOG.info("Removing event with id: '" + id + "'");
@@ -56,7 +58,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchByTitle(String title) {
+    public List<Event> searchByTitle(String title) throws RemoteException, IllegalArgumentException {
         if (title == null) throw new IllegalArgumentException();
 
         LOG.info("Searching by title '" + title +"':");
@@ -65,14 +67,13 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Events not found!");
             return events;
         }
-        LOG.info("Result: ");
-        LOG.info(events);
+        LOG.info("found " + events.size()+ " events");
 
         return events;
     }
 
     @Override
-    public List<Event> searchByDay(LocalDate day) {
+    public List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException {
         if (day == null) throw new IllegalArgumentException();
 
         LOG.info("Searching by day '" + day +"':");
@@ -81,8 +82,7 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Events not found!");
             return events;
         }
-        LOG.info("Result: ");
-        LOG.info(events);
+        LOG.info("found " + events.size()+ " events");
 
         return events;
     }
