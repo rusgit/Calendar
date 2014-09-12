@@ -2,7 +2,6 @@ package com.diosoft.calendar.server.util;
 
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import org.apache.log4j.Logger;
-
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,8 +20,8 @@ public class DateParser {
 
         try {
             dateTime = LocalDateTime.parse(stringDate, formatter);
-        } catch (DateTimeParseException e) {
-            LOG.error(e.getMessage());
+        } catch (DateTimeParseException dtpe) {
+            LOG.error(dtpe.getMessage());
             throw new DateTimeFormatException("Wrong format of date/time");
         }
 

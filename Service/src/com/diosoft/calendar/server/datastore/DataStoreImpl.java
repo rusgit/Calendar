@@ -120,14 +120,4 @@ public class DataStoreImpl implements DataStore {
             idsDate.remove(event.getId());
         }
     }
-
-    public Map<UUID, Event> getEventStore() {
-        return eventStore;
-    }
-    public Map<LocalDate, List<UUID>> getIndexDate() {
-        return indexDate;
-    }
-    public Map<String, List<UUID>> getIndexTitle() {
-        return indexTitle;
-    }
 }
