@@ -1,36 +1,38 @@
 package com.diosoft.calendar.server.util;
 
+import com.diosoft.calendar.server.exception.DateTimeFormatException;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class DateParser {
 
-    public static LocalDateTime StringToDate(String date) {
+    public static LocalDateTime stringToDate(String stringDate) throws DateTimeFormatException {
 
-        String separator = ", ";
-        String[] tempStrings = date.split(separator);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime dateTime = null;
 
-        if (tempStrings.length != 5) {
-            throw new IllegalArgumentException("Illegate date format");
+        try {
+            dateTime = LocalDateTime.parse(stringDate, formatter);
+        } catch (DateTimeParseException e) {
+            throw new DateTimeFormatException("Wrong format of date/time");
         }
 
-        int year = Integer.valueOf(tempStrings[0]);
-        int month = Integer.valueOf(tempStrings[1]);
-        int day = Integer.valueOf(tempStrings[2]);
-        int hour = Integer.valueOf(tempStrings[3]);
-        int minute = Integer.valueOf(tempStrings[4]);
-
-        return LocalDateTime.of(year,month,day,hour,minute);
+        return dateTime;
     }
 
-    public static String DateToString(LocalDateTime date) {
+    public static String dateToString(LocalDateTime dateTime) throws DateTimeFormatException {
 
-        String strindDate = date.getYear() + ", "
-                + date.getMonthValue() + ", "
-                + date.getDayOfMonth() + ", "
-                + date.getHour() + ", "
-                + date.getMinute();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String stringDate = null;
+        try {
+            stringDate = dateTime.format(formatter);
+        } catch (DateTimeParseException e) {
+            throw new DateTimeFormatException("Wrong format of date/time");
+        }
 
-        return strindDate;
+        return stringDate;
     }
 
 

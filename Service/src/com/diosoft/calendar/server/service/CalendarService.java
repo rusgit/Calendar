@@ -2,6 +2,7 @@ package com.diosoft.calendar.server.service;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.exception.DateTimeFormatException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -48,5 +49,5 @@ public interface CalendarService extends Remote {
      * @param persons attenders
      * @return event
      */
-    Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException;
+    Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException;
 }

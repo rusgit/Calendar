@@ -3,6 +3,7 @@ package com.diosoft.calendar.server.service;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
+import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
 
@@ -22,20 +23,21 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException {
+    public Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
 
         if (descriptions.length!=4) throw new IllegalArgumentException();
 
-        LocalDateTime startDate = DateParser.StringToDate(descriptions[2]);
-        LocalDateTime endDate = DateParser.StringToDate(descriptions[3]);
+        LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
+        LocalDateTime endDate = DateParser.stringToDate(descriptions[3]);
 
+        LOG.info("Creating event with title '" + descriptions[0] + "'");
         Event event = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title(descriptions[0])
                 .description(descriptions[1])
                 .startDate(startDate)
                 .endDate(endDate)
                 .attendersList(attenders).build();
-
+        LOG.info("Event successfully created");
         return event;
     }
 
