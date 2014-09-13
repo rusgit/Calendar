@@ -50,14 +50,22 @@ public class DataStoreImplTest {
     public void testRemove() throws IllegalArgumentException {
 
         attenders.add(testPerson);
-        Event expectedEvent = null;
+        Event expectedRemovedEvent = testEvent;
 
         DataStore dataStore = new DataStoreImpl();
         dataStore.publish(testEvent);
-        dataStore.remove(testEvent.getId());
-        Event actualEvent = dataStore.getEventById(testEvent.getId());
+        Event actaulRemovedEvent = dataStore.remove(testEvent.getId());
 
-        assertEquals(expectedEvent,actualEvent);
+        assertEquals(expectedRemovedEvent,actaulRemovedEvent);
+    }
+
+    @Test
+    public void testRemoveEventNoInDataStore() throws IllegalArgumentException {
+
+        DataStore dataStore = new DataStoreImpl();
+        Event actaulRemovedEvent = dataStore.remove(testEvent.getId());
+
+        assertNull(actaulRemovedEvent);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -78,7 +86,6 @@ public class DataStoreImplTest {
         Event actualEvent = dataStore.getEventById(testEvent.getId());
 
         assertEquals(expectedEvent,actualEvent);
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,7 +93,6 @@ public class DataStoreImplTest {
 
         DataStore dataStore = new DataStoreImpl();
         dataStore.getEventById(null);
-
     }
 
     @Test

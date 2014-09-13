@@ -34,9 +34,10 @@ public interface CalendarService extends Remote {
      * Provides ability to remove event from the data store.
      * Uses method of dataStoreImpl: void remove(UUID id)
      * @param id of event
+     * @return removed event or null if there was no mapping for
      * @throws RemoteException, IllegalArgumentException
      */
-    void remove(UUID id) throws RemoteException, IllegalArgumentException;
+    Event remove(UUID id) throws RemoteException, IllegalArgumentException;
 
     /**
      * Provides ability to search by title event from the data store.

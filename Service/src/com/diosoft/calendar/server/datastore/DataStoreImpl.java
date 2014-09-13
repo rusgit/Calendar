@@ -24,16 +24,17 @@ public class DataStoreImpl implements DataStore {
    }
 
    @Override
-   public void remove(UUID id) throws IllegalArgumentException {
+   public Event remove(UUID id) throws IllegalArgumentException {
        if (id==null) throw new IllegalArgumentException();
-       Event event = eventStore.get(id);
-       if (event==null) return;
+// remove event
+       Event event = eventStore.remove(id);
+       if (event!=null) {
 // remove index date
-       removeIndexDate(event);
+           removeIndexDate(event);
 // remove index title
-       removeIndexTitle(event);
-// remove event in eventStore
-       eventStore.remove(id);
+           removeIndexTitle(event);
+       }
+      return event;
    }
 
    @Override

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 public class CalendarServiceImplTest {
@@ -61,7 +62,18 @@ public class CalendarServiceImplTest {
     @Test
     public void testRemove() throws RemoteException, IllegalArgumentException {
 
-        calendarService.remove(testEvent.getId());
+        when(mockDataStore.remove(testEvent.getId())).thenReturn(testEvent);
+        Event actualEvent = calendarService.remove(testEvent.getId());
+        assertEquals(testEvent,actualEvent);
+        verify(mockDataStore,times(1)).remove(testEvent.getId());
+    }
+
+    @Test
+    public void testRemoveEventNoInDataStore() throws RemoteException, IllegalArgumentException {
+
+        when(mockDataStore.remove(testEvent.getId())).thenReturn(null);
+        Event actualEvent = calendarService.remove(testEvent.getId());
+        assertNull(actualEvent);
         verify(mockDataStore,times(1)).remove(testEvent.getId());
     }
 

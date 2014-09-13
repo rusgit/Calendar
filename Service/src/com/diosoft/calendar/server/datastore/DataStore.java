@@ -20,9 +20,10 @@ public interface DataStore {
     /**
      * Removes event for given id from the data store
      * @param id of event
+     * @return removed event or null if there was no mapping for
      * @throws IllegalArgumentException
      */
-    void remove(UUID id) throws IllegalArgumentException;
+    Event remove(UUID id) throws IllegalArgumentException;
 
     /**
      * Search event for given id in the data store and return it

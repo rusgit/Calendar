@@ -37,9 +37,11 @@ public class CalendarServiceImpl implements CalendarService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .attendersList(attenders).build();
+        LOG.info("Event successfully created");
 
+        LOG.info("Adding event with title '" + descriptions[0] + "'");
         dataStore.publish(event);
-        LOG.info("Event successfully created and added");
+        LOG.info("Event successfully added");
 
         return event;
     }
@@ -54,12 +56,17 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public void remove(UUID id) throws RemoteException, IllegalArgumentException {
+    public Event remove(UUID id) throws RemoteException, IllegalArgumentException {
         if (id == null) throw new IllegalArgumentException();
 
         LOG.info("Removing event with id: '" + id + "'");
-        dataStore.remove(id);
-        LOG.info("Event successfully removed");
+        Event event = dataStore.remove(id);
+        if (event==null) {
+            LOG.info("There is no such Event");
+        } else {
+            LOG.info("Event successfully removed");
+        }
+        return event;
     }
 
     @Override
