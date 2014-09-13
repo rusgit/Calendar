@@ -13,12 +13,14 @@ public interface DataStore {
     /**
      * Adds given event to the data store
      * @param event which adds
+     * @throws IllegalArgumentException
      */
     void publish(Event event) throws IllegalArgumentException;
 
     /**
      * Removes event for given id from the data store
      * @param id of event
+     * @throws IllegalArgumentException
      */
     void remove(UUID id) throws IllegalArgumentException;
 
@@ -26,6 +28,7 @@ public interface DataStore {
      * Search event for given id in the data store and return it
      * @param id for search
      * @return event by id
+     * @throws IllegalArgumentException
      */
     Event getEventById(UUID id) throws IllegalArgumentException;
 
@@ -34,6 +37,7 @@ public interface DataStore {
      * Uses index map.
      * @param title for search
      * @return List of events by title
+     * @throws IllegalArgumentException
      */
     List<Event> getEventByTitle(String title) throws IllegalArgumentException;
 
@@ -42,6 +46,7 @@ public interface DataStore {
      * Uses index map.
      * @param day for search
      * @return List of events by date
+     * @throws IllegalArgumentException
      */
     List<Event> getEventByDay(LocalDate day) throws IllegalArgumentException;
 }

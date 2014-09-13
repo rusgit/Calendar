@@ -103,8 +103,8 @@ public class Event implements Comparable<Event>, Serializable {
         private UUID id;
         private String title;
         private String description;
-        private LocalDateTime  startDate;
-        private LocalDateTime  endDate;
+        private LocalDateTime startDate;
+        private LocalDateTime endDate;
         private List<Person> attenders;
 
         public EventBuilder() {

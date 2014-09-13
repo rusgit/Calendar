@@ -23,7 +23,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+    public Event createAndAdd(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
 
         if (descriptions.length!=4) throw new IllegalArgumentException();
 
@@ -37,7 +37,10 @@ public class CalendarServiceImpl implements CalendarService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .attendersList(attenders).build();
-        LOG.info("Event successfully created");
+
+        dataStore.publish(event);
+        LOG.info("Event successfully created and added");
+
         return event;
     }
 

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MainClient {
     private static final Logger LOG = Logger.getLogger(MainClient.class);
@@ -44,23 +45,26 @@ public class MainClient {
         attenders.add(person2);
         attenders.add(person3);
         LOG.info("Added 3 attenders.");
-// Create events
+// Create and add events
+        LOG.info("Creating and adding event...");
         String[] descriptions1 = {"Mega Party", "It will be a great party!", "2014-09-07 15:00", "2014-09-07 19:00"};
-        Event event1 = calendarService.createEvent(descriptions1, attenders);
+        Event event1 = calendarService.createAndAdd(descriptions1, attenders);
+        LOG.info("event created and added.");
+
+        LOG.info("Creating and adding event...");
         String[] descriptions2 = {"Mega Party", "It will be a great party!", "2014-09-09 13:00", "2014-09-09 18:00"};
-        Event event2 = calendarService.createEvent(descriptions2, attenders);
+        Event event2 = calendarService.createAndAdd(descriptions2, attenders);
+        LOG.info("event created and added.");
+
+        LOG.info("Creating and adding event...");
         String[] descriptions3 = {"New Year", "Happy New Year!", "2015-01-01 00:00", "2015-01-01 00:01"};
-        Event event3 = calendarService.createEvent(descriptions3, attenders);
-// add events
-        LOG.info("Addind 3 events...");
-        calendarService.add(event1);
-        calendarService.add(event2);
-        calendarService.add(event3);
-        LOG.info("Added 3 events.");
+        Event event3 = calendarService.createAndAdd(descriptions3, attenders);
+        LOG.info("event created and added.");
+
 // remove event
         LOG.info("Removing event...");
         calendarService.remove(event3.getId());
-        LOG.info("Removed event.");
+        LOG.info("Event removed");
 // searchByTitle
         LOG.info("Searching event by title 'Mega Party':");
         List<Event> events1 = calendarService.searchByTitle("Mega Party");
