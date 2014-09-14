@@ -23,7 +23,7 @@ public interface CalendarService extends Remote {
     /**
      * Creates event with given array descriptions and adds it into data store.
      * @param descriptions [0]: "title", [1]: "description", [2]: "startDate" , [3]: "endDate";
-     * format of 'startDate' and 'endDate': "yyyy, MM, dd, hh, mm". Example: "2014, 1, 5, 10, 0".
+     * format of 'startDate' and 'endDate': "yyyy-MM-dd HH:mm". Example: "2014-01-05 10:00".
      * @param persons attenders
      * @return event
      * @throws RemoteException, IllegalArgumentException, DateTimeFormatException
