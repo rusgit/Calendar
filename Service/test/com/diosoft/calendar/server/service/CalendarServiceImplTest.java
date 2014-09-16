@@ -128,6 +128,27 @@ public class CalendarServiceImplTest {
     }
 
     @Test
+    public void testGetEventByAttender() throws RemoteException, IllegalArgumentException  {
+
+        attenders.add(testPerson);
+        List<Event> expectedEvents = new ArrayList<Event>();
+        expectedEvents.add(testEvent);
+
+        when(mockDataStore.getEventByAttender(testPerson)).thenReturn(expectedEvents);
+        List<Event> actualEvents = calendarService.searchByAttender(testPerson);
+
+        assertEquals(expectedEvents,actualEvents);
+        verify(mockDataStore,times(1)).getEventByAttender(testPerson);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetEventByAttenderWithNullArg() throws RemoteException, IllegalArgumentException {
+
+        when(mockDataStore.getEventByAttender(null)).thenThrow(new IllegalArgumentException());
+        calendarService.searchByAttender(null);
+    }
+
+    @Test
     public void testCreateEvent() throws RemoteException, IllegalArgumentException, DateTimeFormatException {
 
         Person attender = new Person.PersonBuilder()

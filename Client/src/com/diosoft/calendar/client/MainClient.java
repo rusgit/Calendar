@@ -4,16 +4,13 @@ import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.service.CalendarService;
-import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class MainClient {
     private static final Logger LOG = Logger.getLogger(MainClient.class);
@@ -75,6 +72,12 @@ public class MainClient {
         LOG.info("Searching event by day '2014-09-07':");
         List<Event> events2 = calendarService.searchByDay(LocalDate.of(2014, 9, 7));
         for (Event event: events2) {
+            System.out.println(event);
+        }
+// searchByAttender
+        LOG.info("Searching event by attender 'Alexandr':");
+        List<Event> events3 = calendarService.searchByAttender(person1);
+        for (Event event: events3) {
             System.out.println(event);
         }
     }

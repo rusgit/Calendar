@@ -3,7 +3,6 @@ package com.diosoft.calendar.server.service;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
@@ -57,5 +56,13 @@ public interface CalendarService extends Remote {
      */
     List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException;
 
+    /**
+     * Provides ability to search by attender event from the data store.
+     * Uses method of dataStoreImpl: List<Event> searchByAttender(Person attender)
+     * @param attender for search
+     * @return List of events by attender
+     * @throws RemoteException, IllegalArgumentException
+     */
+    List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException;
 
 }

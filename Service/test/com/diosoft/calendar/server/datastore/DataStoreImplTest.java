@@ -136,4 +136,25 @@ public class DataStoreImplTest {
         DataStore dataStore = new DataStoreImpl();
         dataStore.getEventByDay(null);
     }
+
+    @Test
+    public void testGetEventByAttender() throws IllegalArgumentException  {
+
+        attenders.add(testPerson);
+        List<Event> expectedEvents = new ArrayList<Event>();
+        expectedEvents.add(testEvent);
+
+        DataStore dataStore = new DataStoreImpl();
+        dataStore.publish(testEvent);
+        List<Event> actualEvents = dataStore.getEventByAttender(testPerson);
+
+        assertEquals(expectedEvents,actualEvents);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetEventByAttenderWithNullArg() throws IllegalArgumentException  {
+
+        DataStore dataStore = new DataStoreImpl();
+        dataStore.getEventByAttender(null);
+    }
 }

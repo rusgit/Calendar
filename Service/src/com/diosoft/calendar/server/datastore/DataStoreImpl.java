@@ -1,8 +1,7 @@
 package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
-
-import java.rmi.RemoteException;
+import com.diosoft.calendar.server.common.Person;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -11,6 +10,7 @@ public class DataStoreImpl implements DataStore {
     private Map<UUID,Event> eventStore = new HashMap<UUID,Event>();
     private Map<String, List<UUID>> indexTitle = new HashMap<String, List<UUID>>();
     private Map<LocalDate, List<UUID>> indexDate = new HashMap<LocalDate, List<UUID>>();
+    private Map<Person, List<UUID>> indexAttender = new HashMap<Person, List<UUID>>();
 
     @Override
     public void publish(Event event) throws IllegalArgumentException  {
@@ -21,9 +21,11 @@ public class DataStoreImpl implements DataStore {
         createIndexTitle(event);
 // index by date
         createIndexDate(event);
+// index by attender
+        createIndexAttender(event);
    }
 
-   @Override
+    @Override
    public Event remove(UUID id) throws IllegalArgumentException {
        if (id==null) throw new IllegalArgumentException();
 // remove event
@@ -33,6 +35,8 @@ public class DataStoreImpl implements DataStore {
            removeIndexDate(event);
 // remove index title
            removeIndexTitle(event);
+// remove index attender
+           removeIndexAttender(event);
        }
       return event;
    }
@@ -74,6 +78,21 @@ public class DataStoreImpl implements DataStore {
    }
 
     @Override
+    public List<Event> getEventByAttender(Person attender) throws IllegalArgumentException {
+        if (attender==null) throw new IllegalArgumentException();
+
+        List<UUID> ids = indexAttender.get(attender);
+        List<Event> events = new ArrayList<Event>();
+        if (ids!=null) {
+            for (UUID id : ids) {
+                Event event = eventStore.get(id);
+                events.add(event);
+            }
+        }
+        return events;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DataStoreImpl{");
         sb.append("eventStore=").append(eventStore)
@@ -104,6 +123,20 @@ public class DataStoreImpl implements DataStore {
             idsDate.add(event.getId());
         }
     }
+    private void createIndexAttender(Event event) {
+        List<Person> attenders = event.getAttenders();
+        for (Person attender : attenders) {
+            List<UUID> idsAttender = indexAttender.get(attender);
+            if (idsAttender == null) {
+                idsAttender = new ArrayList<UUID>();
+                idsAttender.add(event.getId());
+                indexAttender.put(attender, idsAttender);
+            } else {
+                idsAttender.add(event.getId());
+            }
+        }
+    }
+
     private void removeIndexTitle(Event event) {
         List<UUID> idsTitle = indexTitle.get(event.getTitle());
         if (idsTitle.size() <= 1) {
@@ -119,6 +152,17 @@ public class DataStoreImpl implements DataStore {
             indexDate.remove(localDate);
         } else {
             idsDate.remove(event.getId());
+        }
+    }
+    private void removeIndexAttender(Event event) {
+        List<Person> attenders = event.getAttenders();
+        for (Person attender : attenders) {
+            List<UUID> idsAttender = indexAttender.get(attender);
+            if (idsAttender.size() <= 1) {
+                indexTitle.remove(event.getTitle());
+            } else {
+                idsAttender.remove(event.getId());
+            }
         }
     }
 }

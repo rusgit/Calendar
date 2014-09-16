@@ -6,7 +6,6 @@ import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
-
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -90,6 +89,21 @@ public class CalendarServiceImpl implements CalendarService {
 
         LOG.info("Searching by day '" + day +"':");
         List<Event> events = dataStore.getEventByDay(day);
+        if (events.size()<1) {
+            LOG.info("Events not found!");
+            return events;
+        }
+        LOG.info("found " + events.size()+ " events");
+
+        return events;
+    }
+
+    @Override
+    public List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException {
+        if (attender == null) throw new IllegalArgumentException();
+
+        LOG.info("Searching by attender '" + attender.getName() +"':");
+        List<Event> events = dataStore.getEventByAttender(attender);
         if (events.size()<1) {
             LOG.info("Events not found!");
             return events;

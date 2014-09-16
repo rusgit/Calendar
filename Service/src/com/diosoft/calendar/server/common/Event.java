@@ -30,7 +30,7 @@ public class Event implements Comparable<Event>, Serializable {
     public LocalDateTime  getEndDate() {
         return endDate;
     }
-    public List<Person> getAttender() {
+    public List<Person> getAttenders() {
         return attenders;
     }
 

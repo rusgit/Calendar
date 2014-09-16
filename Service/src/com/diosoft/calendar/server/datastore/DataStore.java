@@ -1,9 +1,7 @@
 package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
-
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import com.diosoft.calendar.server.common.Person;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -50,4 +48,12 @@ public interface DataStore {
      * @throws IllegalArgumentException
      */
     List<Event> getEventByDay(LocalDate day) throws IllegalArgumentException;
+
+    /**
+     * Search event for given attender in the data store and return it.
+     * @param attender
+     * @return List of events by attender
+     * @throws IllegalArgumentException
+     */
+    List<Event> getEventByAttender(Person attender) throws IllegalArgumentException;
 }
