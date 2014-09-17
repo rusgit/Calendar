@@ -225,7 +225,7 @@ public class CalendarServiceImplTest {
         eventList.add(event1);
         eventList.add(event2);
 
-        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertTrue(isFreeResult);
@@ -261,7 +261,7 @@ public class CalendarServiceImplTest {
         eventList.add(event1);
         eventList.add(event2);
 
-        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertFalse(isFreeResult);
@@ -297,7 +297,7 @@ public class CalendarServiceImplTest {
         eventList.add(event1);
         eventList.add(event2);
 
-        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertFalse(isFreeResult);
@@ -333,7 +333,7 @@ public class CalendarServiceImplTest {
         eventList.add(event1);
         eventList.add(event2);
 
-        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertFalse(isFreeResult);
@@ -342,10 +342,9 @@ public class CalendarServiceImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIsAttenderFreeWithIllegalArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, OrderOfArgumentsException {
-        Person attender = null;
         LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-09-30 14:45");
-        calendarService.isAttenderFree(attender, startDate, endDate);
+        calendarService.isAttenderFree(null, startDate, endDate);
     }
 
     @Test(expected = OrderOfArgumentsException.class)
