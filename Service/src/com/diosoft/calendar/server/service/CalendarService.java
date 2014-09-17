@@ -3,9 +3,12 @@ package com.diosoft.calendar.server.service;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
+import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,5 +67,16 @@ public interface CalendarService extends Remote {
      * @throws RemoteException, IllegalArgumentException
      */
     List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException;
+
+    /**
+     * Check whether a person is free to participate in events in a given period
+     * @param attender for search
+     * @param startDate for search
+     * @param endDate for search
+     * @return true or false
+     * @throws RemoteException, IllegalArgumentException
+     */
+    boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
+
 
 }

@@ -4,6 +4,7 @@ import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
+import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
 import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
 import java.rmi.RemoteException;
@@ -111,5 +112,25 @@ public class CalendarServiceImpl implements CalendarService {
         LOG.info("found " + events.size()+ " events");
 
         return events;
+    }
+
+    @Override
+    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+        if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        LOG.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " + startDate + " to " + endDate);
+        List<Event> eventListByAttender = searchByAttender(attender);
+        for (Event event : eventListByAttender) {
+            if (event.getStartDate().isAfter(startDate) && event.getStartDate().isBefore(endDate) ||
+                    event.getEndDate().isAfter(startDate) && event.getEndDate().isBefore(endDate) ||
+                    event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate)) {
+                LOG.info("Attender not free");
+                return false;
+            }
+        }
+        LOG.info("Attender free");
+
+        return true;
     }
 }

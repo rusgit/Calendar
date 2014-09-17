@@ -3,10 +3,13 @@ package com.diosoft.calendar.client;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
+import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
 import com.diosoft.calendar.server.service.CalendarService;
+import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,7 +18,7 @@ import java.util.List;
 public class MainClient {
     private static final Logger LOG = Logger.getLogger(MainClient.class);
 
-    public static void main(String[] args) throws RemoteException, DateTimeFormatException {
+    public static void main(String[] args) throws RemoteException, DateTimeFormatException, OrderOfArgumentsException {
 
         ApplicationContext factory = new ClassPathXmlApplicationContext("app-context-client.xml");
         CalendarService calendarService = (CalendarService) factory.getBean("calendarService");
@@ -80,5 +83,8 @@ public class MainClient {
         for (Event event: events3) {
             System.out.println(event);
         }
+        LOG.info("Checking is attender 'Alexandr' free from 2014-09-07 19:00 to 2014-09-09 13:00");
+        boolean isFree = calendarService.isAttenderFree(person1, DateParser.stringToDate("2014-09-07 19:00"), DateParser.stringToDate("2014-09-09 13:00"));
+        System.out.println(isFree?"Free":"Not free");
     }
 }

@@ -5,6 +5,9 @@ import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.datastore.DataStoreImpl;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
+import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
+import com.diosoft.calendar.server.util.DateParser;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.rmi.RemoteException;
@@ -190,5 +193,170 @@ public class CalendarServiceImplTest {
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2014-20-15 15:00", "2014-10-15 20:00"};
         calendarService.createAndAdd(descriptions, attendersTest);
+    }
+
+
+    @Test
+    public void testIsAttenderFreeWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-10-15 20:00");
+        LocalDateTime endDate = DateParser.stringToDate("2014-12-31 20:00");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> eventList = new ArrayList<Event>();
+        eventList.add(event1);
+        eventList.add(event2);
+
+        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
+
+        Assert.assertTrue(isFreeResult);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test
+    public void testIsAttenderFreeWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-09-20 15:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-10-15 15:45");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> eventList = new ArrayList<Event>();
+        eventList.add(event1);
+        eventList.add(event2);
+
+        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
+
+        Assert.assertFalse(isFreeResult);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test
+    public void testIsAttenderFreeWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-10-15 18:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-12-31 21:45");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> eventList = new ArrayList<Event>();
+        eventList.add(event1);
+        eventList.add(event2);
+
+        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
+
+        Assert.assertFalse(isFreeResult);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test
+    public void testIsAttenderFreeWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-10-30 14:45");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> eventList = new ArrayList<Event>();
+        eventList.add(event1);
+        eventList.add(event2);
+
+        when(calendarService.searchByAttender(attender)).thenReturn(eventList);
+        boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
+
+        Assert.assertFalse(isFreeResult);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsAttenderFreeWithIllegalArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, OrderOfArgumentsException {
+        Person attender = null;
+        LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-09-30 14:45");
+        calendarService.isAttenderFree(attender, startDate, endDate);
+    }
+
+    @Test(expected = OrderOfArgumentsException.class)
+    public void testIsAttenderFreeWithWrongOrderOfDate() throws RemoteException, OrderOfArgumentsException, DateTimeFormatException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-10-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-09-30 14:45");
+        calendarService.isAttenderFree(attender, startDate, endDate);
     }
 }
