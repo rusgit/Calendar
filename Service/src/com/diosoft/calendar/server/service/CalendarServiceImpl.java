@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,7 +80,7 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Events not found!");
             return events;
         }
-        LOG.info("found " + events.size()+ " events");
+        LOG.info("Found " + events.size()+ " events");
 
         return events;
     }
@@ -94,7 +95,7 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Events not found!");
             return events;
         }
-        LOG.info("found " + events.size()+ " events");
+        LOG.info("Found " + events.size()+ " events");
 
         return events;
     }
@@ -109,10 +110,34 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Events not found!");
             return events;
         }
-        LOG.info("found " + events.size()+ " events");
+        LOG.info("Found " + events.size()+ " events");
 
         return events;
     }
+
+    @Override
+    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+        if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        LOG.info("Searching events by attender '" + attender.getName() + " " + attender.getLastName() + "' into period from " + startDate + " to " + endDate);
+        List<Event> eventListByAttender = searchByAttender(attender);
+        List<Event> eventListByAttenderIntoPeriod = new ArrayList<Event>();
+        for (Event event : eventListByAttender) {
+            if (event.getStartDate().isAfter(startDate) && event.getStartDate().isBefore(endDate) || // event start date into period
+                    event.getEndDate().isAfter(startDate) && event.getEndDate().isBefore(endDate) || // event end date into period
+                    event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate)) { // period into event
+                    eventListByAttenderIntoPeriod.add(event);
+            }
+        }
+        if (eventListByAttenderIntoPeriod.isEmpty())
+            LOG.info("Events not found!");
+        else
+            LOG.info("Found " + eventListByAttenderIntoPeriod.size()+ " events");
+
+        return eventListByAttenderIntoPeriod;
+    }
+
 
     @Override
     public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
@@ -120,17 +145,13 @@ public class CalendarServiceImpl implements CalendarService {
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
         LOG.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " + startDate + " to " + endDate);
-        List<Event> eventListByAttender = searchByAttender(attender);
-        for (Event event : eventListByAttender) {
-            if (event.getStartDate().isAfter(startDate) && event.getStartDate().isBefore(endDate) ||
-                    event.getEndDate().isAfter(startDate) && event.getEndDate().isBefore(endDate) ||
-                    event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate)) {
-                LOG.info("Attender not free");
-                return false;
-            }
+        List<Event> eventListByAttender = searchByAttenderIntoPeriod(attender, startDate, endDate);
+        if (eventListByAttender.isEmpty()) {
+                LOG.info("Attender free");
+                return true;
         }
-        LOG.info("Attender free");
+        LOG.info("Attender not free");
 
-        return true;
+        return false;
     }
 }

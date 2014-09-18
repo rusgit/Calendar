@@ -358,4 +358,167 @@ public class CalendarServiceImplTest {
         LocalDateTime endDate = DateParser.stringToDate("2014-09-30 14:45");
         calendarService.isAttenderFree(attender, startDate, endDate);
     }
+
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+
+    @Test
+    public void testSearchByAttenderIntoPeriodWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-10-15 20:00");
+        LocalDateTime endDate = DateParser.stringToDate("2014-12-31 20:00");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> expectedList = new ArrayList<Event>();
+
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+        List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
+
+        Assert.assertEquals(resultList, expectedList);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test
+    public void testSearchByAttenderIntoPeriodWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-09-20 15:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-10-15 15:45");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> expectedList = new ArrayList<Event>();
+        expectedList.add(event1);
+
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+        List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
+
+        Assert.assertEquals(resultList, expectedList);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test
+    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-10-15 18:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-12-31 21:45");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> expectedList = new ArrayList<Event>();
+        expectedList.add(event1);
+        expectedList.add(event2);
+
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+        List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
+
+        Assert.assertEquals(resultList, expectedList);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test
+    public void testSearchByAttenderIntoPeriodWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        List<Person> attendersTest = new ArrayList<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .attendersList(attendersTest).build();
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2015")
+                .description("Happy New Year 2015")
+                .startDate(DateParser.stringToDate("2014-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2015-01-01 12:00"))
+                .attendersList(attendersTest).build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-10-30 14:45");
+        calendarService.add(event1);
+        calendarService.add(event2);
+        List<Event> expectedList = new ArrayList<Event>();
+        expectedList.add(event1);
+
+        when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+        List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
+
+        Assert.assertEquals(resultList, expectedList);
+        verify(mockDataStore,times(1)).getEventByAttender(attender);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSearchByAttenderIntoPeriodWithIllegalArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, OrderOfArgumentsException {
+        LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-09-30 14:45");
+        calendarService.isAttenderFree(null, startDate, endDate);
+    }
+
+    @Test(expected = OrderOfArgumentsException.class)
+    public void testSearchByAttenderIntoPeriodWithWrongOrderOfDate() throws RemoteException, OrderOfArgumentsException, DateTimeFormatException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        LocalDateTime startDate = DateParser.stringToDate("2014-10-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2014-09-30 14:45");
+        calendarService.isAttenderFree(attender, startDate, endDate);
+    }
 }
