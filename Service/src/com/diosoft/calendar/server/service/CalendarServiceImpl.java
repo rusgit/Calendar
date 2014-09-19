@@ -55,40 +55,30 @@ public class CalendarServiceImpl implements CalendarService {
         if (descriptions.length==3 && descriptions[2].length()>10) throw new IllegalArgumentException();
         if (descriptions.length==4 && descriptions[3].length()>10) throw new IllegalArgumentException();
 
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-
         String startDay = descriptions[2] + " 00:00";
-        startDate = DateParser.stringToDate(startDay);
+        String endDate = null;
 
 // one day "for all day"
-        if (descriptions.length==3)
-            endDate = startDate.plusDays(1);
+        if (descriptions.length==3) {
+            LocalDateTime tempStartDate = DateParser.stringToDate(startDay);
+            LocalDateTime tempEndDate = tempStartDate.plusDays(1);
+            endDate = DateParser.dateToString(tempEndDate);
+        }
+
 // interval of days "for all day
         if (descriptions.length==4) {
             String endDay = descriptions[3] + " 00:00";
-            endDate = DateParser.stringToDate(endDay);
-            endDate = endDate.plusDays(1);
+            LocalDateTime tempEndDate = DateParser.stringToDate(endDay);
+            tempEndDate = tempEndDate.plusDays(1);
+            endDate = DateParser.dateToString(tempEndDate);
         }
 
-        LOG.info("Creating event with title '" + descriptions[0] + "'");
-        Event event = new Event.EventBuilder()
-                .id(UUID.randomUUID()).title(descriptions[0])
-                .description(descriptions[1])
-                .startDate(startDate)
-                .endDate(endDate)
-                .attendersList(attenders).build();
-        LOG.info("Event successfully created");
-
-        LOG.info("Adding event with title '" + descriptions[0] + "'");
-        dataStore.publish(event);
-        LOG.info("Event successfully added");
-
-        return event;
+        String[] preparedDescriptions = { descriptions[0], descriptions[1], startDay, endDate };
+        return createEvent(preparedDescriptions,attenders);
     }
 
-    @Override
-    public void add(Event event) throws RemoteException, IllegalArgumentException {
+   @Override
+   public void add(Event event) throws RemoteException, IllegalArgumentException {
         if (event == null) throw new IllegalArgumentException();
 
         LOG.info("Adding event with title '" + event.getTitle() + "'");
@@ -96,8 +86,8 @@ public class CalendarServiceImpl implements CalendarService {
         LOG.info("Event successfully added");
     }
 
-    @Override
-    public Event remove(UUID id) throws RemoteException, IllegalArgumentException {
+   @Override
+   public Event remove(UUID id) throws RemoteException, IllegalArgumentException {
         if (id == null) throw new IllegalArgumentException();
 
         LOG.info("Removing event with id: '" + id + "'");
@@ -110,8 +100,8 @@ public class CalendarServiceImpl implements CalendarService {
         return event;
     }
 
-    @Override
-    public List<Event> searchByTitle(String title) throws RemoteException, IllegalArgumentException {
+   @Override
+   public List<Event> searchByTitle(String title) throws RemoteException, IllegalArgumentException {
         if (title == null) throw new IllegalArgumentException();
 
         LOG.info("Searching by title '" + title +"':");
@@ -125,8 +115,8 @@ public class CalendarServiceImpl implements CalendarService {
         return events;
     }
 
-    @Override
-    public List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException {
+   @Override
+   public List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException {
         if (day == null) throw new IllegalArgumentException();
 
         LOG.info("Searching by day '" + day +"':");
@@ -140,8 +130,8 @@ public class CalendarServiceImpl implements CalendarService {
         return events;
     }
 
-    @Override
-    public List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException {
+   @Override
+   public List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException {
         if (attender == null) throw new IllegalArgumentException();
 
         LOG.info("Searching by attender '" + attender.getName() +"':");
@@ -155,8 +145,8 @@ public class CalendarServiceImpl implements CalendarService {
         return events;
     }
 
-    @Override
-    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+   @Override
+   public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -178,9 +168,8 @@ public class CalendarServiceImpl implements CalendarService {
         return eventListByAttenderIntoPeriod;
     }
 
-
-    @Override
-    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+   @Override
+   public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 

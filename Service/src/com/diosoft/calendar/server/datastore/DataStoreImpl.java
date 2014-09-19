@@ -95,10 +95,11 @@ public class DataStoreImpl implements DataStore {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DataStoreImpl{");
-        sb.append("eventStore=").append(eventStore)
-          .append(", indexTitle=").append(indexTitle)
-          .append(", indexDate=").append(indexDate)
-          .append('}');
+        sb.append("eventStore=").append(eventStore);
+        sb.append(", indexTitle=").append(indexTitle);
+        sb.append(", indexDate=").append(indexDate);
+        sb.append(", indexAttender=").append(indexAttender);
+        sb.append('}');
         return sb.toString();
     }
 
