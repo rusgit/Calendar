@@ -83,6 +83,13 @@ public class MainClient {
         for (Event event: events3) {
             System.out.println(event);
         }
+// searchByAttenderIntoPeriod
+        LOG.info("Searching event by attender 'Alexandr' from 2014-09-07 12:00 to 2014-09-09 16:00:");
+        List<Event> events4 = calendarService.searchByAttenderIntoPeriod(person1, DateParser.stringToDate("2014-09-07 12:00"), DateParser.stringToDate("2014-09-09 16:00"));
+        for (Event event: events4) {
+            System.out.println(event);
+        }
+// isAttenderFree
         LOG.info("Checking is attender 'Alexandr' free from 2014-09-07 19:00 to 2014-09-09 13:00");
         boolean isFree = calendarService.isAttenderFree(person1, DateParser.stringToDate("2014-09-07 19:00"), DateParser.stringToDate("2014-09-09 13:00"));
         System.out.println(isFree?"Free":"Not free");
