@@ -48,17 +48,17 @@ public class MainClient {
 // Create and add events
         LOG.info("Creating and adding event...");
         String[] descriptions1 = {"Mega Party", "It will be a great party!", "2014-09-07 15:00", "2014-09-07 19:00"};
-        Event event1 = calendarService.createAndAdd(descriptions1, attenders);
+        Event event1 = calendarService.createEvent(descriptions1, attenders);
         LOG.info("event created and added.");
 
         LOG.info("Creating and adding event...");
         String[] descriptions2 = {"Mega Party", "It will be a great party!", "2014-09-09 13:00", "2014-09-09 18:00"};
-        Event event2 = calendarService.createAndAdd(descriptions2, attenders);
+        Event event2 = calendarService.createEvent(descriptions2, attenders);
         LOG.info("event created and added.");
 
         LOG.info("Creating and adding event...");
         String[] descriptions3 = {"New Year", "Happy New Year!", "2015-01-01 00:00", "2015-01-01 00:01"};
-        Event event3 = calendarService.createAndAdd(descriptions3, attenders);
+        Event event3 = calendarService.createEvent(descriptions3, attenders);
         LOG.info("event created and added.");
 
 // remove event
@@ -90,8 +90,16 @@ public class MainClient {
             System.out.println(event);
         }
 // isAttenderFree
-        LOG.info("Checking is attender 'Alexandr' free from 2014-09-07 19:00 to 2014-09-09 13:00");
+        LOG.info("Checking is attender 'Alexandr' free from 2014-09-07 19:00 to 2014-09-09 13:00:");
         boolean isFree = calendarService.isAttenderFree(person1, DateParser.stringToDate("2014-09-07 19:00"), DateParser.stringToDate("2014-09-09 13:00"));
         System.out.println(isFree?"Free":"Not free");
+
+// Create event "for all day"
+        LOG.info("Creating event 'for all day':");
+        String[] descriptions4 = {"Mega Party", "It will be a great party!", "2014-09-07"};
+        Event event = calendarService.createEventForAllDay(descriptions4, attenders);
+        System.out.println(event);
     }
+
+
 }

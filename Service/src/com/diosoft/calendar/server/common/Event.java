@@ -14,7 +14,6 @@ public class Event implements Comparable<Event>, Serializable {
     private final LocalDateTime endDate;
     private final List<Person> attenders;
 
-
     public UUID getId() {
         return id;
     }
@@ -24,10 +23,10 @@ public class Event implements Comparable<Event>, Serializable {
     public String getDescription() {
         return description;
     }
-    public LocalDateTime  getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
-    public LocalDateTime  getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
     public List<Person> getAttenders() {
@@ -70,8 +69,6 @@ public class Event implements Comparable<Event>, Serializable {
         return result;
     }
 
-    // Compare: first by startDate, after that by endDate, after that by title and for end - by description.
-    // Without compare by id and list of attenders
     @Override
     public int compareTo(Event event) {
         if (event == null) return 1;
@@ -88,13 +85,25 @@ public class Event implements Comparable<Event>, Serializable {
 
     @Override
     public String toString() {
+
         final StringBuilder sb = new StringBuilder("Event { ");
-        sb.append(id).append(", ")
-          .append(title).append(", ")
-          .append(description).append(", ")
-          .append(startDate).append(", ")
-          .append(endDate).append(", ")
-          .append(attenders).append(" } \n");
+
+        if (startDate.getHour() == 0 && startDate.getMinute() == 0
+                && endDate.getHour() == 0 && endDate.getMinute() == 0) {
+            sb.append(id).append(", ")
+              .append(title).append(", ")
+              .append(description).append(", ")
+              .append(startDate.toLocalDate()).append(", ")
+              .append(endDate.toLocalDate().minusDays(1)).append(", ")
+              .append(attenders).append(" } \n");
+        } else {
+            sb.append(id).append(", ")
+              .append(title).append(", ")
+              .append(description).append(", ")
+              .append(startDate).append(", ")
+              .append(endDate).append(", ")
+              .append(attenders).append(" } \n");
+        }
 
         return sb.toString();
     }
@@ -152,8 +161,6 @@ public class Event implements Comparable<Event>, Serializable {
         public Event build() {
             return new Event(this);
         }
-
-
     }
 }
 

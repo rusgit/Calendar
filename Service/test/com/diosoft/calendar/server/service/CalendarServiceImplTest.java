@@ -171,7 +171,7 @@ public class CalendarServiceImplTest {
                 .attendersList(attendersTest).build();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2014-10-15 15:00", "2014-10-15 20:00"};
-        Event createdEvent = calendarService.createAndAdd(descriptions, attendersTest);
+        Event createdEvent = calendarService.createEvent(descriptions, attendersTest);
 
         assertEquals(expectedEvent, createdEvent);
         verify(mockDataStore,times(1)).publish(createdEvent);
@@ -183,7 +183,7 @@ public class CalendarServiceImplTest {
         List<Person> attendersTest = new ArrayList<Person>();
 
         String[] descriptions = {"Happy Birthday", "2014-10-15 15:00", "2014-10-15 20:00"};
-        calendarService.createAndAdd(descriptions, attendersTest);
+        calendarService.createEvent(descriptions, attendersTest);
     }
 
     @Test(expected = DateTimeFormatException.class)
@@ -192,7 +192,7 @@ public class CalendarServiceImplTest {
         List<Person> attendersTest = new ArrayList<Person>();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2014-20-15 15:00", "2014-10-15 20:00"};
-        calendarService.createAndAdd(descriptions, attendersTest);
+        calendarService.createEvent(descriptions, attendersTest);
     }
 
 

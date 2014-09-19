@@ -23,13 +23,53 @@ public class CalendarServiceImpl implements CalendarService {
         this.dataStore = dataStore;
     }
 
-    @Override
-    public Event createAndAdd(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
 
-        if (descriptions.length!=4) throw new IllegalArgumentException();
+    @Override
+    public Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+
+        if (descriptions == null || attenders == null || descriptions.length!=4) throw new IllegalArgumentException();
 
         LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
         LocalDateTime endDate = DateParser.stringToDate(descriptions[3]);
+
+        LOG.info("Creating event with title '" + descriptions[0] + "'");
+        Event event = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title(descriptions[0])
+                .description(descriptions[1])
+                .startDate(startDate)
+                .endDate(endDate)
+                .attendersList(attenders).build();
+        LOG.info("Event successfully created");
+
+        LOG.info("Adding event with title '" + descriptions[0] + "'");
+        dataStore.publish(event);
+        LOG.info("Event successfully added");
+
+        return event;
+    }
+
+    @Override
+    public Event createEventForAllDay(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+
+        if (descriptions == null || attenders == null || descriptions.length < 3 || descriptions.length > 4 ) throw new IllegalArgumentException();
+        if (descriptions.length==3 && descriptions[2].length()>10) throw new IllegalArgumentException();
+        if (descriptions.length==4 && descriptions[3].length()>10) throw new IllegalArgumentException();
+
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = null;
+
+        String startDay = descriptions[2] + " 00:00";
+        startDate = DateParser.stringToDate(startDay);
+
+// one day "for all day"
+        if (descriptions.length==3)
+            endDate = startDate.plusDays(1);
+// interval of days "for all day
+        if (descriptions.length==4) {
+            String endDay = descriptions[3] + " 00:00";
+            endDate = DateParser.stringToDate(endDay);
+            endDate = endDate.plusDays(1);
+        }
 
         LOG.info("Creating event with title '" + descriptions[0] + "'");
         Event event = new Event.EventBuilder()

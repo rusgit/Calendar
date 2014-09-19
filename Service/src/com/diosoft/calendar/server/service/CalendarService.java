@@ -30,7 +30,19 @@ public interface CalendarService extends Remote {
      * @return event
      * @throws RemoteException, IllegalArgumentException, DateTimeFormatException
      */
-    Event createAndAdd(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException;
+    Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException;
+
+    /**
+     * Creates event with given array descriptions and adds it into data store. Two variant create event "for all day": use one day or interval of days.
+     * @param descriptions First variant [0]: "title", [1]: "description", [2]: "day";
+     * @param descriptions Second variant [0]: "title", [1]: "description", [2]: "startDay" , [3]: "endDay";
+     * @param attenders
+     * @return Event
+     * @throws RemoteException
+     * @throws IllegalArgumentException
+     * @throws DateTimeFormatException
+     */
+    Event createEventForAllDay (String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException;
 
     /**
      * Provides ability to remove event from the data store.
@@ -87,6 +99,4 @@ public interface CalendarService extends Remote {
      * @throws RemoteException, IllegalArgumentException, OrderOfArgumentsException
      */
     boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
-
-
 }
