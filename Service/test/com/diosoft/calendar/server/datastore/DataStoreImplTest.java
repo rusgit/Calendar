@@ -21,8 +21,8 @@ public class DataStoreImplTest {
     Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
             .description("Description of testEvent")
-            .startDate(LocalDateTime.of(2014, 1, 1, 0, 0))
-            .endDate(LocalDateTime.of(2014, 1, 2, 0, 0))
+            .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
+            .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
             .attendersSet(attenders).build();
 
     @Test
@@ -59,7 +59,7 @@ public class DataStoreImplTest {
     }
 
     @Test
-    public void testRemoveEventNoInDataStore() throws IllegalArgumentException {
+    public void testRemoveNotExistsEvent() throws IllegalArgumentException {
 
         DataStore dataStore = new DataStoreImpl();
         Event actualRemovedEvent = dataStore.remove(testEvent.getId());
@@ -75,7 +75,7 @@ public class DataStoreImplTest {
     }
 
     @Test
-    public void testgGetEventById() throws IllegalArgumentException  {
+    public void testGetEventById() throws IllegalArgumentException  {
 
         attenders.add(testPerson);
         Event expectedEvent = testEvent;
@@ -85,6 +85,15 @@ public class DataStoreImplTest {
         Event actualEvent = dataStore.getEventById(testEvent.getId());
 
         assertEquals(expectedEvent,actualEvent);
+    }
+
+    @Test
+    public void testGetEventByIdNotExistsEvent() throws IllegalArgumentException  {
+
+        DataStore dataStore = new DataStoreImpl();
+        Event actualEvent = dataStore.getEventById(testEvent.getId());
+
+        assertNull(actualEvent);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,6 +112,18 @@ public class DataStoreImplTest {
 
         DataStore dataStore = new DataStoreImpl();
         dataStore.publish(testEvent);
+        List<Event> actualEvents = dataStore.getEventByTitle(testEvent.getTitle());
+
+        assertEquals(expectedEvents,actualEvents);
+    }
+
+    @Test
+    public void testGetEventByTitleNotExistsEvent() throws IllegalArgumentException  {
+
+//  empty list
+        List<Event> expectedEvents = new ArrayList<Event>();
+
+        DataStore dataStore = new DataStoreImpl();
         List<Event> actualEvents = dataStore.getEventByTitle(testEvent.getTitle());
 
         assertEquals(expectedEvents,actualEvents);
@@ -129,6 +150,18 @@ public class DataStoreImplTest {
         assertEquals(expectedEvents,actualEvents);
     }
 
+    @Test
+    public void testGetEventByDayNotExistsEvent() throws IllegalArgumentException  {
+
+//  empty list
+        List<Event> expectedEvents = new ArrayList<Event>();
+
+        DataStore dataStore = new DataStoreImpl();
+        List<Event> actualEvents = dataStore.getEventByDay(testEvent.getStartDate().toLocalDate());
+
+        assertEquals(expectedEvents,actualEvents);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testGetEventByDayWithNullArg() throws IllegalArgumentException  {
 
@@ -149,6 +182,19 @@ public class DataStoreImplTest {
 
         assertEquals(expectedEvents,actualEvents);
     }
+
+    @Test
+    public void testGetEventByAttenderNotExistsEvent() throws IllegalArgumentException  {
+
+// empty list
+        List<Event> expectedEvents = new ArrayList<Event>();
+
+        DataStore dataStore = new DataStoreImpl();
+        List<Event> actualEvents = dataStore.getEventByAttender(testPerson);
+
+        assertEquals(expectedEvents,actualEvents);
+    }
+
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetEventByAttenderWithNullArg() throws IllegalArgumentException  {

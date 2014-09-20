@@ -24,8 +24,8 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
-                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 20:00"))
                 .attendersSet(attendersTest).build();
 
         EventValidator.validate(event1);
@@ -37,8 +37,8 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
-                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 20:00"))
                 .attendersSet(attendersTest).build();
 
         EventValidator.validate(event1);
@@ -56,8 +56,8 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title(null)
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
-                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 20:00"))
                 .attendersSet(attendersTest).build();
 
         EventValidator.validate(event1);
@@ -75,8 +75,8 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
-                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 20:00"))
                 .attendersSet(attendersTest).build();
 
         EventValidator.validate(event1);
@@ -94,8 +94,8 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("")
-                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
-                .endDate(DateParser.stringToDate("2014-10-15 20:00"))
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 20:00"))
                 .attendersSet(attendersTest).build();
 
         EventValidator.validate(event1);
@@ -113,8 +113,27 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2014-10-15 15:00"))
-                .endDate(DateParser.stringToDate("2014-10-15 10:00"))
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 10:00"))
+                .attendersSet(attendersTest).build();
+
+        EventValidator.validate(event1);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void testValidateWithStartDateBeforeCurrent() throws DateTimeFormatException, ValidationException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        Set<Person> attendersTest = new HashSet<Person>();
+        attendersTest.add(attender);
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2013-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2015-10-15 10:00"))
                 .attendersSet(attendersTest).build();
 
         EventValidator.validate(event1);

@@ -22,6 +22,6 @@ public class EventValidator {
 
 //mistakes of logic
         if(event.getStartDate().isAfter(event.getEndDate())) throw new ValidationException("startDate after endDate");
-//        if(event.getStartDate().isBefore(LocalDateTime.now())) throw new ValidationException("startDate before current date");
+        if(event.getStartDate().isBefore(LocalDateTime.now())) throw new ValidationException("startDate before current date");
     }
 }

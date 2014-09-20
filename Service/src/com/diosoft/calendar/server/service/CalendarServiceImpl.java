@@ -84,7 +84,7 @@ public class CalendarServiceImpl implements CalendarService {
 
         String[] preparedDescriptions = { descriptions[0], descriptions[1], startDay, endDate };
         return createEvent(preparedDescriptions,attenders);
-    }
+   }
 
    @Override
    public Event remove(UUID id) throws RemoteException, IllegalArgumentException {
@@ -98,7 +98,7 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Event successfully removed");
         }
         return event;
-    }
+   }
 
    @Override
    public List<Event> searchByTitle(String title) throws RemoteException, IllegalArgumentException {
@@ -108,12 +108,11 @@ public class CalendarServiceImpl implements CalendarService {
         List<Event> events = dataStore.getEventByTitle(title);
         if (events.size()<1) {
             LOG.info("Events not found!");
-            return events;
+        } else {
+            LOG.info("Found " + events.size()+ " events");
         }
-        LOG.info("Found " + events.size()+ " events");
-
         return events;
-    }
+   }
 
    @Override
    public List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException {
@@ -128,7 +127,7 @@ public class CalendarServiceImpl implements CalendarService {
         LOG.info("Found " + events.size()+ " events");
 
         return events;
-    }
+   }
 
    @Override
    public List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException {
@@ -143,7 +142,7 @@ public class CalendarServiceImpl implements CalendarService {
         LOG.info("Found " + events.size()+ " events");
 
         return events;
-    }
+   }
 
    @Override
    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
@@ -166,7 +165,7 @@ public class CalendarServiceImpl implements CalendarService {
             LOG.info("Found " + eventListByAttenderIntoPeriod.size()+ " events");
 
         return eventListByAttenderIntoPeriod;
-    }
+   }
 
    @Override
    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
@@ -182,5 +181,5 @@ public class CalendarServiceImpl implements CalendarService {
         LOG.info("Attender not free");
 
         return false;
-    }
+   }
 }
