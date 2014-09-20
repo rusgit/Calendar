@@ -5,13 +5,16 @@ import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
+import com.diosoft.calendar.server.exception.ValidationException;
 import com.diosoft.calendar.server.util.DateParser;
+import com.diosoft.calendar.server.util.EventValidator;
 import org.apache.log4j.Logger;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class CalendarServiceImpl implements CalendarService {
@@ -23,10 +26,22 @@ public class CalendarServiceImpl implements CalendarService {
         this.dataStore = dataStore;
     }
 
-
     @Override
-    public Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+    public void add(Event event) throws RemoteException, IllegalArgumentException, ValidationException {
+        if (event == null) throw new IllegalArgumentException();
 
+// Validate
+        LOG.info("Validation event with title '" + event.getTitle() + "'");
+        EventValidator.validate(event);
+        LOG.info("Event successfully validated");
+// Add
+        LOG.info("Adding event with title '" + event.getTitle() + "'");
+        dataStore.publish(event);
+        LOG.info("Event successfully added");
+    }
+
+   @Override
+   public Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
         if (descriptions == null || attenders == null || descriptions.length!=4) throw new IllegalArgumentException();
 
         LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
@@ -38,22 +53,16 @@ public class CalendarServiceImpl implements CalendarService {
                 .description(descriptions[1])
                 .startDate(startDate)
                 .endDate(endDate)
-                .attendersList(attenders).build();
+                .attendersSet(attenders).build();
         LOG.info("Event successfully created");
 
-        LOG.info("Adding event with title '" + descriptions[0] + "'");
-        dataStore.publish(event);
-        LOG.info("Event successfully added");
-
+        add(event);
         return event;
-    }
+   }
 
-    @Override
-    public Event createEventForAllDay(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException {
-
+   @Override
+   public Event createEventForAllDay(String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
         if (descriptions == null || attenders == null || descriptions.length < 3 || descriptions.length > 4 ) throw new IllegalArgumentException();
-        if (descriptions.length==3 && descriptions[2].length()>10) throw new IllegalArgumentException();
-        if (descriptions.length==4 && descriptions[3].length()>10) throw new IllegalArgumentException();
 
         String startDay = descriptions[2] + " 00:00";
         String endDate = null;
@@ -65,7 +74,7 @@ public class CalendarServiceImpl implements CalendarService {
             endDate = DateParser.dateToString(tempEndDate);
         }
 
-// interval of days "for all day
+// interval of days "for all day"
         if (descriptions.length==4) {
             String endDay = descriptions[3] + " 00:00";
             LocalDateTime tempEndDate = DateParser.stringToDate(endDay);
@@ -75,15 +84,6 @@ public class CalendarServiceImpl implements CalendarService {
 
         String[] preparedDescriptions = { descriptions[0], descriptions[1], startDay, endDate };
         return createEvent(preparedDescriptions,attenders);
-    }
-
-   @Override
-   public void add(Event event) throws RemoteException, IllegalArgumentException {
-        if (event == null) throw new IllegalArgumentException();
-
-        LOG.info("Adding event with title '" + event.getTitle() + "'");
-        dataStore.publish(event);
-        LOG.info("Event successfully added");
     }
 
    @Override

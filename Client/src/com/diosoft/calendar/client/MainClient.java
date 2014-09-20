@@ -4,6 +4,7 @@ import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
+import com.diosoft.calendar.server.exception.ValidationException;
 import com.diosoft.calendar.server.service.CalendarService;
 import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
@@ -13,12 +14,14 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainClient {
     private static final Logger LOG = Logger.getLogger(MainClient.class);
 
-    public static void main(String[] args) throws RemoteException, DateTimeFormatException, OrderOfArgumentsException {
+    public static void main(String[] args) throws RemoteException, DateTimeFormatException, OrderOfArgumentsException, ValidationException {
 
         ApplicationContext factory = new ClassPathXmlApplicationContext("app-context-client.xml");
         CalendarService calendarService = (CalendarService) factory.getBean("calendarService");
@@ -39,7 +42,7 @@ public class MainClient {
                 .email("sergey_sergey@ukr.net")
                 .build();
 // Create List attenders
-        List<Person> attenders = new ArrayList<Person>();
+        Set<Person> attenders = new HashSet<Person>();
         LOG.info("Addind 3 attenders...");
         attenders.add(person1);
         attenders.add(person2);
@@ -99,6 +102,12 @@ public class MainClient {
         String[] descriptions4 = {"Mega Party", "It will be a great party!", "2014-09-07"};
         Event event = calendarService.createEventForAllDay(descriptions4, attenders);
         System.out.println(event);
+
+// Test Validate throw ValidationException "Not specified event name":
+//        LOG.info("Validate wrong event:");
+//        String[] descriptions5 = {"", "It will be a great party!", "2014-09-07"};
+//        Event event4 = calendarService.createEventForAllDay(descriptions5, attenders);
+//        System.out.println(event4);
     }
 
 

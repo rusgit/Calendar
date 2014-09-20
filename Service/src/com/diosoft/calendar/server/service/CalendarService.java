@@ -4,12 +4,14 @@ import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
+import com.diosoft.calendar.server.exception.ValidationException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface CalendarService extends Remote {
@@ -20,7 +22,7 @@ public interface CalendarService extends Remote {
      * @param event which adds
      * @throws RemoteException, IllegalArgumentException
      */
-    void add(Event event) throws RemoteException, IllegalArgumentException;
+    void add(Event event) throws RemoteException, IllegalArgumentException, ValidationException;
 
     /**
      * Creates event with given array descriptions and adds it into data store.
@@ -30,7 +32,7 @@ public interface CalendarService extends Remote {
      * @return event
      * @throws RemoteException, IllegalArgumentException, DateTimeFormatException
      */
-    Event createEvent(String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException;
+    Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException;
 
     /**
      * Creates event with given array descriptions and adds it into data store. Two variant create event "for all day": use one day or interval of days.
@@ -42,7 +44,7 @@ public interface CalendarService extends Remote {
      * @throws IllegalArgumentException
      * @throws DateTimeFormatException
      */
-    Event createEventForAllDay (String[] descriptions, List<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException;
+    Event createEventForAllDay (String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException;
 
     /**
      * Provides ability to remove event from the data store.

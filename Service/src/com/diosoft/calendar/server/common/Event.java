@@ -3,6 +3,7 @@ package com.diosoft.calendar.server.common;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Event implements Comparable<Event>, Serializable {
@@ -12,7 +13,7 @@ public class Event implements Comparable<Event>, Serializable {
     private final String description;
     private final LocalDateTime startDate;
     private final LocalDateTime endDate;
-    private final List<Person> attenders;
+    private final Set<Person> attenders;
 
     public UUID getId() {
         return id;
@@ -29,7 +30,7 @@ public class Event implements Comparable<Event>, Serializable {
     public LocalDateTime getEndDate() {
         return endDate;
     }
-    public List<Person> getAttenders() {
+    public Set<Person> getAttenders() {
         return attenders;
     }
 
@@ -114,7 +115,7 @@ public class Event implements Comparable<Event>, Serializable {
         private String description;
         private LocalDateTime startDate;
         private LocalDateTime endDate;
-        private List<Person> attenders;
+        private Set<Person> attenders;
 
         public EventBuilder() {
         }
@@ -153,7 +154,7 @@ public class Event implements Comparable<Event>, Serializable {
             return this;
         }
 
-        public EventBuilder attendersList(List<Person> attenders) {
+        public EventBuilder attendersSet(Set<Person> attenders) {
             this.attenders = attenders;
             return this;
         }

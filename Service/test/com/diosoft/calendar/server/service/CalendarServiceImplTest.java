@@ -6,15 +6,15 @@ import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.datastore.DataStoreImpl;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
+import com.diosoft.calendar.server.exception.ValidationException;
 import com.diosoft.calendar.server.util.DateParser;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
@@ -27,14 +27,14 @@ public class CalendarServiceImplTest {
             .email("denis@ukr.net")
             .build();
 
-    private List<Person> attenders = new ArrayList<Person>();
+    private Set<Person> attenders = new HashSet<Person>();
 
     private Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
             .description("Description of testEvent")
             .startDate(LocalDateTime.of(2014, 1, 1, 0, 0))
             .endDate(LocalDateTime.of(2014, 1, 2, 0, 0))
-            .attendersList(attenders).build();
+            .attendersSet(attenders).build();
 
     private DataStore mockDataStore;
     private CalendarService calendarService;
@@ -48,14 +48,14 @@ public class CalendarServiceImplTest {
 
 
     @Test
-    public void testAdd() throws RemoteException, IllegalArgumentException {
+    public void testAdd() throws RemoteException, IllegalArgumentException, ValidationException {
 
         calendarService.add(testEvent);
         verify(mockDataStore,times(1)).publish(testEvent);
     }
 
     @Test(expected = IllegalArgumentException.class )
-    public void testAddWithNullArg() throws RemoteException, IllegalArgumentException {
+    public void testAddWithNullArg() throws RemoteException, IllegalArgumentException, ValidationException {
 
         doThrow(new IllegalArgumentException()).when(mockDataStore).publish(null);
         calendarService.add(null);
@@ -152,7 +152,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testCreateEvent() throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+    public void testCreateEvent() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
 
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
@@ -160,7 +160,7 @@ public class CalendarServiceImplTest {
                 .email("denis@ukr.net")
                 .build();
 
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
 
         Event expectedEvent = new Event.EventBuilder()
@@ -168,7 +168,7 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(LocalDateTime.of(2014, 10, 15, 15, 0))
                 .endDate(LocalDateTime.of(2014, 10, 15, 20, 0))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2014-10-15 15:00", "2014-10-15 20:00"};
         Event createdEvent = calendarService.createEvent(descriptions, attendersTest);
@@ -178,18 +178,18 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventWithIllegalArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+    public void testCreateEventWithIllegalArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
 
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
 
         String[] descriptions = {"Happy Birthday", "2014-10-15 15:00", "2014-10-15 20:00"};
         calendarService.createEvent(descriptions, attendersTest);
     }
 
     @Test(expected = DateTimeFormatException.class)
-    public void testCreateEventWithWrongDateFormat() throws RemoteException, IllegalArgumentException, DateTimeFormatException {
+    public void testCreateEventWithWrongDateFormat() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
 
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2014-20-15 15:00", "2014-10-15 20:00"};
         calendarService.createEvent(descriptions, attendersTest);
@@ -197,26 +197,26 @@ public class CalendarServiceImplTest {
 
 
     @Test
-    public void testIsAttenderFreeWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testIsAttenderFreeWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-10-15 20:00");
         LocalDateTime endDate = DateParser.stringToDate("2014-12-31 20:00");
         calendarService.add(event1);
@@ -233,26 +233,26 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testIsAttenderFreeWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-09-20 15:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-10-15 15:45");
         calendarService.add(event1);
@@ -269,26 +269,26 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testIsAttenderFreeWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-10-15 18:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-12-31 21:45");
         calendarService.add(event1);
@@ -305,26 +305,26 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testIsAttenderFreeWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-10-30 14:45");
         calendarService.add(event1);
@@ -364,26 +364,26 @@ public class CalendarServiceImplTest {
     //////////////////////////////////////////
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testSearchByAttenderIntoPeriodWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-10-15 20:00");
         LocalDateTime endDate = DateParser.stringToDate("2014-12-31 20:00");
         calendarService.add(event1);
@@ -398,26 +398,26 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testSearchByAttenderIntoPeriodWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-09-20 15:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-10-15 15:45");
         calendarService.add(event1);
@@ -433,26 +433,26 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-10-15 18:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-12-31 21:45");
         calendarService.add(event1);
@@ -469,26 +469,26 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException {
+    public void testSearchByAttenderIntoPeriodWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
                 .email("denis@ukr.net")
                 .build();
-        List<Person> attendersTest = new ArrayList<Person>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2014-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2014-10-15 20:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2015")
                 .description("Happy New Year 2015")
                 .startDate(DateParser.stringToDate("2014-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2015-01-01 12:00"))
-                .attendersList(attendersTest).build();
+                .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2014-09-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2014-10-30 14:45");
         calendarService.add(event1);

@@ -4,9 +4,8 @@ import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import org.junit.Test;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import static org.junit.Assert.*;
 
 public class DataStoreImplTest {
@@ -17,14 +16,14 @@ public class DataStoreImplTest {
             .email("denis@ukr.net")
             .build();
 
-    List<Person> attenders = new ArrayList<Person>();
+    Set<Person> attenders = new HashSet<Person>();
 
     Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
             .description("Description of testEvent")
             .startDate(LocalDateTime.of(2014, 1, 1, 0, 0))
             .endDate(LocalDateTime.of(2014, 1, 2, 0, 0))
-            .attendersList(attenders).build();
+            .attendersSet(attenders).build();
 
     @Test
     public void testPublish() throws IllegalArgumentException  {

@@ -125,7 +125,7 @@ public class DataStoreImpl implements DataStore {
         }
     }
     private void createIndexAttender(Event event) {
-        List<Person> attenders = event.getAttenders();
+        Set<Person> attenders = event.getAttenders();
         for (Person attender : attenders) {
             List<UUID> idsAttender = indexAttender.get(attender);
             if (idsAttender == null) {
@@ -156,7 +156,7 @@ public class DataStoreImpl implements DataStore {
         }
     }
     private void removeIndexAttender(Event event) {
-        List<Person> attenders = event.getAttenders();
+        Set<Person> attenders = event.getAttenders();
         for (Person attender : attenders) {
             List<UUID> idsAttender = indexAttender.get(attender);
             if (idsAttender.size() <= 1) {
