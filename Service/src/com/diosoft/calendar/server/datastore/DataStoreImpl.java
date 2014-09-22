@@ -114,14 +114,19 @@ public class DataStoreImpl implements DataStore {
         }
     }
     private void createIndexDate(Event event) {
-        LocalDate localDate = event.getStartDate().toLocalDate();
-        List<UUID> idsDate = indexDate.get(localDate);
-        if(idsDate==null) {
-            idsDate = new ArrayList<UUID>();
-            idsDate.add(event.getId());
-            indexDate.put(localDate, idsDate);
-        } else {
-            idsDate.add(event.getId());
+        LocalDate startDay = event.getStartDate().toLocalDate();
+        LocalDate endDay = event.getEndDate().toLocalDate();
+
+        while(startDay.isBefore(endDay) || startDay.equals(endDay)) {
+            List<UUID> idsDate = indexDate.get(startDay);
+            if(idsDate==null) {
+                idsDate = new ArrayList<UUID>();
+                idsDate.add(event.getId());
+                indexDate.put(startDay, idsDate);
+            } else {
+                idsDate.add(event.getId());
+            }
+            startDay = startDay.plusDays(1);
         }
     }
     private void createIndexAttender(Event event) {
@@ -147,14 +152,21 @@ public class DataStoreImpl implements DataStore {
         }
     }
     private void removeIndexDate(Event event) {
-        LocalDate localDate = event.getStartDate().toLocalDate();
-        List<UUID> idsDate = indexDate.get(localDate);
-        if (idsDate.size() <= 1) {
-            indexDate.remove(localDate);
-        } else {
-            idsDate.remove(event.getId());
+        LocalDate startDay = event.getStartDate().toLocalDate();
+        LocalDate endDay = event.getEndDate().toLocalDate();
+
+        while(startDay.isBefore(endDay) || startDay.equals(endDay)) {
+            List<UUID> idsDate = indexDate.get(startDay);
+
+            if (idsDate.size() <= 1) {
+                indexDate.remove(startDay);
+            } else {
+                idsDate.remove(event.getId());
+            }
+            startDay = startDay.plusDays(1);
         }
     }
+
     private void removeIndexAttender(Event event) {
         Set<Person> attenders = event.getAttenders();
         for (Person attender : attenders) {

@@ -5,7 +5,6 @@ import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
 import com.diosoft.calendar.server.exception.ValidationException;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
@@ -56,7 +55,7 @@ public interface CalendarService extends Remote {
     Event remove(UUID id) throws RemoteException, IllegalArgumentException;
 
     /**
-     * Provides ability to search by title event from the data store.
+     * Provides ability to search events by title from the data store.
      * Uses method of dataStoreImpl: List<Event> searchByTitle(String title)
      * @param title for search
      * @return List of events by title
@@ -65,7 +64,7 @@ public interface CalendarService extends Remote {
     List<Event> searchByTitle(String title) throws RemoteException, IllegalArgumentException;
 
     /**
-     * Provides ability to search by date event from the data store.
+     * Provides ability to search events by date from the data store.
      * Uses method of dataStoreImpl: List<Event> searchByDay(LocalDate day)
      * @param day for search
      * @return List of events by day
@@ -74,7 +73,7 @@ public interface CalendarService extends Remote {
     List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException;
 
     /**
-     * Provides ability to search by attender event from the data store.
+     * Provides ability to search events by attender from the data store.
      * Uses method of dataStoreImpl: List<Event> searchByAttender(Person attender)
      * @param attender for search
      * @return List of events by attender
@@ -83,7 +82,7 @@ public interface CalendarService extends Remote {
     List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException;
 
     /**
-     * Provides ability to search event by attender from the data store in a given period
+     * Provides ability to search events by attender from the data store in a given period
      * @param attender for search
      * @param startDate for search
      * @param endDate for search
@@ -91,6 +90,17 @@ public interface CalendarService extends Remote {
      * @throws RemoteException, IllegalArgumentException, OrderOfArgumentsException
      */
     List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
+
+    /**
+     * Provides ability to search events from the data store in a given period
+     * @param startDate for search
+     * @param endDate for search
+     * @return
+     * @throws RemoteException
+     * @throws IllegalArgumentException
+     * @throws OrderOfArgumentsException
+     */
+    List<Event> searchIntoPeriod(LocalDate startDate, LocalDate endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
 
     /**
      * Check whether a person is free to participate in events in a given period
@@ -101,4 +111,8 @@ public interface CalendarService extends Remote {
      * @throws RemoteException, IllegalArgumentException, OrderOfArgumentsException
      */
     boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
+
+
+
+
 }
