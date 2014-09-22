@@ -5,6 +5,9 @@ import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
 import com.diosoft.calendar.server.exception.ValidationException;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
@@ -21,7 +24,7 @@ public interface CalendarService extends Remote {
      * @param event which adds
      * @throws RemoteException, IllegalArgumentException
      */
-    void add(Event event) throws RemoteException, IllegalArgumentException, ValidationException;
+    void add(Event event) throws RemoteException, IOException, IllegalArgumentException, ValidationException, JAXBException;
 
     /**
      * Creates event with given array descriptions and adds it into data store.
@@ -31,7 +34,7 @@ public interface CalendarService extends Remote {
      * @return event
      * @throws RemoteException, IllegalArgumentException, DateTimeFormatException
      */
-    Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException;
+    Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException;
 
     /**
      * Creates event with given array descriptions and adds it into data store. Two variant create event "for all day": use one day or interval of days.
@@ -43,7 +46,7 @@ public interface CalendarService extends Remote {
      * @throws IllegalArgumentException
      * @throws DateTimeFormatException
      */
-    Event createEventForAllDay (String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException;
+    Event createEventForAllDay (String[] descriptions, Set<Person> attenders) throws RemoteException, IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException;
 
     /**
      * Provides ability to remove event from the data store.
@@ -52,7 +55,7 @@ public interface CalendarService extends Remote {
      * @return removed event or null if there was no mapping for
      * @throws RemoteException, IllegalArgumentException
      */
-    Event remove(UUID id) throws RemoteException, IllegalArgumentException;
+    Event remove(UUID id) throws RemoteException, IOException, IllegalArgumentException, JAXBException;
 
     /**
      * Provides ability to search events by title from the data store.

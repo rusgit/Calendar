@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<event id="d3227162-bc39-43ce-8051-7fea59f6daa6">
+    <title>Mega Party</title>
+    <description>It will be a great party!</description>
+    <startDate>2020-09-09 13:00</startDate>
+    <endDate>2020-09-09 18:00</endDate>
+    <attenders>
+        <attender>
+            <name>Sergey</name>
+            <lastName>Sergeev</lastName>
+            <email>sergey_sergey@ukr.net</email>
+        </attender>
+        <attender>
+            <name>Igor</name>
+            <lastName>Igorov</lastName>
+            <email>igor_igor@ukr.net</email>
+        </attender>
+        <attender>
+            <name>Alexandr</name>
+            <lastName>Alexandrenko</lastName>
+            <email>alex_alex@ukr.net</email>
+        </attender>
+    </attenders>
+</event>

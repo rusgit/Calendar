@@ -11,8 +11,11 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +24,7 @@ import java.util.Set;
 public class MainClient {
     private static final Logger LOG = Logger.getLogger(MainClient.class);
 
-    public static void main(String[] args) throws RemoteException, DateTimeFormatException, OrderOfArgumentsException, ValidationException {
+    public static void main(String[] args) throws IOException, DateTimeFormatException, OrderOfArgumentsException, ValidationException, JAXBException {
 
         ApplicationContext factory = new ClassPathXmlApplicationContext("app-context-client.xml");
         CalendarService calendarService = (CalendarService) factory.getBean("calendarService");
@@ -102,6 +105,12 @@ public class MainClient {
         String[] descriptions4 = {"Mega Party", "It will be a great party!", "2020-09-07"};
         Event event = calendarService.createEventForAllDay(descriptions4, attenders);
         System.out.println(event);
+
+// SearchFreeTime2 into period
+        LOG.info("SearchFreeTime into period:");
+        List<List<LocalDateTime>> freeTimeIntervalList = calendarService.searchFreeTime2(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
+        for (List<LocalDateTime> list : freeTimeIntervalList)
+            System.out.println(list);
 
 // Test Validate throw ValidationException "Not specified event name":
 //        LOG.info("Validate wrong event:");

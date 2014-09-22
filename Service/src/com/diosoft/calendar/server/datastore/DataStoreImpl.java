@@ -2,6 +2,8 @@ package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -12,8 +14,14 @@ public class DataStoreImpl implements DataStore {
     private Map<LocalDate, List<UUID>> indexDate = new HashMap<LocalDate, List<UUID>>();
     private Map<Person, List<UUID>> indexAttender = new HashMap<Person, List<UUID>>();
 
+    private final JAXBHelper jaxbHelper;
+
+    DataStoreImpl(JAXBHelper jaxbHelper) {
+        this.jaxbHelper = jaxbHelper;
+    }
+
     @Override
-    public void publish(Event event) throws IllegalArgumentException  {
+    public void publish(Event event) throws IllegalArgumentException, IOException, JAXBException {
         if (event==null) throw new IllegalArgumentException();
 // add event
         eventStore.put(event.getId(), event);
@@ -23,10 +31,12 @@ public class DataStoreImpl implements DataStore {
         createIndexDate(event);
 // index by attender
         createIndexAttender(event);
+// create xml file with event
+        jaxbHelper.writeEvent(event);
    }
 
     @Override
-   public Event remove(UUID id) throws IllegalArgumentException {
+   public Event remove(UUID id) throws IllegalArgumentException, JAXBException, IOException {
        if (id==null) throw new IllegalArgumentException();
 // remove event
        Event event = eventStore.remove(id);
@@ -37,6 +47,8 @@ public class DataStoreImpl implements DataStore {
            removeIndexTitle(event);
 // remove index attender
            removeIndexAttender(event);
+// delete xml file with event
+           jaxbHelper.deleteEvent(event.getId());
        }
       return event;
    }

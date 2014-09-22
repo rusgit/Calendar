@@ -9,6 +9,9 @@ import com.diosoft.calendar.server.exception.ValidationException;
 import com.diosoft.calendar.server.util.DateParser;
 import com.diosoft.calendar.server.util.EventValidator;
 import org.apache.log4j.Logger;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,7 +27,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public void add(Event event) throws RemoteException, IllegalArgumentException, ValidationException {
+    public void add(Event event) throws RemoteException, IOException, IllegalArgumentException,
+            ValidationException, JAXBException {
         if (event == null) throw new IllegalArgumentException();
 
 //  Validate
@@ -38,7 +42,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IOException,
+            IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
         if (descriptions == null || attenders == null || descriptions.length != 4) throw new IllegalArgumentException();
 
         LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
@@ -58,7 +63,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders) throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders) throws RemoteException, IOException,
+            IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
         if (descriptions == null || attenders == null || descriptions.length < 3 || descriptions.length > 4)
             throw new IllegalArgumentException();
 
@@ -85,7 +91,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event remove(UUID id) throws RemoteException, IllegalArgumentException {
+    public Event remove(UUID id) throws RemoteException, IOException, IllegalArgumentException, JAXBException {
         if (id == null) throw new IllegalArgumentException();
 
         LOG.info("Removing event with id: '" + id + "'");
@@ -143,11 +149,13 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate)
+            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        LOG.info("Searching events by attender '" + attender.getName() + " " + attender.getLastName() + "' into period from " + startDate + " to " + endDate);
+        LOG.info("Searching events by attender '" + attender.getName() + " " + attender.getLastName() + "' into period from " +
+                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         List<Event> eventListByAttender = searchByAttender(attender);
         List<Event> eventListByAttenderIntoPeriod = new ArrayList<Event>();
         for (Event event : eventListByAttender) {
@@ -166,11 +174,12 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchIntoPeriod(LocalDate startDay, LocalDate endDay) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+    public List<Event> searchIntoPeriod(LocalDate startDay, LocalDate endDay) throws RemoteException,
+            IllegalArgumentException, OrderOfArgumentsException {
         if (startDay == null || endDay == null) throw new IllegalArgumentException();
         if (startDay.isAfter(endDay)) throw new OrderOfArgumentsException();
 
-        LOG.info("Searching events into period from '" + startDay + "' to" + endDay);
+        LOG.info("Searching events into period from " + startDay + " to " + endDay);
         List<Event> eventListIntoPeriod = new ArrayList<Event>();
 
 //  get all events from period without time (use getEventByDay method of DataStore which use index map)
@@ -184,7 +193,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTime2(LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTime2(LocalDateTime startDate, LocalDateTime endDate)
+            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -194,7 +204,8 @@ public class CalendarServiceImpl implements CalendarService {
 
         List<List<LocalDateTime>> freeIntervalList = new ArrayList<List<LocalDateTime>>();
         LocalDateTime tempStartDate = LocalDateTime.from(startDate);
-        LOG.info("Searching free time into period from '" + startDate + "' to" + endDate);
+        LOG.info("Searching free time into period from " +
+                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         while (tempStartDate.isBefore(endDate)) {
             LocalDateTime tempEndDate = tempStartDate.plusMinutes(DISCRET_OF_SEARCH);
             boolean isFree = true;
@@ -216,11 +227,13 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate)
+            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        LOG.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " + startDate + " to " + endDate);
+        LOG.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " +
+                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         List<Event> eventListByAttender = searchByAttenderIntoPeriod(attender, startDate, endDate);
         if (eventListByAttender.isEmpty()) {
             LOG.info("Attender free");

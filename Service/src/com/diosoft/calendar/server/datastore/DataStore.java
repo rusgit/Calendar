@@ -2,6 +2,9 @@ package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +16,7 @@ public interface DataStore {
      * @param event which adds
      * @throws IllegalArgumentException
      */
-    void publish(Event event) throws IllegalArgumentException;
+    void publish(Event event) throws IllegalArgumentException, IOException, JAXBException;
 
     /**
      * Removes event for given id from the data store
@@ -21,7 +24,7 @@ public interface DataStore {
      * @return removed event or null if there was no mapping for
      * @throws IllegalArgumentException
      */
-    Event remove(UUID id) throws IllegalArgumentException;
+    Event remove(UUID id) throws IllegalArgumentException, JAXBException, IOException;
 
     /**
      * Search event for given id in the data store and return it

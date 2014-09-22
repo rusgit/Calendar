@@ -11,6 +11,9 @@ import com.diosoft.calendar.server.util.DateParser;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -42,20 +45,20 @@ public class CalendarServiceImplTest {
 
     @Before
     public void setUp() {
-        mockDataStore = mock(DataStoreImpl.class);
+        mockDataStore = mock(DataStore.class);
         calendarService = new CalendarServiceImpl(mockDataStore);
     }
 
 
     @Test
-    public void testAdd() throws RemoteException, IllegalArgumentException, ValidationException {
+    public void testAdd() throws IOException, IllegalArgumentException, ValidationException, JAXBException {
 
         calendarService.add(testEvent);
         verify(mockDataStore,times(1)).publish(testEvent);
     }
 
     @Test(expected = IllegalArgumentException.class )
-    public void testAddWithNullArg() throws RemoteException, IllegalArgumentException, ValidationException {
+    public void testAddWithNullArg() throws IOException, IllegalArgumentException, ValidationException, JAXBException {
 
         doThrow(new IllegalArgumentException()).when(mockDataStore).publish(null);
         calendarService.add(null);
@@ -63,7 +66,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testRemove() throws RemoteException, IllegalArgumentException {
+    public void testRemove() throws IOException, IllegalArgumentException, JAXBException {
 
         when(mockDataStore.remove(testEvent.getId())).thenReturn(testEvent);
         Event actualEvent = calendarService.remove(testEvent.getId());
@@ -72,7 +75,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testRemoveNotExistsEvent() throws RemoteException, IllegalArgumentException {
+    public void testRemoveNotExistsEvent() throws IOException, IllegalArgumentException, JAXBException {
 
         when(mockDataStore.remove(testEvent.getId())).thenReturn(null);
         Event actualEvent = calendarService.remove(testEvent.getId());
@@ -81,7 +84,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRemoveWithNullArg() throws RemoteException, IllegalArgumentException {
+    public void testRemoveWithNullArg() throws IOException, IllegalArgumentException, JAXBException {
 
         doThrow(new IllegalArgumentException()).when(mockDataStore).remove(null);
         calendarService.remove(null);
@@ -185,7 +188,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testCreateEvent() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEvent() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
@@ -211,7 +214,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventWithNullDescriptionsArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventWithNullDescriptionsArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
@@ -227,7 +230,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventWithIllegalDescriptionsArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventWithIllegalDescriptionsArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
@@ -243,7 +246,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventWithNullAttendersArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventWithNullAttendersArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Set<Person> attendersTest = null;
 
@@ -252,7 +255,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testCreateEventForAllDay() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventForAllDay() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
@@ -278,7 +281,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventForAllDayWithNullDescriptionsArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventForAllDayWithNullDescriptionsArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
     Person attender = new Person.PersonBuilder()
             .name("Denis")
@@ -294,7 +297,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventForAllDayWithIllegalDescriptionsArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventForAllDayWithIllegalDescriptionsArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
@@ -310,7 +313,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateEventForAllDayWithNullAttendersArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, ValidationException {
+    public void testCreateEventForAllDayWithNullAttendersArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         Set<Person> attendersTest = null;
 
@@ -319,7 +322,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testIsAttenderFreeWithoutEventIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -355,7 +358,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testIsAttenderFreeWithStartEventIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -391,7 +394,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testIsAttenderFreeWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -427,7 +430,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testIsAttenderFreeWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testIsAttenderFreeWithEventIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -482,7 +485,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithoutEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testSearchByAttenderIntoPeriodWithoutEventIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -516,7 +519,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithStartEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testSearchByAttenderIntoPeriodWithStartEventIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -551,7 +554,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -587,7 +590,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithEventIntoGivenPeriod() throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
+    public void testSearchByAttenderIntoPeriodWithEventIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
