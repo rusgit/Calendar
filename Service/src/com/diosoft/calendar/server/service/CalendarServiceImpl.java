@@ -19,6 +19,7 @@ import java.util.*;
 
 public class CalendarServiceImpl implements CalendarService {
 
+    //local code review (vtegza): convention naming is logger @ 9/23/2014
     private static final Logger LOG = Logger.getLogger(CalendarServiceImpl.class);
     private final DataStore dataStore;
 
@@ -27,6 +28,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
+    //local code review (vtegza): RemoteException decelerated in interface, could be removed here @ 9/23/2014
     public void add(Event event) throws RemoteException, IOException, IllegalArgumentException,
             ValidationException, JAXBException {
         if (event == null) throw new IllegalArgumentException();
@@ -159,6 +161,7 @@ public class CalendarServiceImpl implements CalendarService {
         List<Event> eventListByAttender = searchByAttender(attender);
         List<Event> eventListByAttenderIntoPeriod = new ArrayList<Event>();
         for (Event event : eventListByAttender) {
+            //local code review (vtegza): createFilter method instead of sophisticated if @ 9/23/2014
             if (event.getStartDate().isAfter(startDate) && event.getStartDate().isBefore(endDate) // event start date into period
                     || event.getEndDate().isAfter(startDate) && event.getEndDate().isBefore(endDate) // event end date into period
                     || event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate) // period into event
@@ -196,7 +199,7 @@ public class CalendarServiceImpl implements CalendarService {
     public List<List<LocalDateTime>> searchFreeTime(LocalDateTime startDate, LocalDateTime endDate) throws IllegalArgumentException, OrderOfArgumentsException, RemoteException {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
-
+//local code review (vtegza): move to constant @ 9/23/2014
         final int MINUTE_INTERVAL = 15;
         List<List<LocalDateTime>> freeTimeList = new LinkedList<List<LocalDateTime>>();
         freeTimeList.add(Arrays.asList(startDate, endDate));
@@ -206,6 +209,7 @@ public class CalendarServiceImpl implements CalendarService {
         for(Event event:eventSet) {
             ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
             while (it.hasNext()) {
+                //local code review (vtegza): create methods instead of complicated if @ 9/23/2014
                 List<LocalDateTime> freeTimeInterval = it.next();
                 // remove current freeTimeInterval if event overlaps it whit +- MINUTE_INTERVAL
                 if (event.getStartDate().isBefore(freeTimeInterval.get(0).plusMinutes(MINUTE_INTERVAL))
@@ -260,6 +264,7 @@ public class CalendarServiceImpl implements CalendarService {
                         event.getStartDate().isBefore(tempStartDate) && event.getEndDate().isAfter(tempEndDate) ||
                         event.getStartDate().equals(tempStartDate) || event.getEndDate().equals(tempEndDate)) {
                     isFree = false;
+                    //local code review (vtegza): could break in this place @ 9/23/2014
                 }
             }
             if (isFree) {
@@ -313,10 +318,10 @@ public class CalendarServiceImpl implements CalendarService {
     private List<List<LocalDateTime>> mergeSolidInterval(List<List<LocalDateTime>> intervalList) {
 
         List<List<LocalDateTime>> solidFreeIntervalList = new ArrayList<List<LocalDateTime>>();
-
         LocalDateTime left  = intervalList.get(0).get(0);
         LocalDateTime rigth = intervalList.get(0).get(1);
 
+//local code review (vtegza): size-1 @ 9/22/2014
         for (int i = 0; i < intervalList.size(); i++) {
 //  if this NOT last iteration
             if (!(i==intervalList.size()-1)) {
@@ -331,6 +336,7 @@ public class CalendarServiceImpl implements CalendarService {
                 }
 //  if this LAST iteration
             } else {
+                //local code review (vtegza): move this out of for loop @ 9/22/2014
                 solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(i).get(1)));
             }
         }
