@@ -137,6 +137,8 @@ public interface CalendarService extends Remote {
      */
     boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
 
+    List<List<LocalDateTime>> searchFreeTimeForEvent(LocalDateTime startDate, LocalDateTime endDate,int duration) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
+
 
 
 

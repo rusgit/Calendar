@@ -315,6 +315,37 @@ public class CalendarServiceImpl implements CalendarService {
         }
         return solidFreeIntervalList;
     }
+    @Override
+    public List<List<LocalDateTime>>searchFreeTimeForEvent(LocalDateTime startDate, LocalDateTime endDate, int duration)
+            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+        if (startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        Set<Event> eventListIntoPeriod = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
+
+        List<List<LocalDateTime>> freeIntervalList = new ArrayList<List<LocalDateTime>>();
+        LocalDateTime tempStartDate = LocalDateTime.from(startDate);
+        LOG.info("Searching free time into period from " +
+                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
+        while (tempStartDate.isBefore(endDate)) {
+            LocalDateTime tempEndDate = tempStartDate.plusMinutes(duration);
+            boolean isFree = true;
+            for (Event event : eventListIntoPeriod) {
+                if (event.getStartDate().isAfter(tempStartDate) && event.getStartDate().isBefore(tempEndDate) ||
+                        event.getEndDate().isAfter(tempStartDate) && event.getEndDate().isBefore(tempEndDate) ||
+                        event.getStartDate().isBefore(tempStartDate) && event.getEndDate().isAfter(tempEndDate) ||
+                        event.getStartDate().equals(tempStartDate) || event.getEndDate().equals(tempEndDate)) {
+                    isFree = false;
+                }
+            }
+            if (isFree) {
+                freeIntervalList.add(Arrays.asList(tempStartDate,tempEndDate));
+            }
+            tempStartDate = tempStartDate.plusMinutes(duration);
+        }
+        LOG.info("Found "  + mergeSolidInterval(freeIntervalList).size() + " free intervals");
+        return mergeSolidInterval(freeIntervalList);
+    }
 
 }
 
