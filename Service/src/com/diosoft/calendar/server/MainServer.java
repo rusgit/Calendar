@@ -108,7 +108,7 @@ public class MainServer {
 
 // SearchFreeTime into period
         LOG.info("SearchFreeTime into period:");
-        List<List<LocalDateTime>> freeTimeIntervalList = calendarService.searchFreeTimeIntoPeriod(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
+        List<List<LocalDateTime>> freeTimeIntervalList = calendarService.searchFreeTime2(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
         for (List<LocalDateTime> list : freeTimeIntervalList)
             System.out.println(list);
 

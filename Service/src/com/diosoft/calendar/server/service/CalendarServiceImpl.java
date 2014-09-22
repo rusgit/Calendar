@@ -12,10 +12,7 @@ import org.apache.log4j.Logger;
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class CalendarServiceImpl implements CalendarService {
 
@@ -187,6 +184,38 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
+    public List<List<LocalDateTime>> searchFreeTime2(LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+        if (startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        final int DISCRET_OF_SEARCH = 15;
+
+        List<Event> eventListIntoPeriod = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
+
+        List<List<LocalDateTime>> freeIntervalList = new ArrayList<List<LocalDateTime>>();
+        LocalDateTime tempStartDate = LocalDateTime.from(startDate);
+        LOG.info("Searching free time into period from '" + startDate + "' to" + endDate);
+        while (tempStartDate.isBefore(endDate)) {
+            LocalDateTime tempEndDate = tempStartDate.plusMinutes(DISCRET_OF_SEARCH);
+            boolean isFree = true;
+            for (Event event : eventListIntoPeriod) {
+                if (event.getStartDate().isAfter(tempStartDate) && event.getStartDate().isBefore(tempEndDate) ||
+                        event.getEndDate().isAfter(tempStartDate) && event.getEndDate().isBefore(tempEndDate) ||
+                        event.getStartDate().isBefore(tempStartDate) && event.getEndDate().isAfter(tempEndDate) ||
+                        event.getStartDate().equals(tempStartDate) || event.getEndDate().equals(tempEndDate)) {
+                    isFree = false;
+                }
+            }
+            if (isFree) {
+                freeIntervalList.add(Arrays.asList(tempStartDate,tempEndDate));
+            }
+            tempStartDate = tempStartDate.plusMinutes(DISCRET_OF_SEARCH);
+        }
+        LOG.info("Found "  + mergeSolidInterval(freeIntervalList).size() + " free intervals");
+        return mergeSolidInterval(freeIntervalList);
+    }
+
+    @Override
     public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
@@ -201,6 +230,34 @@ public class CalendarServiceImpl implements CalendarService {
 
         return false;
     }
+
+    private List<List<LocalDateTime>> mergeSolidInterval(List<List<LocalDateTime>> intervalList) {
+
+        List<List<LocalDateTime>> solidFreeIntervalList = new ArrayList<List<LocalDateTime>>();
+
+        LocalDateTime left  = intervalList.get(0).get(0);
+        LocalDateTime rigth = intervalList.get(0).get(1);
+
+        for (int i = 0; i < intervalList.size(); i++) {
+//  if this NOT last iteration
+            if (!(i==intervalList.size()-1)) {
+                List<LocalDateTime> leftInterval = intervalList.get(i);
+                List<LocalDateTime> rigthInterval = intervalList.get(i+1);
+                if (leftInterval.get(1).equals(rigthInterval.get(0))) {
+                    rigth = rigthInterval.get(1);
+                } else {
+                    solidFreeIntervalList.add(Arrays.asList(left,rigth));
+                    left = intervalList.get(i+1).get(0);
+                    rigth = intervalList.get(i+1).get(1);
+                }
+//  if this LAST iteration
+            } else {
+                solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(i).get(1)));
+            }
+        }
+        return solidFreeIntervalList;
+    }
+
 }
 
 
