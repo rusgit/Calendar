@@ -13,10 +13,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,10 +104,16 @@ public class MainClient {
         Event event = calendarService.createEventForAllDay(descriptions4, attenders);
         System.out.println(event);
 
+// SearchFreeTime1 into period
+        LOG.info("SearchFreeTime1 into period from 2020-09-08 12:00 to 2020-09-10 21:00");
+        List<List<LocalDateTime>> freeTimeIntervalList1 = calendarService.searchFreeTime(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
+        for (List<LocalDateTime> list : freeTimeIntervalList1)
+            System.out.println(list);
+
 // SearchFreeTime2 into period
-        LOG.info("SearchFreeTime into period:");
-        List<List<LocalDateTime>> freeTimeIntervalList = calendarService.searchFreeTime2(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
-        for (List<LocalDateTime> list : freeTimeIntervalList)
+        LOG.info("SearchFreeTime2 into period from 2020-09-08 12:00 to 2020-09-10 21:00");
+        List<List<LocalDateTime>> freeTimeIntervalList2 = calendarService.searchFreeTime2(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
+        for (List<LocalDateTime> list : freeTimeIntervalList2)
             System.out.println(list);
 
 // Test Validate throw ValidationException "Not specified event name":

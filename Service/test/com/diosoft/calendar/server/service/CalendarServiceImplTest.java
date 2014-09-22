@@ -3,7 +3,6 @@ package com.diosoft.calendar.server.service;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
-import com.diosoft.calendar.server.datastore.DataStoreImpl;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
 import com.diosoft.calendar.server.exception.ValidationException;
@@ -11,10 +10,12 @@ import com.diosoft.calendar.server.util.DateParser;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -70,7 +71,7 @@ public class CalendarServiceImplTest {
 
         when(mockDataStore.remove(testEvent.getId())).thenReturn(testEvent);
         Event actualEvent = calendarService.remove(testEvent.getId());
-        assertEquals(testEvent,actualEvent);
+        assertEquals(testEvent, actualEvent);
         verify(mockDataStore,times(1)).remove(testEvent.getId());
     }
 
@@ -101,7 +102,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByTitle(testEvent.getTitle())).thenReturn(expectedEvents);
         List<Event> actualEvents = calendarService.searchByTitle(testEvent.getTitle());
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
         verify(mockDataStore,times(1)).getEventByTitle(testEvent.getTitle());
     }
 
@@ -133,7 +134,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByDay(testEvent.getStartDate().toLocalDate())).thenReturn(expectedEvents);
         List<Event> actualEvents = calendarService.searchByDay(testEvent.getStartDate().toLocalDate());
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
         verify(mockDataStore,times(1)).getEventByDay(testEvent.getStartDate().toLocalDate());
     }
 
@@ -165,7 +166,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByAttender(testPerson)).thenReturn(expectedEvents);
         List<Event> actualEvents = calendarService.searchByAttender(testPerson);
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
         verify(mockDataStore,times(1)).getEventByAttender(testPerson);
     }
 
@@ -514,7 +515,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
-        Assert.assertEquals(resultList, expectedList);
+        Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(1)).getEventByAttender(attender);
     }
 
@@ -549,12 +550,12 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
-        Assert.assertEquals(resultList, expectedList);
+        Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(1)).getEventByAttender(attender);
     }
 
     @Test
-    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
+    public void testSearchByAttenderIntoPeriodWithEndAndStartEventsIntoGivenPeriod() throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException, JAXBException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -585,7 +586,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
-        Assert.assertEquals(resultList, expectedList);
+        Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(1)).getEventByAttender(attender);
     }
 
@@ -620,7 +621,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
-        Assert.assertEquals(resultList, expectedList);
+        Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(1)).getEventByAttender(attender);
     }
 
@@ -641,5 +642,115 @@ public class CalendarServiceImplTest {
         LocalDateTime startDate = DateParser.stringToDate("2020-10-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-09-30 14:45");
         calendarService.isAttenderFree(attender, startDate, endDate);
+    }
+
+    @Test
+    public void testSearchFreeTime() throws OrderOfArgumentsException, IOException, ValidationException, DateTimeFormatException, JAXBException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        Set<Person> attendersTest = new HashSet<Person>();
+
+        attendersTest.add(attender);
+
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .attendersSet(attendersTest).build();
+
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Conference")
+                .description("Java conference")
+                .startDate(DateParser.stringToDate("2020-11-01 09:00"))
+                .endDate(DateParser.stringToDate("2020-11-03 18:00"))
+                .attendersSet(attendersTest).build();
+
+        Event event3 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2021")
+                .description("Happy New Year 2021")
+                .startDate(DateParser.stringToDate("2020-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .attendersSet(attendersTest).build();
+
+        Event event4 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("After New Year 2021")
+                .description("After Happy New Year 2021")
+                .startDate(DateParser.stringToDate("2021-01-01 12:10"))
+                .endDate(DateParser.stringToDate("2021-01-01 20:00"))
+                .attendersSet(attendersTest).build();
+
+        Event event5 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("After New Year 2021 - 2")
+                .description("After Happy New Year 2021 - Only the strong")
+                .startDate(DateParser.stringToDate("2021-01-01 20:15"))
+                .endDate(DateParser.stringToDate("2021-01-02 11:00"))
+                .attendersSet(attendersTest).build();
+
+        calendarService.add(event1);
+        calendarService.add(event2);
+        calendarService.add(event3);
+        calendarService.add(event4);
+        calendarService.add(event5);
+
+        LocalDateTime startDate = DateParser.stringToDate("2020-09-20 14:45");
+        LocalDateTime endDate = DateParser.stringToDate("2021-01-03 14:45");
+
+        List<List<LocalDateTime>> expectedList = new ArrayList<List<LocalDateTime>>();
+
+        List<LocalDateTime> timeList1 = new ArrayList<LocalDateTime>();
+        timeList1.add(DateParser.stringToDate("2020-09-20 14:45"));
+        timeList1.add(DateParser.stringToDate("2020-10-15 15:00"));
+
+        List<LocalDateTime> timeList2 = new ArrayList<LocalDateTime>();
+        timeList2.add(DateParser.stringToDate("2020-10-15 20:00"));
+        timeList2.add(DateParser.stringToDate("2020-11-01 09:00"));
+
+        List<LocalDateTime> timeList3 = new ArrayList<LocalDateTime>();
+        timeList3.add(DateParser.stringToDate("2020-11-03 18:00"));
+        timeList3.add(DateParser.stringToDate("2020-12-31 20:00"));
+
+        List<LocalDateTime> timeList4 = new ArrayList<LocalDateTime>();
+        timeList4.add(DateParser.stringToDate("2021-01-01 20:00"));
+        timeList4.add(DateParser.stringToDate("2021-01-01 20:15"));
+
+        List<LocalDateTime> timeList5 = new ArrayList<LocalDateTime>();
+        timeList5.add(DateParser.stringToDate("2021-01-02 11:00"));
+        timeList5.add(DateParser.stringToDate("2021-01-03 14:45"));
+
+        expectedList.add(timeList1);
+        expectedList.add(timeList2);
+        expectedList.add(timeList3);
+        expectedList.add(timeList4);
+        expectedList.add(timeList5);
+
+        List<Event> list1 = new ArrayList<Event>();
+        list1.add(event1);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-15 00:00").toLocalDate())).thenReturn(list1);
+
+        List<Event> list2 = new ArrayList<Event>();
+        list2.add(event2);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-11-01 00:00").toLocalDate())).thenReturn(list2);
+
+        List<Event> list3 = new ArrayList<Event>();
+        list3.add(event3);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-12-31 00:00").toLocalDate())).thenReturn(list3);
+
+        List<Event> list4 = new ArrayList<Event>();
+        list4.add(event3);
+        list4.add(event4);
+        list4.add(event5);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2021-01-01 00:00").toLocalDate())).thenReturn(list4);
+
+        List<Event> list5 = new ArrayList<Event>();
+        list5.add(event5);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2021-01-02 00:00").toLocalDate())).thenReturn(list5);
+
+        List<List<LocalDateTime>> resultList = calendarService.searchFreeTime(startDate ,endDate);
+        Assert.assertEquals(expectedList, resultList);
+        verify(mockDataStore,times(106)).getEventByDay(Matchers.any(LocalDate.class));
     }
 }
