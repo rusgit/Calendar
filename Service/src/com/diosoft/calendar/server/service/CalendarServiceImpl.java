@@ -273,14 +273,16 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
+        if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        List<List<LocalDateTime>> freeInrervalList = searchFreeTime(startDate, endDate);
+        List<List<LocalDateTime>> freeIntervalList = searchFreeTime(startDate, endDate);
         List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<List<LocalDateTime>>();
 
         LOG.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         Duration durationEvent = Duration.between(event.getStartDate(), event.getEndDate());
-        for (List<LocalDateTime> freeInterval : freeInrervalList) {
+        for (List<LocalDateTime> freeInterval : freeIntervalList) {
             Duration durationFreeInterval = Duration.between(freeInterval.get(0), freeInterval.get(1));
             if (durationEvent.toMinutes() <= durationFreeInterval.toMinutes()) {
                 freeIntervalListForEvent.add(freeInterval);

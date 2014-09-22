@@ -109,7 +109,7 @@ public interface CalendarService extends Remote {
      * Provides ability to search free time from the data store in a given period
      * @param startDate for search
      * @param endDate for search
-     * @return
+     * @return set of events
      * @throws RemoteException
      * @throws IllegalArgumentException
      * @throws OrderOfArgumentsException
@@ -129,10 +129,10 @@ public interface CalendarService extends Remote {
 
     /**
      * Provides ability to search free time for Event from the data store in a given period
+     * @param event
      * @param startDate
      * @param endDate
-     * @param duration
-     * @return
+     * @return list of free periods
      * @throws RemoteException
      * @throws IllegalArgumentException
      * @throws OrderOfArgumentsException

@@ -753,4 +753,85 @@ public class CalendarServiceImplTest {
         Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(106)).getEventByDay(Matchers.any(LocalDate.class));
     }
+
+    @Test
+    public void testSearchFreeTimeForEvent() throws OrderOfArgumentsException, IOException, ValidationException, DateTimeFormatException, JAXBException {
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+        Set<Person> attendersTest = new HashSet<Person>();
+
+        attendersTest.add(attender);
+
+        Event event1 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Happy Birthday")
+                .description("Happy Birthday Denis")
+                .startDate(DateParser.stringToDate("2020-10-15 15:00"))
+                .endDate(DateParser.stringToDate("2020-10-15 22:00"))
+                .attendersSet(attendersTest).build();
+
+        Event event2 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Conference")
+                .description("Java conference")
+                .startDate(DateParser.stringToDate("2020-10-16 09:00"))
+                .endDate(DateParser.stringToDate("2020-10-16 18:00"))
+                .attendersSet(attendersTest).build();
+
+        Event event3 = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("New Year 2021")
+                .description("Happy New Year 2021")
+                .startDate(DateParser.stringToDate("2020-12-31 20:00"))
+                .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .attendersSet(attendersTest).build();
+
+        Event eventForSearch = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Meeting")
+                .description("Command meeting")
+                .startDate(DateParser.stringToDate("2020-11-05 10:00"))
+                .endDate(DateParser.stringToDate("2020-11-05 21:00"))
+                .attendersSet(attendersTest).build();
+
+        calendarService.add(event1);
+        calendarService.add(event2);
+        calendarService.add(event3);
+
+        LocalDateTime startDate = DateParser.stringToDate("2020-10-15 08:45");
+        LocalDateTime endDate = DateParser.stringToDate("2021-01-03 00:00");
+
+        List<List<LocalDateTime>> expectedList = new ArrayList<List<LocalDateTime>>();
+
+        List<LocalDateTime> timeList1 = new ArrayList<LocalDateTime>();
+        timeList1.add(DateParser.stringToDate("2020-10-15 22:00"));
+        timeList1.add(DateParser.stringToDate("2020-10-16 09:00"));
+
+        List<LocalDateTime> timeList2 = new ArrayList<LocalDateTime>();
+        timeList2.add(DateParser.stringToDate("2020-10-16 18:00"));
+        timeList2.add(DateParser.stringToDate("2020-12-31 20:00"));
+
+        List<LocalDateTime> timeList3 = new ArrayList<LocalDateTime>();
+        timeList3.add(DateParser.stringToDate("2021-01-01 12:00"));
+        timeList3.add(DateParser.stringToDate("2021-01-03 00:00"));
+
+        expectedList.add(timeList1);
+        expectedList.add(timeList2);
+        expectedList.add(timeList3);
+
+        List<Event> list1 = new ArrayList<Event>();
+        list1.add(event1);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-15 00:00").toLocalDate())).thenReturn(list1);
+
+        List<Event> list2 = new ArrayList<Event>();
+        list2.add(event2);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-16 00:00").toLocalDate())).thenReturn(list2);
+
+        List<Event> list3 = new ArrayList<Event>();
+        list3.add(event3);
+        when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-12-31 00:00").toLocalDate())).thenReturn(list3);
+
+        List<List<LocalDateTime>> resultList = calendarService.searchFreeTimeForEvent(eventForSearch, startDate ,endDate);
+        Assert.assertEquals(expectedList, resultList);
+        verify(mockDataStore,times(81)).getEventByDay(Matchers.any(LocalDate.class));
+    }
 }
