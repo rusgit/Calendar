@@ -5,13 +5,14 @@ import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
 import com.diosoft.calendar.server.exception.ValidationException;
 import org.apache.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import java.rmi.RemoteException;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 
 public class MainServer {
     private static final Logger LOG = Logger.getLogger(MainServer.class);
 
-    public static void main(String[] args) throws DateTimeFormatException, RemoteException, OrderOfArgumentsException, ValidationException {
-// Start server
+    public static void main(String[] args) throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
+//  Start server
         LOG.info("Server starting...");
         new ClassPathXmlApplicationContext("app-context-server.xml");
         LOG.info("Server started.");

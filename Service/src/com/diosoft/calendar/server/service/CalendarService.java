@@ -128,6 +128,18 @@ public interface CalendarService extends Remote {
     List<List<LocalDateTime>> searchFreeTime(LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
 
     /**
+     * Provides ability to search free time for Event from the data store in a given period
+     * @param startDate
+     * @param endDate
+     * @param duration
+     * @return
+     * @throws RemoteException
+     * @throws IllegalArgumentException
+     * @throws OrderOfArgumentsException
+     */
+    List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
+
+    /**
      * Check whether a person is free to participate in events in a given period
      * @param attender for search
      * @param startDate for search
@@ -137,7 +149,7 @@ public interface CalendarService extends Remote {
      */
     boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
 
-    List<List<LocalDateTime>> searchFreeTimeForEvent(LocalDateTime startDate, LocalDateTime endDate,int duration) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
+
 
 
 

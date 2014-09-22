@@ -10,7 +10,6 @@ import com.diosoft.calendar.server.util.DateParser;
 import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -114,6 +113,12 @@ public class MainClient {
         LOG.info("SearchFreeTime2 into period from 2020-09-08 12:00 to 2020-09-10 21:00");
         List<List<LocalDateTime>> freeTimeIntervalList2 = calendarService.searchFreeTime2(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
         for (List<LocalDateTime> list : freeTimeIntervalList2)
+            System.out.println(list);
+
+// SearchFreeTimeForEvent into period
+        LOG.info("SearchFreeTime into period:");
+        List<List<LocalDateTime>> freeTimeForEventIntervalList = calendarService.searchFreeTimeForEvent(event1, DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
+        for (List<LocalDateTime> list : freeTimeForEventIntervalList)
             System.out.println(list);
 
 // Test Validate throw ValidationException "Not specified event name":
