@@ -11,7 +11,6 @@ import com.diosoft.calendar.server.util.EventValidator;
 import org.apache.log4j.Logger;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -266,6 +265,7 @@ public class CalendarServiceImpl implements CalendarService {
                         event.getStartDate().isBefore(tempStartDate) && event.getEndDate().isAfter(tempEndDate) ||
                         event.getStartDate().equals(tempStartDate) || event.getEndDate().equals(tempEndDate)) {
                     isFree = false;
+
                     //local code review (vtegza): could break in this place @ 9/23/2014
                 }
             }
@@ -353,7 +353,7 @@ public class CalendarServiceImpl implements CalendarService {
         }
 //local code review (vtegza): move this out of for loop @ 9/22/2014
 //corrected
-        solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(intervalList.size()).get(1)));
+        solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(intervalList.size()-1).get(1)));
         return solidFreeIntervalList;
     }
 }
