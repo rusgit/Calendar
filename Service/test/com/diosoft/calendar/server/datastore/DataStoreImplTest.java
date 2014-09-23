@@ -2,8 +2,6 @@ package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
-import com.diosoft.calendar.server.service.CalendarService;
-import com.diosoft.calendar.server.service.CalendarServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +10,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 public class DataStoreImplTest {
@@ -203,5 +202,40 @@ public class DataStoreImplTest {
     public void testGetEventByAttenderWithNullArg() throws IllegalArgumentException  {
 
         dataStore.getEventByAttender(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSearchEventByTitleStartWithNullString() throws IllegalArgumentException  {
+
+        dataStore.searchEventByTitleStartWith(null);
+    }
+
+
+    @Test
+    public void testSearchEventByTitleStartWith () throws IOException, JAXBException {
+        Person testPerson = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+
+        Set<Person> attenders = new HashSet<Person>();
+        attenders.add(testPerson);
+
+        Event testEvent = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("TestEvent")
+                .description("Description of testEvent")
+                .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
+                .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
+                .attendersSet(attenders).build();
+
+        List<Event> expextedEventList = new ArrayList<Event>();
+        expextedEventList.add(testEvent);
+        String prefix = "Tes";
+        dataStore.publish(testEvent);
+
+        List<Event> resultEventList = dataStore.searchEventByTitleStartWith(prefix);
+
+        assertEquals(expextedEventList, resultEventList);
     }
 }

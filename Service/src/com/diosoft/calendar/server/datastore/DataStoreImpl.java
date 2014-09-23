@@ -190,4 +190,18 @@ public class DataStoreImpl implements DataStore {
             }
         }
     }
+
+    @Override
+    public List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException{
+        if (prefix == null) throw new IllegalArgumentException();
+        List<Event> presentInEventList = new ArrayList<Event>();
+        for(String title :indexTitle.keySet()){
+            if(title.startsWith(prefix)){
+                for(UUID uuidTitle : indexTitle.get(title)) {
+                    presentInEventList.add(eventStore.get(uuidTitle));
+                }
+            }
+        }
+        return presentInEventList;
+    }
 }

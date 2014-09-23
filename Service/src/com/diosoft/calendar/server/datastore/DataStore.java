@@ -59,4 +59,12 @@ public interface DataStore {
      * @throws IllegalArgumentException
      */
     List<Event> getEventByAttender(Person attender) throws IllegalArgumentException;
+
+    /**
+     * Search event by title that starts with the prefix
+     * @param prefix
+     * @return List of events
+     * @throws IllegalArgumentException
+     */
+    List<Event> searchEventByTitleStartWith(String prefix);
 }
