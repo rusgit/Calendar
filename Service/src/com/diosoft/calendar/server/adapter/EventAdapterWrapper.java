@@ -10,6 +10,7 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "events")
+//local code review (vtegza): use standard naming - should be EventListAdapter @ 9/23/2014
 public class EventAdapterWrapper {
 
     @XmlElement(name = "event", type = EventAdapter.class)
