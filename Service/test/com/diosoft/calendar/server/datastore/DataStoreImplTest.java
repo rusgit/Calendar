@@ -229,13 +229,13 @@ public class DataStoreImplTest {
                 .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
                 .attendersSet(attenders).build();
 
-        List<Event> expextedEventList = new ArrayList<Event>();
-        expextedEventList.add(testEvent);
+        List<Event> expectedEventList = new ArrayList<Event>();
+        expectedEventList.add(testEvent);
         String prefix = "Tes";
         dataStore.publish(testEvent);
 
         List<Event> resultEventList = dataStore.searchEventByTitleStartWith(prefix);
 
-        assertEquals(expextedEventList, resultEventList);
+        assertEquals(expectedEventList, resultEventList);
     }
 }

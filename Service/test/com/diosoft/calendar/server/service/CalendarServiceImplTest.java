@@ -834,4 +834,35 @@ public class CalendarServiceImplTest {
         Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(81)).getEventByDay(Matchers.any(LocalDate.class));
     }
+
+    @Test
+    public void testSearchEventByTitleStartWith () throws IOException, JAXBException, ValidationException {
+        Person testPerson = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+
+        Set<Person> attenders = new HashSet<Person>();
+        attenders.add(testPerson);
+
+        Event testEvent = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("TestEvent")
+                .description("Description of testEvent")
+                .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
+                .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
+                .attendersSet(attenders).build();
+
+        List<Event> expectedEventList = new ArrayList<Event>();
+        expectedEventList.add(testEvent);
+        String prefix = "Tes";
+        calendarService.add(testEvent);
+
+        when(mockDataStore.searchEventByTitleStartWith(prefix)).thenReturn(expectedEventList);
+
+        List<Event> resultEventList = calendarService.searchEventByTitleStartWith(prefix);
+
+        assertEquals(expectedEventList, resultEventList);
+        verify(mockDataStore).searchEventByTitleStartWith(prefix);
+    }
 }

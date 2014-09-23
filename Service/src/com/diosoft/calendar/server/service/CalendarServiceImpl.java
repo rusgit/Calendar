@@ -342,6 +342,21 @@ public class CalendarServiceImpl implements CalendarService {
         }
         return solidFreeIntervalList;
     }
+
+    @Override
+    public List<Event> searchEventByTitleStartWith(String prefix) {
+        if (prefix == null) throw new IllegalArgumentException();
+
+        LOG.info("Searching events by title start with '" + prefix + "'");
+        List<Event> presentInEventList = dataStore.searchEventByTitleStartWith(prefix);
+
+        if (presentInEventList.isEmpty())
+            LOG.info("Events not found!");
+        else
+            LOG.info("Found " + presentInEventList.size() + " events");
+
+        return presentInEventList;
+    }
 }
 
 

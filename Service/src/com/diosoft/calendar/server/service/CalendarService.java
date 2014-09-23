@@ -149,9 +149,13 @@ public interface CalendarService extends Remote {
      */
     boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException;
 
-
-
-
-
+    /**
+     * Search event by title that starts with the prefix
+     * Uses method of dataStoreImpl:searchEventByTitleStartWith(String prefix)
+     * @param prefix
+     * @return List of events
+     * @throws IllegalArgumentException
+     */
+    List<Event> searchEventByTitleStartWith(String prefix);
 
 }
