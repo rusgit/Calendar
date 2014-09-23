@@ -9,12 +9,12 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 public class MainServer {
-    private static final Logger LOG = Logger.getLogger(MainServer.class);
+    private static final Logger logger = Logger.getLogger(MainServer.class);
 
     public static void main(String[] args) throws DateTimeFormatException, IOException, OrderOfArgumentsException, ValidationException, JAXBException {
 //  Start server
-        LOG.info("Server starting...");
+        logger.info("Server starting...");
         new ClassPathXmlApplicationContext("app-context-server.xml");
-        LOG.info("Server started.");
+        logger.info("Server started.");
     }
 }

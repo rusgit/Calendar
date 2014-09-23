@@ -20,7 +20,8 @@ import java.util.*;
 public class CalendarServiceImpl implements CalendarService {
 
     //local code review (vtegza): convention naming is logger @ 9/23/2014
-    private static final Logger LOG = Logger.getLogger(CalendarServiceImpl.class);
+    //corrected
+    private static final Logger logger = Logger.getLogger(CalendarServiceImpl.class);
     private final DataStore dataStore;
 
     public CalendarServiceImpl(DataStore dataStore) {
@@ -29,44 +30,44 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     //local code review (vtegza): RemoteException decelerated in interface, could be removed here @ 9/23/2014
-    public void add(Event event) throws RemoteException, IOException, IllegalArgumentException,
-            ValidationException, JAXBException {
+    //corrected
+    public void add(Event event) throws IOException, IllegalArgumentException, ValidationException, JAXBException {
         if (event == null) throw new IllegalArgumentException();
 
 //  Validate
-        LOG.info("Validation event with title '" + event.getTitle() + "'");
+        logger.info("Validation event with title '" + event.getTitle() + "'");
         EventValidator.validate(event);
-        LOG.info("Event successfully validated");
+        logger.info("Event successfully validated");
 //  Add
-        LOG.info("Adding event with title '" + event.getTitle() + "'");
+        logger.info("Adding event with title '" + event.getTitle() + "'");
         dataStore.publish(event);
-        LOG.info("Event successfully added");
+        logger.info("Event successfully added");
     }
 
     @Override
-    public Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IOException,
-            IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
+    public Event createEvent(String[] descriptions, Set<Person> attenders) throws IOException, IllegalArgumentException,
+            DateTimeFormatException, ValidationException, JAXBException {
         if (descriptions == null || attenders == null || descriptions.length != 4) throw new IllegalArgumentException();
 
         LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
         LocalDateTime endDate = DateParser.stringToDate(descriptions[3]);
 
-        LOG.info("Creating event with title '" + descriptions[0] + "'");
+        logger.info("Creating event with title '" + descriptions[0] + "'");
         Event event = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title(descriptions[0])
                 .description(descriptions[1])
                 .startDate(startDate)
                 .endDate(endDate)
                 .attendersSet(attenders).build();
-        LOG.info("Event successfully created");
+        logger.info("Event successfully created");
 
         add(event);
         return event;
     }
 
     @Override
-    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders) throws RemoteException, IOException,
-            IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
+    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders) throws IOException, IllegalArgumentException,
+            DateTimeFormatException, ValidationException, JAXBException {
         if (descriptions == null || attenders == null || descriptions.length < 3 || descriptions.length > 4)
             throw new IllegalArgumentException();
 
@@ -93,70 +94,70 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event remove(UUID id) throws RemoteException, IOException, IllegalArgumentException, JAXBException {
+    public Event remove(UUID id) throws IOException, IllegalArgumentException, JAXBException {
         if (id == null) throw new IllegalArgumentException();
 
-        LOG.info("Removing event with id: '" + id + "'");
+        logger.info("Removing event with id: '" + id + "'");
         Event event = dataStore.remove(id);
         if (event == null) {
-            LOG.info("There is no such Event");
+            logger.info("There is no such Event");
         } else {
-            LOG.info("Event successfully removed");
+            logger.info("Event successfully removed");
         }
         return event;
     }
 
     @Override
-    public List<Event> searchByTitle(String title) throws RemoteException, IllegalArgumentException {
+    public List<Event> searchByTitle(String title) throws IllegalArgumentException {
         if (title == null) throw new IllegalArgumentException();
 
-        LOG.info("Searching by title '" + title + "':");
+        logger.info("Searching by title '" + title + "':");
         List<Event> events = dataStore.getEventByTitle(title);
         if (events.size() < 1) {
-            LOG.info("Events not found!");
+            logger.info("Events not found!");
         } else {
-            LOG.info("Found " + events.size() + " events");
+            logger.info("Found " + events.size() + " events");
         }
         return events;
     }
 
     @Override
-    public List<Event> searchByDay(LocalDate day) throws RemoteException, IllegalArgumentException {
+    public List<Event> searchByDay(LocalDate day) throws IllegalArgumentException {
         if (day == null) throw new IllegalArgumentException();
 
-        LOG.info("Searching by day '" + day + "':");
+        logger.info("Searching by day '" + day + "':");
         List<Event> events = dataStore.getEventByDay(day);
         if (events.size() < 1) {
-            LOG.info("Events not found!");
+            logger.info("Events not found!");
             return events;
         }
-        LOG.info("Found " + events.size() + " events");
+        logger.info("Found " + events.size() + " events");
 
         return events;
     }
 
     @Override
-    public List<Event> searchByAttender(Person attender) throws RemoteException, IllegalArgumentException {
+    public List<Event> searchByAttender(Person attender) throws IllegalArgumentException {
         if (attender == null) throw new IllegalArgumentException();
 
-        LOG.info("Searching by attender '" + attender.getName() + "':");
+        logger.info("Searching by attender '" + attender.getName() + "':");
         List<Event> events = dataStore.getEventByAttender(attender);
         if (events.size() < 1) {
-            LOG.info("Events not found!");
+            logger.info("Events not found!");
             return events;
         }
-        LOG.info("Found " + events.size() + " events");
+        logger.info("Found " + events.size() + " events");
 
         return events;
     }
 
     @Override
     public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate)
-            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+            throws IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        LOG.info("Searching events by attender '" + attender.getName() + " " + attender.getLastName() + "' into period from " +
+        logger.info("Searching events by attender '" + attender.getName() + " " + attender.getLastName() + "' into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         List<Event> eventListByAttender = searchByAttender(attender);
         List<Event> eventListByAttenderIntoPeriod = new ArrayList<Event>();
@@ -170,19 +171,19 @@ public class CalendarServiceImpl implements CalendarService {
             }
         }
         if (eventListByAttenderIntoPeriod.isEmpty())
-            LOG.info("Events not found!");
+            logger.info("Events not found!");
         else
-            LOG.info("Found " + eventListByAttenderIntoPeriod.size() + " events");
+            logger.info("Found " + eventListByAttenderIntoPeriod.size() + " events");
 
         return eventListByAttenderIntoPeriod;
     }
 
     @Override
-    public Set<Event> searchIntoPeriod(LocalDate startDay, LocalDate endDay) throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+    public Set<Event> searchIntoPeriod(LocalDate startDay, LocalDate endDay) throws IllegalArgumentException, OrderOfArgumentsException {
         if (startDay == null || endDay == null) throw new IllegalArgumentException();
         if (startDay.isAfter(endDay)) throw new OrderOfArgumentsException();
 
-        LOG.info("Searching events into period from '" + startDay + "' to" + endDay);
+        logger.info("Searching events into period from '" + startDay + "' to" + endDay);
         Set<Event> eventSetIntoPeriod = new HashSet<Event>();
 
 //  get all events from period without time (use getEventByDay method of DataStore which use index map)
@@ -191,12 +192,13 @@ public class CalendarServiceImpl implements CalendarService {
             eventSetIntoPeriod.addAll(tempEventList);
             startDay = startDay.plusDays(1);
         }
-        LOG.info("Found " + eventSetIntoPeriod.size() + " events");
+        logger.info("Found " + eventSetIntoPeriod.size() + " events");
         return eventSetIntoPeriod;
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTime(LocalDateTime startDate, LocalDateTime endDate) throws IllegalArgumentException, OrderOfArgumentsException, RemoteException {
+    public List<List<LocalDateTime>> searchFreeTime(LocalDateTime startDate, LocalDateTime endDate)
+            throws IllegalArgumentException, OrderOfArgumentsException {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 //local code review (vtegza): move to constant @ 9/23/2014
@@ -205,7 +207,7 @@ public class CalendarServiceImpl implements CalendarService {
         freeTimeList.add(Arrays.asList(startDate, endDate));
         Set<Event> eventSet = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
 
-        LOG.info("Searching free time into period from '" + startDate + "' to" + endDate);
+        logger.info("Searching free time into period from '" + startDate + "' to" + endDate);
         for(Event event:eventSet) {
             ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
             while (it.hasNext()) {
@@ -237,13 +239,13 @@ public class CalendarServiceImpl implements CalendarService {
                 }
             }
         }
-        LOG.info("Found "  + freeTimeList.size() + " free intervals");
+        logger.info("Found "  + freeTimeList.size() + " free intervals");
         return freeTimeList;
     }
 
     @Override
     public List<List<LocalDateTime>> searchFreeTime2(LocalDateTime startDate, LocalDateTime endDate)
-            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+            throws IllegalArgumentException, OrderOfArgumentsException {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -253,7 +255,7 @@ public class CalendarServiceImpl implements CalendarService {
 
         List<List<LocalDateTime>> freeIntervalList = new ArrayList<List<LocalDateTime>>();
         LocalDateTime tempStartDate = startDate;
-        LOG.info("Searching free time into period from " +
+        logger.info("Searching free time into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         while (tempStartDate.isBefore(endDate)) {
             LocalDateTime tempEndDate = tempStartDate.plusMinutes(DISCRET_OF_SEARCH);
@@ -272,19 +274,19 @@ public class CalendarServiceImpl implements CalendarService {
             }
             tempStartDate = tempStartDate.plusMinutes(DISCRET_OF_SEARCH);
         }
-        LOG.info("Found "  + mergeSolidInterval(freeIntervalList).size() + " free intervals");
+        logger.info("Found "  + mergeSolidInterval(freeIntervalList).size() + " free intervals");
         return mergeSolidInterval(freeIntervalList);
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
         List<List<LocalDateTime>> freeIntervalList = searchFreeTime(startDate, endDate);
         List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<List<LocalDateTime>>();
 
-        LOG.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
+        logger.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         Duration durationEvent = Duration.between(event.getStartDate(), event.getEndDate());
         for (List<LocalDateTime> freeInterval : freeIntervalList) {
@@ -293,26 +295,41 @@ public class CalendarServiceImpl implements CalendarService {
                 freeIntervalListForEvent.add(freeInterval);
             }
         }
-        LOG.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event");
+        logger.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event");
         return freeIntervalListForEvent;
     }
 
     @Override
     public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate)
-            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+            throws IllegalArgumentException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        LOG.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " +
+        logger.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         List<Event> eventListByAttender = searchByAttenderIntoPeriod(attender, startDate, endDate);
         if (eventListByAttender.isEmpty()) {
-            LOG.info("Attender free");
+            logger.info("Attender free");
             return true;
         }
-        LOG.info("Attender not free");
+        logger.info("Attender not free");
 
         return false;
+    }
+
+    @Override
+    public List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException {
+        if (prefix == null) throw new IllegalArgumentException();
+
+        logger.info("Searching events by title start with '" + prefix + "'");
+        List<Event> presentInEventList = dataStore.searchEventByTitleStartWith(prefix);
+
+        if (presentInEventList.isEmpty())
+            logger.info("Events not found!");
+        else
+            logger.info("Found " + presentInEventList.size() + " events");
+
+        return presentInEventList;
     }
 
     private List<List<LocalDateTime>> mergeSolidInterval(List<List<LocalDateTime>> intervalList) {
@@ -322,40 +339,22 @@ public class CalendarServiceImpl implements CalendarService {
         LocalDateTime rigth = intervalList.get(0).get(1);
 
 //local code review (vtegza): size-1 @ 9/22/2014
-        for (int i = 0; i < intervalList.size(); i++) {
-//  if this NOT last iteration
-            if (!(i==intervalList.size()-1)) {
-                List<LocalDateTime> leftInterval = intervalList.get(i);
-                List<LocalDateTime> rigthInterval = intervalList.get(i+1);
-                if (leftInterval.get(1).equals(rigthInterval.get(0))) {
-                    rigth = rigthInterval.get(1);
-                } else {
-                    solidFreeIntervalList.add(Arrays.asList(left,rigth));
-                    left = intervalList.get(i+1).get(0);
-                    rigth = intervalList.get(i+1).get(1);
-                }
-//  if this LAST iteration
+//corrected
+        for (int i = 0; i < intervalList.size()-1; i++) {
+            List<LocalDateTime> leftInterval = intervalList.get(i);
+            List<LocalDateTime> rigthInterval = intervalList.get(i+1);
+            if (leftInterval.get(1).equals(rigthInterval.get(0))) {
+                rigth = rigthInterval.get(1);
             } else {
-                //local code review (vtegza): move this out of for loop @ 9/22/2014
-                solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(i).get(1)));
+                solidFreeIntervalList.add(Arrays.asList(left,rigth));
+                left = intervalList.get(i+1).get(0);
+                rigth = intervalList.get(i+1).get(1);
             }
         }
+//local code review (vtegza): move this out of for loop @ 9/22/2014
+//corrected
+        solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(intervalList.size()).get(1)));
         return solidFreeIntervalList;
-    }
-
-    @Override
-    public List<Event> searchEventByTitleStartWith(String prefix) {
-        if (prefix == null) throw new IllegalArgumentException();
-
-        LOG.info("Searching events by title start with '" + prefix + "'");
-        List<Event> presentInEventList = dataStore.searchEventByTitleStartWith(prefix);
-
-        if (presentInEventList.isEmpty())
-            LOG.info("Events not found!");
-        else
-            LOG.info("Found " + presentInEventList.size() + " events");
-
-        return presentInEventList;
     }
 }
 

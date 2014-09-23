@@ -105,6 +105,20 @@ public class DataStoreImpl implements DataStore {
     }
 
     @Override
+    public List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException{
+        if (prefix == null) throw new IllegalArgumentException();
+        List<Event> presentInEventList = new ArrayList<Event>();
+        for(String title :indexTitle.keySet()){
+            if(title.startsWith(prefix)){
+                for(UUID uuidTitle : indexTitle.get(title)) {
+                    presentInEventList.add(eventStore.get(uuidTitle));
+                }
+            }
+        }
+        return presentInEventList;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("DataStoreImpl{");
         sb.append("eventStore=").append(eventStore);
@@ -189,19 +203,5 @@ public class DataStoreImpl implements DataStore {
                 idsAttender.remove(event.getId());
             }
         }
-    }
-
-    @Override
-    public List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException{
-        if (prefix == null) throw new IllegalArgumentException();
-        List<Event> presentInEventList = new ArrayList<Event>();
-        for(String title :indexTitle.keySet()){
-            if(title.startsWith(prefix)){
-                for(UUID uuidTitle : indexTitle.get(title)) {
-                    presentInEventList.add(eventStore.get(uuidTitle));
-                }
-            }
-        }
-        return presentInEventList;
     }
 }

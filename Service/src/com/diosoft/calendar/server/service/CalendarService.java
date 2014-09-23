@@ -156,6 +156,6 @@ public interface CalendarService extends Remote {
      * @return List of events
      * @throws IllegalArgumentException
      */
-    List<Event> searchEventByTitleStartWith(String prefix);
+    List<Event> searchEventByTitleStartWith(String prefix) throws RemoteException, IllegalArgumentException;
 
 }

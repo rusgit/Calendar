@@ -66,5 +66,5 @@ public interface DataStore {
      * @return List of events
      * @throws IllegalArgumentException
      */
-    List<Event> searchEventByTitleStartWith(String prefix);
+    List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException;
 }

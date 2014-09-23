@@ -1,7 +1,7 @@
 package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.adapter.EventAdapter;
-import com.diosoft.calendar.server.adapter.EventAdapterWrapper;
+import com.diosoft.calendar.server.adapter.EventListAdapter;
 import com.diosoft.calendar.server.adapter.PersonAdapter;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
@@ -44,7 +44,7 @@ public class JAXBHelperImpl implements JAXBHelper {
         File file = new File(sb.toString());
 
         EventAdapter eventAdapter = new EventAdapter();
-        JAXBContext context = JAXBContext.newInstance(EventAdapterWrapper.class);
+        JAXBContext context = JAXBContext.newInstance(EventListAdapter.class);
         Unmarshaller um = context.createUnmarshaller();
         eventAdapter = (EventAdapter) um.unmarshal(file);
 
@@ -60,10 +60,10 @@ public class JAXBHelperImpl implements JAXBHelper {
         JAXBContext context;
         BufferedWriter writer = null;
         writer = new BufferedWriter(new FileWriter(file));
-        context = JAXBContext.newInstance(EventAdapterWrapper.class);
+        context = JAXBContext.newInstance(EventListAdapter.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        m.marshal(new EventAdapterWrapper(events), writer);
+        m.marshal(new EventListAdapter(events), writer);
         writer.close();
     }
 
@@ -73,10 +73,10 @@ public class JAXBHelperImpl implements JAXBHelper {
         sb.append("Service/resources/events/").append("ListOfEvents_").append(id).append(".xml");
         File file = new File(sb.toString());
 
-        EventAdapterWrapper eventAdapterWrapper = new EventAdapterWrapper();
-        JAXBContext context = JAXBContext.newInstance(EventAdapterWrapper.class);
+        EventListAdapter eventAdapterWrapper = new EventListAdapter();
+        JAXBContext context = JAXBContext.newInstance(EventListAdapter.class);
         Unmarshaller um = context.createUnmarshaller();
-        eventAdapterWrapper = (EventAdapterWrapper) um.unmarshal(file);
+        eventAdapterWrapper = (EventListAdapter) um.unmarshal(file);
 
         List<EventAdapter> eventAdapterList = eventAdapterWrapper.getEvents();
         List<Event> eventsList = new ArrayList<Event>();

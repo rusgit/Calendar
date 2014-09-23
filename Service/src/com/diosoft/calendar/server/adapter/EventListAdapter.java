@@ -11,14 +11,15 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "events")
 //local code review (vtegza): use standard naming - should be EventListAdapter @ 9/23/2014
-public class EventAdapterWrapper {
+//corrected
+public class EventListAdapter {
 
     @XmlElement(name = "event", type = EventAdapter.class)
     private List<EventAdapter> eventsAdapter = new ArrayList<EventAdapter>();
 
-    public EventAdapterWrapper() {}
+    public EventListAdapter() {}
 
-    public EventAdapterWrapper(List<Event> events) {
+    public EventListAdapter(List<Event> events) {
         for (Event event: events) {
             EventAdapter eventAdapter = new EventAdapter(event);
             eventsAdapter.add(eventAdapter);

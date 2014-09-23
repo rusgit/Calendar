@@ -9,7 +9,7 @@ import java.time.format.DateTimeParseException;
 
 public class DateParser {
 
-    private static final Logger LOG = Logger.getLogger(DateParser.class);
+    private static final Logger logger = Logger.getLogger(DateParser.class);
 
     public static LocalDateTime stringToDate(String stringDate) throws DateTimeFormatException, IllegalArgumentException {
 
@@ -21,7 +21,7 @@ public class DateParser {
         try {
             dateTime = LocalDateTime.parse(stringDate, formatter);
         } catch (DateTimeParseException dtpe) {
-            LOG.error(dtpe.getMessage());
+            logger.error(dtpe.getMessage());
             throw new DateTimeFormatException("Wrong format of date/time");
         }
 
@@ -38,7 +38,7 @@ public class DateParser {
         try {
             stringDate = dateTime.format(formatter);
         } catch (DateTimeException dte) {
-            LOG.error(dte.getMessage());
+            logger.error(dte.getMessage());
             throw new DateTimeException("Wrong value of year ,month, day, hour or minute");
         }
 
