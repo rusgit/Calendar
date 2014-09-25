@@ -116,7 +116,7 @@ public class MainClient {
             System.out.println(list);
 
 // SearchFreeTimeForEvent into period
-        logger.info("SearchFreeTime into period:");
+        logger.info("SearchFreeTime for Event into period:");
         List<List<LocalDateTime>> freeTimeForEventIntervalList = calendarService.searchFreeTimeForEvent(event1, DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
         for (List<LocalDateTime> list : freeTimeForEventIntervalList)
             System.out.println(list);
