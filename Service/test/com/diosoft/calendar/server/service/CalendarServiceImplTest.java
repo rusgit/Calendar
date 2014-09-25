@@ -749,7 +749,11 @@ public class CalendarServiceImplTest {
         list5.add(event5);
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2021-01-02 00:00").toLocalDate())).thenReturn(list5);
 
+        long start = System.nanoTime();
         List<List<LocalDateTime>> resultList = calendarService.searchFreeTime(startDate ,endDate);
+        long finish = System.nanoTime();
+        long timeConsumedMillis = finish - start;
+        System.out.println("SearchFreeTime: " + timeConsumedMillis + " nanosec!!!!!!!!!!!!!!!");
         Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(106)).getEventByDay(Matchers.any(LocalDate.class));
     }
@@ -858,8 +862,11 @@ public class CalendarServiceImplTest {
         List<Event> list5 = new ArrayList<Event>();
         list5.add(event5);
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2021-01-02 00:00").toLocalDate())).thenReturn(list5);
-
+        long start = System.nanoTime();
         List<List<LocalDateTime>> resultList = calendarService.searchFreeTime2(startDate ,endDate);
+        long finish = System.nanoTime();
+        long timeConsumedMillis = finish - start;
+        System.out.println("SearchFreeTime2: " + timeConsumedMillis + " nanosec!!!!!!!!!!!!!!!");
         Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(106)).getEventByDay(Matchers.any(LocalDate.class));
     }
@@ -941,6 +948,7 @@ public class CalendarServiceImplTest {
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-12-31 00:00").toLocalDate())).thenReturn(list3);
 
         List<List<LocalDateTime>> resultList = calendarService.searchFreeTimeForEvent(eventForSearch, startDate ,endDate);
+
         Assert.assertEquals(expectedList, resultList);
         verify(mockDataStore,times(81)).getEventByDay(Matchers.any(LocalDate.class));
     }
