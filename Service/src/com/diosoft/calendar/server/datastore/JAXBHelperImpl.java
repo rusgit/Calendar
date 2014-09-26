@@ -5,6 +5,8 @@ import com.diosoft.calendar.server.adapter.EventListAdapter;
 import com.diosoft.calendar.server.adapter.PersonAdapter;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.exception.DateTimeFormatException;
+import com.diosoft.calendar.server.util.DateParser;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -38,7 +40,7 @@ public class JAXBHelperImpl implements JAXBHelper {
     }
 
     @Override
-    public Event readEvent(UUID id) throws JAXBException {
+    public Event readEvent(UUID id) throws JAXBException, DateTimeFormatException {
         StringBuilder sb = new StringBuilder();
         sb.append("Service/resources/events/").append(id).append(".xml");
         File file = new File(sb.toString());
@@ -68,7 +70,7 @@ public class JAXBHelperImpl implements JAXBHelper {
     }
 
     @Override
-    public List<Event> readEventsList(UUID id) throws JAXBException {
+    public List<Event> readEventsList(UUID id) throws JAXBException, DateTimeFormatException {
         StringBuilder sb = new StringBuilder();
         sb.append("Service/resources/events/").append("ListOfEvents_").append(id).append(".xml");
         File file = new File(sb.toString());
@@ -101,7 +103,7 @@ public class JAXBHelperImpl implements JAXBHelper {
         return true;
     }
 
-    private Event eventAdapterToEvent(EventAdapter eventAdapter) {
+    private Event eventAdapterToEvent(EventAdapter eventAdapter) throws DateTimeFormatException {
 
         Set<PersonAdapter> personAdapterList = eventAdapter.getAttenders();
         Set<Person> attenderSet = new HashSet<Person>();
@@ -119,8 +121,8 @@ public class JAXBHelperImpl implements JAXBHelper {
                 .id(eventAdapter.getId())
                 .title(eventAdapter.getTitle())
                 .description(eventAdapter.getDescription())
-                .startDate(eventAdapter.getStartDate())
-                .endDate(eventAdapter.getEndDate())
+                .startDate(DateParser.stringToDate(eventAdapter.getStartDate()))
+                .endDate(DateParser.stringToDate(eventAdapter.getEndDate()))
                 .attendersSet(attenderSet)
                 .build();
 

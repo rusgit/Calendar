@@ -1,6 +1,8 @@
 package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.exception.DateTimeFormatException;
+
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +35,7 @@ public interface JAXBHelper {
      * @return event
      * @throws JAXBException
      */
-    Event readEvent(UUID id) throws JAXBException;
+    Event readEvent(UUID id) throws JAXBException, DateTimeFormatException;
 
     /**
      * Reads file and create list of events (read xml file)
@@ -41,7 +43,7 @@ public interface JAXBHelper {
      * @return list of events
      * @throws JAXBException
      */
-    List<Event> readEventsList(UUID id) throws JAXBException;
+    List<Event> readEventsList(UUID id) throws JAXBException, DateTimeFormatException;
 
     /**
      * Deletes file from persistent storage (delete xml file)

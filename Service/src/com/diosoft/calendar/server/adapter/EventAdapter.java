@@ -2,6 +2,8 @@ package com.diosoft.calendar.server.adapter;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.util.DateParser;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,8 +17,8 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
     private UUID id;
     private String title;
     private String description;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private String startDate;
+    private String endDate;
 
     @XmlElementWrapper(name = "attenders")
     @XmlElement(name = "attender")
@@ -31,10 +33,10 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
     public String getDescription() {
         return description;
     }
-    public LocalDateTime  getStartDate() {
+    public String  getStartDate() {
         return startDate;
     }
-    public LocalDateTime  getEndDate() {
+    public String  getEndDate() {
         return endDate;
     }
     public Set<PersonAdapter> getAttenders() {
@@ -47,8 +49,8 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
         this.id = event.getId();
         this.title = event.getTitle();
         this.description = event.getDescription();
-        this.startDate = event.getStartDate();
-        this.endDate = event.getEndDate();
+        this.startDate = DateParser.dateToString(event.getStartDate());
+        this.endDate = DateParser.dateToString(event.getEndDate());
         for (Person attender : event.getAttenders()) {
             attenders.add(new PersonAdapter(attender));
         }
