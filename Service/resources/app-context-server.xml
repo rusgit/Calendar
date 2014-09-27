@@ -13,7 +13,7 @@
 
     <bean id="jaxbHelper" class="com.diosoft.calendar.server.datastore.JAXBHelperImpl" />
 
-    <bean id="dataStore" class="com.diosoft.calendar.server.datastore.DataStoreImpl">
+    <bean id="dataStore" class="com.diosoft.calendar.server.datastore.DataStoreImpl" init-method="initDataStoreFromXMLResources">
         <constructor-arg ref="jaxbHelper"/>
     </bean>
 

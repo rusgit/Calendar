@@ -2,6 +2,8 @@ package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.exception.DateTimeFormatException;
+
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -20,9 +22,21 @@ public class DataStoreImpl implements DataStore {
         this.jaxbHelper = jaxbHelper;
     }
 
+    public void initDataStoreFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
+        List<Event> eventList = jaxbHelper.readAllEventsFromXMLResources();
+        for(Event event : eventList) {
+            if (isEventDuplicate(event)) continue;
+            eventStore.put(event.getId(), event);
+            createIndexTitle(event);
+            createIndexDate(event);
+            createIndexAttender(event);
+        }
+    }
+
     @Override
     public void publish(Event event) throws IllegalArgumentException, IOException, JAXBException {
         if (event==null) throw new IllegalArgumentException();
+        if (isEventDuplicate(event)) return;
 // add event
         eventStore.put(event.getId(), event);
 // index by title
@@ -203,5 +217,12 @@ public class DataStoreImpl implements DataStore {
                 idsAttender.remove(event.getId());
             }
         }
+    }
+
+    private boolean isEventDuplicate(Event event) {
+        for(Event e : searchEventByTitleStartWith(event.getTitle()))
+            if (e.equals(event))
+                return true;
+        return false;
     }
 }

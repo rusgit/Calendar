@@ -124,13 +124,13 @@ public class MainClient {
             System.out.println(list);
 
 // Edit event
-        Event eventForEdit = calendarService.searchByTitle("Mega Party").get(0);
+        Event eventForEdit = calendarService.searchByTitle("Edited event").get(0);
         logger.info("Edit event id=" + eventForEdit.getId());
         Event eventEdited = new Event.EventBuilder()
-                .id(eventForEdit.getId()).title("Edited event")
-                .description("It is edited event")
-                .startDate(DateParser.stringToDate("2020-08-07 10:00"))
-                .endDate(DateParser.stringToDate("2020-08-07 20:00"))
+                .id(eventForEdit.getId()).title(eventForEdit.getTitle())
+                .description(eventForEdit.getDescription() + "!")
+                .startDate(eventForEdit.getStartDate().plusHours(1))
+                .endDate(eventForEdit.getEndDate().plusHours(1))
                 .attendersSet(attenders).build();
         calendarService.edit(eventEdited);
         logger.info("event edited");

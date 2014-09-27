@@ -21,11 +21,19 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class JAXBHelperImpl implements JAXBHelper {
+    private final static String PATH_TO_EVENTS = "Service/resources/events/";
+
+    @Override
+    public List<Event> readAllEventsFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
+        List<Event> eventList = new ArrayList<Event>();
+        for (Path eventFile : Files.newDirectoryStream(Paths.get(PATH_TO_EVENTS))) eventList.add(readEvent(eventFile.toString()));
+        return eventList;
+    }
 
     @Override
     public void writeEvent(Event event) throws IOException, JAXBException {
         StringBuilder sb = new StringBuilder();
-        sb.append("Service/resources/events/").append(event.getId()).append(".xml");
+        sb.append(PATH_TO_EVENTS).append(event.getId()).append(".xml");
         File file = new File(sb.toString());
 
         JAXBContext context;
@@ -42,13 +50,17 @@ public class JAXBHelperImpl implements JAXBHelper {
     @Override
     public Event readEvent(UUID id) throws JAXBException, DateTimeFormatException {
         StringBuilder sb = new StringBuilder();
-        sb.append("Service/resources/events/").append(id).append(".xml");
-        File file = new File(sb.toString());
+        sb.append(PATH_TO_EVENTS).append(id).append(".xml");
+        return readEvent(sb.toString());
+    }
 
-        EventAdapter eventAdapter = new EventAdapter();
+    @Override
+    public Event readEvent(String pathToFile) throws JAXBException, DateTimeFormatException {
+        File file = new File(pathToFile);
+
         JAXBContext context = JAXBContext.newInstance(EventListAdapter.class);
         Unmarshaller um = context.createUnmarshaller();
-        eventAdapter = (EventAdapter) um.unmarshal(file);
+        EventAdapter eventAdapter = (EventAdapter) um.unmarshal(file);
 
         return eventAdapterToEvent(eventAdapter);
     }
@@ -56,7 +68,7 @@ public class JAXBHelperImpl implements JAXBHelper {
     @Override
     public void writeEventsList(List<Event> events) throws IOException, JAXBException {
         StringBuilder sb = new StringBuilder();
-        sb.append("Service/resources/events/").append("ListOfEvents_").append(UUID.randomUUID()).append(".xml");
+        sb.append(PATH_TO_EVENTS).append("ListOfEvents_").append(UUID.randomUUID()).append(".xml");
         File file = new File(sb.toString());
 
         JAXBContext context;
@@ -72,7 +84,7 @@ public class JAXBHelperImpl implements JAXBHelper {
     @Override
     public List<Event> readEventsList(UUID id) throws JAXBException, DateTimeFormatException {
         StringBuilder sb = new StringBuilder();
-        sb.append("Service/resources/events/").append("ListOfEvents_").append(id).append(".xml");
+        sb.append(PATH_TO_EVENTS).append("ListOfEvents_").append(id).append(".xml");
         File file = new File(sb.toString());
 
         EventListAdapter eventAdapterWrapper = new EventListAdapter();
@@ -96,7 +108,7 @@ public class JAXBHelperImpl implements JAXBHelper {
     public boolean deleteEvent(UUID id) throws JAXBException, IOException {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Service/resources/events/").append(id).append(".xml");
+        sb.append(PATH_TO_EVENTS).append(id).append(".xml");
         Path path = Paths.get(sb.toString());
 
         Files.delete(path);
