@@ -7,6 +7,7 @@ import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.util.DateParser;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -15,9 +16,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class JAXBHelperImpl implements JAXBHelper {
@@ -25,8 +25,25 @@ public class JAXBHelperImpl implements JAXBHelper {
 
     @Override
     public List<Event> readAllEventsFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
-        List<Event> eventList = new ArrayList<Event>();
-        for (Path eventFile : Files.newDirectoryStream(Paths.get(PATH_TO_EVENTS))) eventList.add(readEvent(eventFile.toString()));
+        final List<Event> eventList = new ArrayList<Event>();
+        Files.walkFileTree(Paths.get(PATH_TO_EVENTS), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException
+            {
+                PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.xml");
+                if (attrs.isRegularFile() && matcher.matches(file.getFileName())) {
+                    try {
+                        eventList.add(readEvent(file.toString()));
+                    } catch (JAXBException e) {
+                        e.printStackTrace();
+                    } catch (DateTimeFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
         return eventList;
     }
 
