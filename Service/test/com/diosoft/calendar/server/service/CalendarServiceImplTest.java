@@ -93,6 +93,21 @@ public class CalendarServiceImplTest {
     }
 
     @Test
+    public void testEdit() throws IOException, IllegalArgumentException, ValidationException, JAXBException, DateTimeFormatException {
+        calendarService.add(testEvent);
+        Event expectedEvent = new Event.EventBuilder()
+                .id(testEvent.getId()).title("Edited event")
+                .description("It is edited event")
+                .startDate(DateParser.stringToDate("2020-08-07 10:00"))
+                .endDate(DateParser.stringToDate("2020-08-07 20:00"))
+                .attendersSet(attenders).build();
+
+        calendarService.edit(expectedEvent);
+        verify(mockDataStore).remove(testEvent.getId());
+        verify(mockDataStore).publish(expectedEvent);
+    }
+
+    @Test
     public void testSearchByTitle() throws RemoteException, IllegalArgumentException  {
 
         attenders.add(testPerson);
@@ -863,7 +878,7 @@ public class CalendarServiceImplTest {
         list5.add(event5);
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2021-01-02 00:00").toLocalDate())).thenReturn(list5);
         long start = System.nanoTime();
-        List<List<LocalDateTime>> resultList = calendarService.searchFreeTime2(startDate ,endDate);
+        List<List<LocalDateTime>> resultList = calendarService.searchFreeTime2(startDate, endDate);
         long finish = System.nanoTime();
         long timeConsumedMillis = finish - start;
         System.out.println("SearchFreeTime2: " + timeConsumedMillis + " nanosec!!!!!!!!!!!!!!!");

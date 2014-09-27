@@ -9,6 +9,7 @@ import com.diosoft.calendar.server.exception.ValidationException;
 import com.diosoft.calendar.server.util.DateParser;
 import com.diosoft.calendar.server.util.EventValidator;
 import org.apache.log4j.Logger;
+
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.time.Duration;
@@ -105,6 +106,16 @@ public class CalendarServiceImpl implements CalendarService {
             logger.info("Event successfully removed");
         }
         return event;
+    }
+
+    @Override
+    public void edit(Event event) throws IOException, IllegalArgumentException, ValidationException, JAXBException {
+        if (event == null) throw new IllegalArgumentException();
+
+        logger.info("Edit event with title '" + event.getTitle() + "'");
+        remove(event.getId());
+        add(event);
+        logger.info("Event successfully edited");
     }
 
     @Override

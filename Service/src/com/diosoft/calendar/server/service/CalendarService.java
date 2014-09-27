@@ -58,6 +58,13 @@ public interface CalendarService extends Remote {
     Event remove(UUID id) throws RemoteException, IOException, IllegalArgumentException, JAXBException;
 
     /**
+     * Provides ability to edit event in the data store.
+     * @param event which edits
+     * @throws RemoteException, IllegalArgumentException
+     */
+    void edit(Event event) throws RemoteException, IOException, IllegalArgumentException, ValidationException, JAXBException;
+
+    /**
      * Provides ability to search events by title from the data store.
      * Uses method of dataStoreImpl: List<Event> searchByTitle(String title)
      * @param title for search

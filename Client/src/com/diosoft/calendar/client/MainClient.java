@@ -18,8 +18,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.apache.log4j.Logger.*;
+
 public class MainClient {
-    private static final Logger logger = Logger.getLogger(MainClient.class);
+    private static final Logger logger = getLogger(MainClient.class);
 
     public static void main(String[] args) throws IOException, DateTimeFormatException, OrderOfArgumentsException, ValidationException, JAXBException {
 
@@ -121,12 +123,16 @@ public class MainClient {
         for (List<LocalDateTime> list : freeTimeForEventIntervalList)
             System.out.println(list);
 
-// Test Validate throw ValidationException "Not specified event name":
-//        logger.info("Validate wrong event:");
-//        String[] descriptions5 = {"", "It will be a great party!", "2014-09-07"};
-//        Event event4 = calendarService.createEventForAllDay(descriptions5, attenders);
-//        System.out.println(event4);
+// Edit event
+        Event eventForEdit = calendarService.searchByTitle("Mega Party").get(0);
+        logger.info("Edit event id=" + eventForEdit.getId());
+        Event eventEdited = new Event.EventBuilder()
+                .id(eventForEdit.getId()).title("Edited event")
+                .description("It is edited event")
+                .startDate(DateParser.stringToDate("2020-08-07 10:00"))
+                .endDate(DateParser.stringToDate("2020-08-07 20:00"))
+                .attendersSet(attenders).build();
+        calendarService.edit(eventEdited);
+        logger.info("event edited");
     }
-
-
 }
