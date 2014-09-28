@@ -8,8 +8,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+//local code review (vtegza): remove "Event" from method names - it is already in declaration (parameters) @ 9/28/2014
 public interface JAXBHelper {
-
+//local code review (vtegza): no need in docs if method names tell everything what method do @ 9/28/2014
     /**
      * Adds event to persistence storage (create xml file)
      * @param event

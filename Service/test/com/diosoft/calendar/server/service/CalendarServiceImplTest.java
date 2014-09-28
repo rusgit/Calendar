@@ -370,6 +370,7 @@ public class CalendarServiceImplTest {
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertTrue(isFreeResult);
+        //local code review (vtegza): no need in times @ 9/28/2014
         verify(mockDataStore,times(1)).getEventByAttender(attender);
     }
 
@@ -669,7 +670,7 @@ public class CalendarServiceImplTest {
         Set<Person> attendersTest = new HashSet<Person>();
 
         attendersTest.add(attender);
-
+//local code review (vtegza): no need in such long test data set @ 9/28/2014
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")

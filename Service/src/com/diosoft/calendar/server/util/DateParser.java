@@ -36,6 +36,7 @@ public class DateParser {
         String stringDate = null;
 
         try {
+            //local code review (vtegza): return value and null in the end of method @ 9/28/2014
             stringDate = dateTime.format(formatter);
         } catch (DateTimeException dte) {
             logger.error(dte.getMessage());

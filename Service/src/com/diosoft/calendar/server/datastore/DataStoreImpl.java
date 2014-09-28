@@ -18,6 +18,7 @@ public class DataStoreImpl implements DataStore {
 
     private final JAXBHelper jaxbHelper;
 
+    //local code review (vtegza): define access level @ 9/28/2014
     DataStoreImpl(JAXBHelper jaxbHelper) {
         this.jaxbHelper = jaxbHelper;
     }

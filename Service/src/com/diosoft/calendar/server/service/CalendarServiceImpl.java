@@ -349,7 +349,7 @@ public class CalendarServiceImpl implements CalendarService {
             throws OrderOfArgumentsException, IllegalArgumentException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
-
+//local code review (vtegza): extract to the different methods @ 9/28/2014
         if (event.getStartDate().isAfter(startDate) && event.getStartDate().isBefore(endDate) // event start date into period
                 || event.getEndDate().isAfter(startDate) && event.getEndDate().isBefore(endDate) // event end date into period
                 || event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate) // period into event
@@ -370,6 +370,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     private boolean isEventAndFreeIntervalCrossingInStartEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
+        //local code review (vtegza): extract to the different methods @ 9/28/2014
         if (event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
                 && event.getEndDate().isAfter(interval.get(0))
                 && (event.getEndDate().isBefore(interval.get(1).minusMinutes(MINUTE_INTERVAL))
@@ -381,6 +382,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     private boolean isEventAndFreeIntervalCrossingInEndEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
+        //local code review (vtegza): extract to the different methods @ 9/28/2014
         if ((event.getStartDate().isAfter(interval.get(0).plusMinutes(MINUTE_INTERVAL))
                 || event.getStartDate().isEqual(interval.get(0).plusMinutes(MINUTE_INTERVAL)))
                 && event.getStartDate().isBefore(interval.get(1))
@@ -392,6 +394,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     private boolean isEventInsideFreeInterval(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
+        //local code review (vtegza): extract to the different methods @ 9/28/2014
         if ( (event.getStartDate().isAfter(interval.get(0).plusMinutes(MINUTE_INTERVAL))
                 || event.getStartDate().isEqual(interval.get(0).plusMinutes(MINUTE_INTERVAL)))
                 && (event.getEndDate().isBefore(interval.get(1).minusMinutes(MINUTE_INTERVAL))

@@ -21,11 +21,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class JAXBHelperImpl implements JAXBHelper {
+
+    //local code review (vtegza): provide path in application context @ 9/28/2014
     private final static String PATH_TO_EVENTS = "Service/resources/events/";
 
     @Override
     public List<Event> readAllEventsFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
         final List<Event> eventList = new ArrayList<Event>();
+        //local code review (vtegza): create separated class for file visitor @ 9/28/2014
         Files.walkFileTree(Paths.get(PATH_TO_EVENTS), new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -51,9 +54,11 @@ public class JAXBHelperImpl implements JAXBHelper {
     public void writeEvent(Event event) throws IOException, JAXBException {
         StringBuilder sb = new StringBuilder();
         sb.append(PATH_TO_EVENTS).append(event.getId()).append(".xml");
+        //local code review (vtegza): try to do same with Path @ 9/28/2014
         File file = new File(sb.toString());
 
         JAXBContext context;
+        //local code review (vtegza): no need to initiate variable with null here @ 9/28/2014
         BufferedWriter writer = null;
         writer = new BufferedWriter(new FileWriter(file));
         context = JAXBContext.newInstance(EventAdapter.class);
@@ -103,7 +108,7 @@ public class JAXBHelperImpl implements JAXBHelper {
         StringBuilder sb = new StringBuilder();
         sb.append(PATH_TO_EVENTS).append("ListOfEvents_").append(id).append(".xml");
         File file = new File(sb.toString());
-
+        //local code review (vtegza): unnecessary object creation @ 9/28/2014
         EventListAdapter eventAdapterWrapper = new EventListAdapter();
         JAXBContext context = JAXBContext.newInstance(EventListAdapter.class);
         Unmarshaller um = context.createUnmarshaller();
