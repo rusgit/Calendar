@@ -129,8 +129,8 @@ public class MainClient {
         Event eventEdited = new Event.EventBuilder()
                 .id(eventForEdit.getId()).title(eventForEdit.getTitle())
                 .description(eventForEdit.getDescription() + "!")
-                .startDate(eventForEdit.getStartDate().plusHours(1))
-                .endDate(eventForEdit.getEndDate().plusHours(1))
+                .startDate(LocalDateTime.now().plusHours(1))
+                .endDate(LocalDateTime.now().plusHours(2))
                 .attendersSet(attenders).build();
         calendarService.edit(eventEdited);
         logger.info("event edited");

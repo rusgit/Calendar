@@ -11,7 +11,9 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-3.0.xsd " >
 
-    <bean id="jaxbHelper" class="com.diosoft.calendar.server.datastore.JAXBHelperImpl" />
+    <bean id="jaxbHelper" class="com.diosoft.calendar.server.datastore.JAXBHelperImpl" >
+        <constructor-arg name="pathToEvents" value="Service/resources/events/" />
+    </bean>
 
     <bean id="dataStore" class="com.diosoft.calendar.server.datastore.DataStoreImpl" init-method="initDataStoreFromXMLResources">
         <constructor-arg ref="jaxbHelper"/>

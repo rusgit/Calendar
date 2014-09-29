@@ -16,20 +16,25 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class JAXBHelperImpl implements JAXBHelper {
 
-    //local code review (vtegza): provide path in application context @ 9/28/2014
-    private final static String PATH_TO_EVENTS = "Service/resources/events/";
+    private String pathToEvents;
+
+    public JAXBHelperImpl(String pathToEvents) {
+        this.pathToEvents = pathToEvents;
+    }
 
     @Override
     public List<Event> readAllEventsFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
         final List<Event> eventList = new ArrayList<Event>();
         //local code review (vtegza): create separated class for file visitor @ 9/28/2014
-        Files.walkFileTree(Paths.get(PATH_TO_EVENTS), new SimpleFileVisitor<Path>() {
+        //Files.walkFileTree(Paths.get(pathToEvents), new EventFileVisitor());
+        Files.walkFileTree(Paths.get(pathToEvents), new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                     throws IOException
@@ -37,7 +42,7 @@ public class JAXBHelperImpl implements JAXBHelper {
                 PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.xml");
                 if (attrs.isRegularFile() && matcher.matches(file.getFileName())) {
                     try {
-                        eventList.add(readEvent(file.toString()));
+                        eventList.add(read(file.toString()));
                     } catch (JAXBException e) {
                         e.printStackTrace();
                     } catch (DateTimeFormatException e) {
@@ -51,33 +56,31 @@ public class JAXBHelperImpl implements JAXBHelper {
     }
 
     @Override
-    public void writeEvent(Event event) throws IOException, JAXBException {
+    public void write(Event event) throws IOException, JAXBException {
         StringBuilder sb = new StringBuilder();
-        sb.append(PATH_TO_EVENTS).append(event.getId()).append(".xml");
-        //local code review (vtegza): try to do same with Path @ 9/28/2014
-        File file = new File(sb.toString());
+        sb.append(pathToEvents).append(event.getId()).append(".xml");
+        Path filePath = Paths.get(sb.toString());
+        Charset charset = Charset.forName("UTF-8");
+        BufferedWriter writer = Files.newBufferedWriter(filePath, charset);
+        EventAdapter eventAdapter = new EventAdapter(event);
+        JAXBContext context = JAXBContext.newInstance(EventAdapter.class);
 
-        JAXBContext context;
-        //local code review (vtegza): no need to initiate variable with null here @ 9/28/2014
-        BufferedWriter writer = null;
-        writer = new BufferedWriter(new FileWriter(file));
-        context = JAXBContext.newInstance(EventAdapter.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        EventAdapter eventAdapter = new EventAdapter(event);
         m.marshal(eventAdapter, writer);
+
         writer.close();
     }
 
     @Override
-    public Event readEvent(UUID id) throws JAXBException, DateTimeFormatException {
+    public Event read(UUID id) throws JAXBException, DateTimeFormatException {
         StringBuilder sb = new StringBuilder();
-        sb.append(PATH_TO_EVENTS).append(id).append(".xml");
-        return readEvent(sb.toString());
+        sb.append(pathToEvents).append(id).append(".xml");
+        return read(sb.toString());
     }
 
     @Override
-    public Event readEvent(String pathToFile) throws JAXBException, DateTimeFormatException {
+    public Event read(String pathToFile) throws JAXBException, DateTimeFormatException {
         File file = new File(pathToFile);
 
         JAXBContext context = JAXBContext.newInstance(EventListAdapter.class);
@@ -90,12 +93,11 @@ public class JAXBHelperImpl implements JAXBHelper {
     @Override
     public void writeEventsList(List<Event> events) throws IOException, JAXBException {
         StringBuilder sb = new StringBuilder();
-        sb.append(PATH_TO_EVENTS).append("ListOfEvents_").append(UUID.randomUUID()).append(".xml");
+        sb.append(pathToEvents).append("ListOfEvents_").append(UUID.randomUUID()).append(".xml");
         File file = new File(sb.toString());
 
         JAXBContext context;
-        BufferedWriter writer = null;
-        writer = new BufferedWriter(new FileWriter(file));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         context = JAXBContext.newInstance(EventListAdapter.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -106,13 +108,11 @@ public class JAXBHelperImpl implements JAXBHelper {
     @Override
     public List<Event> readEventsList(UUID id) throws JAXBException, DateTimeFormatException {
         StringBuilder sb = new StringBuilder();
-        sb.append(PATH_TO_EVENTS).append("ListOfEvents_").append(id).append(".xml");
+        sb.append(pathToEvents).append("ListOfEvents_").append(id).append(".xml");
         File file = new File(sb.toString());
-        //local code review (vtegza): unnecessary object creation @ 9/28/2014
-        EventListAdapter eventAdapterWrapper = new EventListAdapter();
         JAXBContext context = JAXBContext.newInstance(EventListAdapter.class);
         Unmarshaller um = context.createUnmarshaller();
-        eventAdapterWrapper = (EventListAdapter) um.unmarshal(file);
+        EventListAdapter eventAdapterWrapper = (EventListAdapter) um.unmarshal(file);
 
         List<EventAdapter> eventAdapterList = eventAdapterWrapper.getEvents();
         List<Event> eventsList = new ArrayList<Event>();
@@ -127,10 +127,10 @@ public class JAXBHelperImpl implements JAXBHelper {
     }
 
     @Override
-    public boolean deleteEvent(UUID id) throws JAXBException, IOException {
+    public boolean delete(UUID id) throws JAXBException, IOException {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(PATH_TO_EVENTS).append(id).append(".xml");
+        sb.append(pathToEvents).append(id).append(".xml");
         Path path = Paths.get(sb.toString());
 
         Files.delete(path);

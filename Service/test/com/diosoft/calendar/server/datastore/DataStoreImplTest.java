@@ -50,14 +50,14 @@ public class DataStoreImplTest {
         Event actualEvent = dataStore.getEventById(testEvent.getId());
 
         assertEquals(expectedEvent,actualEvent);
-        verify(mockJaxbHelper,times(1)).writeEvent(testEvent);
+        verify(mockJaxbHelper,times(1)).write(testEvent);
     }
 
     @Test(expected = IllegalArgumentException.class )
     public void testPublishWithNullArg() throws IllegalArgumentException, IOException, JAXBException {
 
         dataStore.publish(null);
-        verify(mockJaxbHelper,never()).writeEvent(testEvent);;
+        verify(mockJaxbHelper,never()).write(testEvent);;
     }
 
     @Test
@@ -70,7 +70,7 @@ public class DataStoreImplTest {
         Event actualRemovedEvent = dataStore.remove(testEvent.getId());
 
         assertEquals(expectedRemovedEvent,actualRemovedEvent);
-        verify(mockJaxbHelper,times(1)).deleteEvent(testEvent.getId());
+        verify(mockJaxbHelper,times(1)).delete(testEvent.getId());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class DataStoreImplTest {
 
         Event actualRemovedEvent = dataStore.remove(testEvent.getId());
         assertNull(actualRemovedEvent);
-        verify(mockJaxbHelper,never()).deleteEvent(testEvent.getId());
+        verify(mockJaxbHelper,never()).delete(testEvent.getId());
     }
 
     @Test(expected = IllegalArgumentException.class)

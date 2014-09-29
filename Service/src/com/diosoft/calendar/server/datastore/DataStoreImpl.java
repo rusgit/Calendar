@@ -18,8 +18,7 @@ public class DataStoreImpl implements DataStore {
 
     private final JAXBHelper jaxbHelper;
 
-    //local code review (vtegza): define access level @ 9/28/2014
-    DataStoreImpl(JAXBHelper jaxbHelper) {
+    public DataStoreImpl(JAXBHelper jaxbHelper) {
         this.jaxbHelper = jaxbHelper;
     }
 
@@ -47,7 +46,7 @@ public class DataStoreImpl implements DataStore {
 // index by attender
         createIndexAttender(event);
 // create xml file with event
-        jaxbHelper.writeEvent(event);
+        jaxbHelper.write(event);
    }
 
     @Override
@@ -63,7 +62,7 @@ public class DataStoreImpl implements DataStore {
 // remove index attender
            removeIndexAttender(event);
 // delete xml file with event
-           jaxbHelper.deleteEvent(event.getId());
+           jaxbHelper.delete(event.getId());
        }
       return event;
    }
