@@ -31,28 +31,6 @@ public class JAXBHelperImpl implements JAXBHelper {
 
     @Override
     public List<Event> readAllEventsFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
-        //final List<Event> eventList = new ArrayList<Event>();
-        //local code review (vtegza): create separated class for file visitor @ 9/28/2014
-        //Files.walkFileTree(Paths.get(pathToEvents), new EventFileVisitor());
-        /*Files.walkFileTree(Paths.get(pathToEvents), new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException
-            {
-                PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.xml");
-                if (attrs.isRegularFile() && matcher.matches(file.getFileName())) {
-                    try {
-                        eventList.add(read(file.toString()));
-                    } catch (JAXBException e) {
-                        e.printStackTrace();
-                    } catch (DateTimeFormatException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return FileVisitResult.CONTINUE;
-            }
-        });*/
-        //return eventList;
         EventFileVisitor eventFileVisitor = new EventFileVisitor();
         Files.walkFileTree(Paths.get(pathToEvents), eventFileVisitor);
         return eventFileVisitor.getEventList();

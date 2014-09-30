@@ -33,17 +33,14 @@ public class DateParser {
         if (dateTime==null) throw new IllegalArgumentException();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String stringDate = null;
 
         try {
-            //local code review (vtegza): return value and null in the end of method @ 9/28/2014
-            stringDate = dateTime.format(formatter);
+            String stringDate = dateTime.format(formatter);
+            return stringDate;
         } catch (DateTimeException dte) {
             logger.error(dte.getMessage());
-            throw new DateTimeException("Wrong value of year ,month, day, hour or minute");
+            throw new DateTimeException("Wrong value of year, month, day, hour or minute");
         }
-
-        return stringDate;
     }
 
 
