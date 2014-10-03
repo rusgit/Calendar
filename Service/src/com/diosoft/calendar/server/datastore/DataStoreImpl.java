@@ -3,6 +3,7 @@ package com.diosoft.calendar.server.datastore;
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
+import com.diosoft.calendar.server.filesystem.FileSystem;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -16,14 +17,14 @@ public class DataStoreImpl implements DataStore {
     private Map<LocalDate, List<UUID>> indexDate = new HashMap<LocalDate, List<UUID>>();
     private Map<Person, List<UUID>> indexAttender = new HashMap<Person, List<UUID>>();
 
-    private final JAXBHelper jaxbHelper;
+    private final FileSystem fileSystem;
 
-    public DataStoreImpl(JAXBHelper jaxbHelper) {
-        this.jaxbHelper = jaxbHelper;
+    public DataStoreImpl(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 
-    public void initDataStoreFromXMLResources() throws JAXBException, IOException, DateTimeFormatException {
-        List<Event> eventList = jaxbHelper.readAllEventsFromXMLResources();
+    public void initDataStoreFromXMLResources() throws IOException, DateTimeFormatException {
+        List<Event> eventList = fileSystem.readAllEventsFromXMLResources();
         for(Event event : eventList) {
             if (isEventDuplicate(event)) continue;
             eventStore.put(event.getId(), event);
@@ -46,7 +47,7 @@ public class DataStoreImpl implements DataStore {
 // index by attender
         createIndexAttender(event);
 // create xml file with event
-        jaxbHelper.write(event);
+        fileSystem.write(event);
    }
 
     @Override
@@ -62,7 +63,7 @@ public class DataStoreImpl implements DataStore {
 // remove index attender
            removeIndexAttender(event);
 // delete xml file with event
-           jaxbHelper.delete(event.getId());
+           fileSystem.delete(event.getId());
        }
       return event;
    }

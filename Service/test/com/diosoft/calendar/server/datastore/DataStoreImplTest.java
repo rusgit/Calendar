@@ -2,6 +2,7 @@ package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
 import com.diosoft.calendar.server.common.Person;
+import com.diosoft.calendar.server.filesystem.FileSystem;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,13 +32,13 @@ public class DataStoreImplTest {
             .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
             .attendersSet(attenders).build();
 
-    private JAXBHelper mockJaxbHelper;
+    private FileSystem mockFileSystem;
     private DataStore dataStore;
 
     @Before
     public void setUp() {
-        mockJaxbHelper =  mock(JAXBHelper.class);
-        dataStore = new DataStoreImpl(mockJaxbHelper);
+        mockFileSystem = mock(FileSystem.class);
+        dataStore = new DataStoreImpl(mockFileSystem);
     }
 
     @Test
@@ -50,14 +51,14 @@ public class DataStoreImplTest {
         Event actualEvent = dataStore.getEventById(testEvent.getId());
 
         assertEquals(expectedEvent,actualEvent);
-        verify(mockJaxbHelper,times(1)).write(testEvent);
+        verify(mockFileSystem).write(testEvent);
     }
 
     @Test(expected = IllegalArgumentException.class )
     public void testPublishWithNullArg() throws IllegalArgumentException, IOException, JAXBException {
 
         dataStore.publish(null);
-        verify(mockJaxbHelper,never()).write(testEvent);;
+        verify(mockFileSystem,never()).write(testEvent);
     }
 
     @Test
@@ -70,7 +71,7 @@ public class DataStoreImplTest {
         Event actualRemovedEvent = dataStore.remove(testEvent.getId());
 
         assertEquals(expectedRemovedEvent,actualRemovedEvent);
-        verify(mockJaxbHelper,times(1)).delete(testEvent.getId());
+        verify(mockFileSystem).delete(testEvent.getId());
     }
 
     @Test
@@ -78,14 +79,14 @@ public class DataStoreImplTest {
 
         Event actualRemovedEvent = dataStore.remove(testEvent.getId());
         assertNull(actualRemovedEvent);
-        verify(mockJaxbHelper,never()).delete(testEvent.getId());
+        verify(mockFileSystem,never()).delete(testEvent.getId());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRemoveWithNullArg() throws IllegalArgumentException, JAXBException, IOException {
 
         dataStore.remove(null);
-        verify(mockJaxbHelper,never());
+        verify(mockFileSystem,never()).delete(null);
     }
 
     @Test

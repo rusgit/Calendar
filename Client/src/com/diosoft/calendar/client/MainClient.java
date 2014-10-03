@@ -57,7 +57,7 @@ public class MainClient {
         logger.info("event created and added.");
 
         logger.info("Creating and adding event...");
-        String[] descriptions2 = {"Mega Party", "It will be a great party!", "2020-09-09 13:00", "2020-09-09 18:00"};
+        String[] descriptions2 = {"Mega Party 2", "It will be a second great party!", "2020-09-09 13:00", "2020-09-09 18:00"};
         Event event2 = calendarService.createEvent(descriptions2, attenders);
         logger.info("event created and added.");
 
