@@ -12,11 +12,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.*;
 
 public class FileSystemImpl implements FileSystem{
 
     final private JAXBHelperImpl jaxbHelper;
     final private String pathToEvents;
+    private ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public FileSystemImpl(JAXBHelperImpl jaxbHelper, String pathToEvents) {
         this.jaxbHelper = jaxbHelper;
@@ -24,40 +26,67 @@ public class FileSystemImpl implements FileSystem{
     }
 
     @Override
-    public void write(Event event) throws IOException, JAXBException {
-        StringBuilder sb = new StringBuilder();
-        sb.append(pathToEvents).append(event.getId()).append(".xml");
-        Path filePath = Paths.get(sb.toString());
-        Charset charset = Charset.forName("UTF-8");
-        BufferedWriter writer = Files.newBufferedWriter(filePath, charset);
-        jaxbHelper.write(event, writer);
-        writer.close();
+    public void write(Event event) {
+        final Event e = event;
+        executorService.submit(new Runnable() {
+            public void run() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(pathToEvents).append(e.getId()).append(".xml");
+                Path filePath = Paths.get(sb.toString());
+                Charset charset = Charset.forName("UTF-8");
+                BufferedWriter writer = null;
+                try {
+                    writer = Files.newBufferedWriter(filePath, charset);
+                    jaxbHelper.write(e, writer);
+                    writer.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (JAXBException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
-    public Event read(UUID id) throws DateTimeFormatException, IOException, JAXBException {
+    public Event read(UUID id) throws DateTimeFormatException, IOException, JAXBException, ExecutionException, InterruptedException {
         StringBuilder sb = new StringBuilder();
         sb.append(pathToEvents).append(id).append(".xml");
         return read(Paths.get(sb.toString()));
     }
 
     @Override
-    public Event read(Path pathToFile) throws DateTimeFormatException, IOException, JAXBException {
-        return jaxbHelper.read(Files.newBufferedReader(pathToFile));
+    public Event read(Path pathToFile) throws DateTimeFormatException, IOException, JAXBException, ExecutionException, InterruptedException {
+        final Path file = pathToFile;
+        Future<Event> future = executorService.submit(new Callable<Event>() {
+            @Override
+            public Event call() throws IOException, JAXBException, DateTimeFormatException {
+                return jaxbHelper.read(Files.newBufferedReader(file));
+            }
+        });
+        return future.get();
     }
 
     @Override
     public boolean delete(UUID id) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append(pathToEvents).append(id).append(".xml");
-        Path path = Paths.get(sb.toString());
-
-        Files.delete(path);
+        final UUID eventId = id;
+        executorService.submit(new Runnable() {
+            public void run() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(pathToEvents).append(eventId).append(".xml");
+                Path path = Paths.get(sb.toString());
+                try {
+                    Files.delete(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         return true;
     }
 
     @Override
-    public List<Event> readAllEventsFromXMLResources() throws IOException, DateTimeFormatException {
+    public List<Event> readAllEventsFromXMLResources() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException {
         EventFileVisitor eventFileVisitor = new EventFileVisitor();
         Files.walkFileTree(Paths.get(pathToEvents), eventFileVisitor);
         return eventFileVisitor.getEventList();

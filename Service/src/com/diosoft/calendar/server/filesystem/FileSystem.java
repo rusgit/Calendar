@@ -8,16 +8,17 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public interface FileSystem {
 
     void write(Event event) throws IOException, JAXBException;
 
-    Event read(UUID id) throws DateTimeFormatException, IOException, JAXBException;
+    Event read(UUID id) throws DateTimeFormatException, IOException, JAXBException, ExecutionException, InterruptedException;
 
-    Event read(Path pathToFile) throws DateTimeFormatException, IOException, JAXBException;
+    Event read(Path pathToFile) throws DateTimeFormatException, IOException, JAXBException, ExecutionException, InterruptedException;
 
     boolean delete(UUID id) throws IOException;
 
-    List<Event>  readAllEventsFromXMLResources() throws IOException, DateTimeFormatException;
+    List<Event>  readAllEventsFromXMLResources() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException;
 }

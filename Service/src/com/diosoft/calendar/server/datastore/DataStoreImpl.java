@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class DataStoreImpl implements DataStore {
 
@@ -23,7 +24,7 @@ public class DataStoreImpl implements DataStore {
         this.fileSystem = fileSystem;
     }
 
-    public void initDataStoreFromXMLResources() throws IOException, DateTimeFormatException {
+    public void initDataStoreFromXMLResources() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException {
         List<Event> eventList = fileSystem.readAllEventsFromXMLResources();
         for(Event event : eventList) {
             if (isEventDuplicate(event)) continue;
