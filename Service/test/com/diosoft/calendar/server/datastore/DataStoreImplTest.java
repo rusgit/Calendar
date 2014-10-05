@@ -23,7 +23,7 @@ public class DataStoreImplTest {
             .email("denis@ukr.net")
             .build();
 
-    Set<Person> attenders = new HashSet<Person>();
+    Set<Person> attenders = new HashSet<>();
 
     Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
@@ -58,7 +58,7 @@ public class DataStoreImplTest {
     public void testPublishWithNullArg() throws IllegalArgumentException, IOException, JAXBException {
 
         dataStore.publish(null);
-        verify(mockFileSystem,never()).write(testEvent);
+        verify(mockFileSystem, never()).write(testEvent);
     }
 
     @Test
@@ -79,14 +79,14 @@ public class DataStoreImplTest {
 
         Event actualRemovedEvent = dataStore.remove(testEvent.getId());
         assertNull(actualRemovedEvent);
-        verify(mockFileSystem,never()).delete(testEvent.getId());
+        verify(mockFileSystem, never()).delete(testEvent.getId());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRemoveWithNullArg() throws IllegalArgumentException, JAXBException, IOException {
 
         dataStore.remove(null);
-        verify(mockFileSystem,never()).delete(null);
+        verify(mockFileSystem, never()).delete(null);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class DataStoreImplTest {
         dataStore.publish(testEvent);
         Event actualEvent = dataStore.getEventById(testEvent.getId());
 
-        assertEquals(expectedEvent,actualEvent);
+        assertEquals(expectedEvent, actualEvent);
     }
 
     @Test
@@ -118,20 +118,20 @@ public class DataStoreImplTest {
     public void testGetEventByTitle() throws IllegalArgumentException, IOException, JAXBException {
 
         attenders.add(testPerson);
-        List<Event> expectedEvents = new ArrayList<Event>();
+        List<Event> expectedEvents = new ArrayList<>();
         expectedEvents.add(testEvent);
 
         dataStore.publish(testEvent);
         List<Event> actualEvents = dataStore.getEventByTitle(testEvent.getTitle());
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
     }
 
     @Test
     public void testGetEventByTitleNotExistsEvent() throws IllegalArgumentException  {
 
 //  empty list
-        List<Event> expectedEvents = new ArrayList<Event>();
+        List<Event> expectedEvents = new ArrayList<>();
 
         List<Event> actualEvents = dataStore.getEventByTitle(testEvent.getTitle());
 
@@ -148,24 +148,24 @@ public class DataStoreImplTest {
     public void testGetEventByDay() throws IllegalArgumentException, IOException, JAXBException {
 
         attenders.add(testPerson);
-        List<Event> expectedEvents = new ArrayList<Event>();
+        List<Event> expectedEvents = new ArrayList<>();
         expectedEvents.add(testEvent);
 
         dataStore.publish(testEvent);
         List<Event> actualEvents = dataStore.getEventByDay(testEvent.getStartDate().toLocalDate());
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
     }
 
     @Test
     public void testGetEventByDayNotExistsEvent() throws IllegalArgumentException  {
 
 //  empty list
-        List<Event> expectedEvents = new ArrayList<Event>();
+        List<Event> expectedEvents = new ArrayList<>();
 
         List<Event> actualEvents = dataStore.getEventByDay(testEvent.getStartDate().toLocalDate());
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -178,24 +178,24 @@ public class DataStoreImplTest {
     public void testGetEventByAttender() throws IllegalArgumentException, IOException, JAXBException {
 
         attenders.add(testPerson);
-        List<Event> expectedEvents = new ArrayList<Event>();
+        List<Event> expectedEvents = new ArrayList<>();
         expectedEvents.add(testEvent);
 
         dataStore.publish(testEvent);
         List<Event> actualEvents = dataStore.getEventByAttender(testPerson);
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
     }
 
     @Test
     public void testGetEventByAttenderNotExistsEvent() throws IllegalArgumentException  {
 
 // empty list
-        List<Event> expectedEvents = new ArrayList<Event>();
+        List<Event> expectedEvents = new ArrayList<>();
 
         List<Event> actualEvents = dataStore.getEventByAttender(testPerson);
 
-        assertEquals(expectedEvents,actualEvents);
+        assertEquals(expectedEvents, actualEvents);
     }
 
 
@@ -220,7 +220,7 @@ public class DataStoreImplTest {
                 .email("denis@ukr.net")
                 .build();
 
-        Set<Person> attenders = new HashSet<Person>();
+        Set<Person> attenders = new HashSet<>();
         attenders.add(testPerson);
 
         Event testEvent = new Event.EventBuilder()
@@ -230,7 +230,7 @@ public class DataStoreImplTest {
                 .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
                 .attendersSet(attenders).build();
 
-        List<Event> expectedEventList = new ArrayList<Event>();
+        List<Event> expectedEventList = new ArrayList<>();
         expectedEventList.add(testEvent);
         String prefix = "Tes";
         dataStore.publish(testEvent);

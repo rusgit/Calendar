@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -263,7 +264,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate)
+            throws OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -280,6 +282,54 @@ public class CalendarServiceImpl implements CalendarService {
             }
         }
         logger.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event");
+        return freeIntervalListForEvent;
+    }
+
+    @Override
+    public List<List<LocalDateTime>> searchFreeTimeForEventWithAttenders(Event event, LocalDateTime startDate, LocalDateTime endDate)
+            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+        if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        logger.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
+                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate) +
+                " with attenders: " + event.getAttenders().toString());
+
+        Set<Event> attendersEvents = new HashSet<>();
+        for (Person attender : event.getAttenders()) {
+            attendersEvents.addAll(searchByAttenderIntoPeriod(attender, startDate, endDate));
+        }
+        List<List<LocalDateTime>> freeTimeList = new LinkedList<>();
+        freeTimeList.add(Arrays.asList(startDate, endDate));
+        for(Event e : attendersEvents) {
+            ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
+            while (it.hasNext()) {
+                List<LocalDateTime> freeTimeInterval = it.next();
+                if (isEventIncludesFreeInterval(e, freeTimeInterval))
+                    it.remove();
+                else {
+                    if (isEventAndFreeIntervalCrossingInStartOfEvent(e, freeTimeInterval))
+                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(0, e.getEndDate());
+                    if (isEventAndFreeIntervalCrossingInEndOfEvent(e, freeTimeInterval))
+                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, e.getStartDate());
+                    if ( isFreeIntervalIncludesEvent(e, freeTimeInterval)) {
+                        it.add(Arrays.asList(e.getEndDate(), freeTimeInterval.get(1)));
+                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, e.getStartDate());
+                    }
+                }
+            }
+        }
+
+        List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<>();
+
+        Duration durationEvent = Duration.between(event.getStartDate(), event.getEndDate());
+        for (List<LocalDateTime> freeInterval : freeTimeList) {
+            Duration durationFreeInterval = Duration.between(freeInterval.get(0), freeInterval.get(1));
+            if (durationEvent.toMinutes() <= durationFreeInterval.toMinutes()) {
+                freeIntervalListForEvent.add(freeInterval);
+            }
+        }
+        logger.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event with attenders");
         return freeIntervalListForEvent;
     }
 

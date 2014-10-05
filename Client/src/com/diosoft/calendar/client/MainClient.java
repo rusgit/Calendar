@@ -33,23 +33,27 @@ public class MainClient {
                 .name("Alexandr").lastName("Alexandrenko")
                 .email("alex_alex@ukr.net")
                 .build();
+
 // Create person2 (attender)
         Person person2 = new Person.PersonBuilder()
                 .name("Igor").lastName("Igorov")
                 .email("igor_igor@ukr.net")
                 .build();
+
 // Create person3 (attender)
         Person person3 = new Person.PersonBuilder()
                 .name("Sergey").lastName("Sergeev")
                 .email("sergey_sergey@ukr.net")
                 .build();
+
 // Create List attenders
-        Set<Person> attenders = new HashSet<Person>();
+        Set<Person> attenders = new HashSet<>();
         logger.info("Addind 3 attenders...");
         attenders.add(person1);
         attenders.add(person2);
         attenders.add(person3);
         logger.info("Added 3 attenders.");
+
 // Create and add events
         logger.info("Creating and adding event...");
         String[] descriptions1 = {"Mega Party", "It will be a great party!", "2020-09-07 15:00", "2020-09-07 19:00"};
@@ -70,30 +74,27 @@ public class MainClient {
         logger.info("Removing event...");
         calendarService.remove(event3.getId());
         logger.info("Event removed");
+
 // searchByTitle
         logger.info("Searching event by title 'Mega Party':");
         List<Event> events1 = calendarService.searchByTitle("Mega Party");
-        for (Event event: events1) {
-            System.out.println(event);
-        }
+        events1.forEach(System.out::println);
+
 // searchByDate
         logger.info("Searching event by day '2020-09-07':");
         List<Event> events2 = calendarService.searchByDay(LocalDate.of(2020, 9, 7));
-        for (Event event: events2) {
-            System.out.println(event);
-        }
+        events2.forEach(System.out::println);
+
 // searchByAttender
         logger.info("Searching event by attender 'Alexandr':");
         List<Event> events3 = calendarService.searchByAttender(person1);
-        for (Event event: events3) {
-            System.out.println(event);
-        }
+        events3.forEach(System.out::println);
+
 // searchByAttenderIntoPeriod
         logger.info("Searching event by attender 'Alexandr' from 2020-09-07 12:00 to 2020-09-09 16:00:");
         List<Event> events4 = calendarService.searchByAttenderIntoPeriod(person1, DateParser.stringToDate("2020-09-07 12:00"), DateParser.stringToDate("2020-09-09 16:00"));
-        for (Event event: events4) {
-            System.out.println(event);
-        }
+        events4.forEach(System.out::println);
+
 // isAttenderFree
         logger.info("Checking is attender 'Alexandr' free from 2020-09-07 19:00 to 2020-09-09 13:00:");
         boolean isFree = calendarService.isAttenderFree(person1, DateParser.stringToDate("2020-09-07 19:00"), DateParser.stringToDate("2020-09-09 13:00"));
@@ -108,20 +109,17 @@ public class MainClient {
 // SearchFreeTime1 into period
         logger.info("SearchFreeTime1 into period from 2020-09-08 12:00 to 2020-09-10 21:00");
         List<List<LocalDateTime>> freeTimeIntervalList1 = calendarService.searchFreeTime(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
-        for (List<LocalDateTime> list : freeTimeIntervalList1)
-            System.out.println(list);
+        freeTimeIntervalList1.forEach(System.out::println);
 
 // SearchFreeTime2 into period
         logger.info("SearchFreeTime2 into period from 2020-09-08 12:00 to 2020-09-10 21:00");
         List<List<LocalDateTime>> freeTimeIntervalList2 = calendarService.searchFreeTime2(DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
-        for (List<LocalDateTime> list : freeTimeIntervalList2)
-            System.out.println(list);
+        freeTimeIntervalList2.forEach(System.out::println);
 
 // SearchFreeTimeForEvent into period
         logger.info("SearchFreeTime for Event into period:");
         List<List<LocalDateTime>> freeTimeForEventIntervalList = calendarService.searchFreeTimeForEvent(event1, DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
-        for (List<LocalDateTime> list : freeTimeForEventIntervalList)
-            System.out.println(list);
+        freeTimeForEventIntervalList.forEach(System.out::println);
 
 // Edit event
         Event eventForEdit = calendarService.searchByTitle("Edited event").get(0);
@@ -134,5 +132,10 @@ public class MainClient {
                 .attendersSet(attenders).build();
         calendarService.edit(eventEdited);
         logger.info("event edited");
+
+// SearchFreeTimeForEventWithAttenders into period
+        logger.info("SearchFreeTime for Event with attenders into period:");
+        List<List<LocalDateTime>> freeTimeForEventWithAttenders = calendarService.searchFreeTimeForEventWithAttenders(event2, DateParser.stringToDate("2020-09-08 12:00"), DateParser.stringToDate("2020-09-10 21:00"));
+        freeTimeForEventWithAttenders.forEach(System.out::println);
     }
 }
