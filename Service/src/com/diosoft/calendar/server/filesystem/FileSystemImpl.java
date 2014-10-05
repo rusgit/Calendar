@@ -28,22 +28,18 @@ public class FileSystemImpl implements FileSystem{
     @Override
     public void write(Event event) {
         final Event e = event;
-        executorService.submit(new Runnable() {
-            public void run() {
-                StringBuilder sb = new StringBuilder();
-                sb.append(pathToEvents).append(e.getId()).append(".xml");
-                Path filePath = Paths.get(sb.toString());
-                Charset charset = Charset.forName("UTF-8");
-                BufferedWriter writer = null;
-                try {
-                    writer = Files.newBufferedWriter(filePath, charset);
-                    jaxbHelper.write(e, writer);
-                    writer.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } catch (JAXBException e1) {
-                    e1.printStackTrace();
-                }
+        executorService.submit(() -> {
+            StringBuilder sb = new StringBuilder();
+            sb.append(pathToEvents).append(e.getId()).append(".xml");
+            Path filePath = Paths.get(sb.toString());
+            Charset charset = Charset.forName("UTF-8");
+            BufferedWriter writer = null;
+            try {
+                writer = Files.newBufferedWriter(filePath, charset);
+                jaxbHelper.write(e, writer);
+                writer.close();
+            } catch (IOException | JAXBException e1) {
+                e1.printStackTrace();
             }
         });
     }
@@ -58,28 +54,21 @@ public class FileSystemImpl implements FileSystem{
     @Override
     public Event read(Path pathToFile) throws DateTimeFormatException, IOException, JAXBException, ExecutionException, InterruptedException {
         final Path file = pathToFile;
-        Future<Event> future = executorService.submit(new Callable<Event>() {
-            @Override
-            public Event call() throws IOException, JAXBException, DateTimeFormatException {
-                return jaxbHelper.read(Files.newBufferedReader(file));
-            }
-        });
+        Future<Event> future = executorService.submit(() -> jaxbHelper.read(Files.newBufferedReader(file)));
         return future.get();
     }
 
     @Override
     public boolean delete(UUID id) throws IOException {
         final UUID eventId = id;
-        executorService.submit(new Runnable() {
-            public void run() {
-                StringBuilder sb = new StringBuilder();
-                sb.append(pathToEvents).append(eventId).append(".xml");
-                Path path = Paths.get(sb.toString());
-                try {
-                    Files.delete(path);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        executorService.submit(() -> {
+            StringBuilder sb = new StringBuilder();
+            sb.append(pathToEvents).append(eventId).append(".xml");
+            Path path = Paths.get(sb.toString());
+            try {
+                Files.delete(path);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         return true;

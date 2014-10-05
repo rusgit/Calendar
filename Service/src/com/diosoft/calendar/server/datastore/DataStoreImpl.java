@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class DataStoreImpl implements DataStore {
 
-    private Map<UUID,Event> eventStore = new HashMap<UUID,Event>();
-    private Map<String, List<UUID>> indexTitle = new HashMap<String, List<UUID>>();
-    private Map<LocalDate, List<UUID>> indexDate = new HashMap<LocalDate, List<UUID>>();
-    private Map<Person, List<UUID>> indexAttender = new HashMap<Person, List<UUID>>();
+    private Map<UUID,Event> eventStore = new HashMap<>();
+    private Map<String, List<UUID>> indexTitle = new HashMap<>();
+    private Map<LocalDate, List<UUID>> indexDate = new HashMap<>();
+    private Map<Person, List<UUID>> indexAttender = new HashMap<>();
 
     private final FileSystem fileSystem;
 
@@ -80,12 +81,9 @@ public class DataStoreImpl implements DataStore {
         if (title==null) throw new IllegalArgumentException();
 
         List<UUID> ids = indexTitle.get(title);
-        List<Event> events = new ArrayList<Event>();
-        if (ids!=null) {
-            for (UUID id : ids) {
-                Event event = eventStore.get(id);
-                events.add(event);
-            }
+        List<Event> events = new ArrayList<>();
+        if (ids != null) {
+            events.addAll(ids.stream().map(eventStore::get).collect(Collectors.toList()));
         }
         return events;
    }
@@ -95,12 +93,9 @@ public class DataStoreImpl implements DataStore {
         if (day==null) throw new IllegalArgumentException();
 
         List<UUID> ids = indexDate.get(day);
-        List<Event> events = new ArrayList<Event>();
-        if (ids!=null) {
-            for (UUID id : ids) {
-                Event event = eventStore.get(id);
-                events.add(event);
-            }
+        List<Event> events = new ArrayList<>();
+        if (ids != null) {
+            events.addAll(ids.stream().map(eventStore::get).collect(Collectors.toList()));
         }
         return events;
    }
@@ -111,11 +106,8 @@ public class DataStoreImpl implements DataStore {
 
         List<UUID> ids = indexAttender.get(attender);
         List<Event> events = new ArrayList<Event>();
-        if (ids!=null) {
-            for (UUID id : ids) {
-                Event event = eventStore.get(id);
-                events.add(event);
-            }
+        if (ids != null) {
+            events.addAll(ids.stream().map(eventStore::get).collect(Collectors.toList()));
         }
         return events;
     }
@@ -123,14 +115,11 @@ public class DataStoreImpl implements DataStore {
     @Override
     public List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException{
         if (prefix == null) throw new IllegalArgumentException();
-        List<Event> presentInEventList = new ArrayList<Event>();
-        for(String title :indexTitle.keySet()){
-            if(title.startsWith(prefix)){
-                for(UUID uuidTitle : indexTitle.get(title)) {
-                    presentInEventList.add(eventStore.get(uuidTitle));
-                }
-            }
-        }
+        List<Event> presentInEventList = new ArrayList<>();
+
+        indexTitle.keySet().stream().filter(title -> title.startsWith(prefix)).forEach(title -> {
+            presentInEventList.addAll(indexTitle.get(title).stream().map(eventStore::get).collect(Collectors.toList()));
+        });
         return presentInEventList;
     }
 
@@ -148,7 +137,7 @@ public class DataStoreImpl implements DataStore {
     private void createIndexTitle(Event event) {
         List<UUID> idsTitle = indexTitle.get(event.getTitle());
         if (idsTitle == null) {
-            idsTitle = new ArrayList<UUID>();
+            idsTitle = new ArrayList<>();
             idsTitle.add(event.getId());
             indexTitle.put(event.getTitle(), idsTitle);
         } else {
@@ -162,7 +151,7 @@ public class DataStoreImpl implements DataStore {
         while(startDay.isBefore(endDay) || startDay.equals(endDay)) {
             List<UUID> idsDate = indexDate.get(startDay);
             if(idsDate==null) {
-                idsDate = new ArrayList<UUID>();
+                idsDate = new ArrayList<>();
                 idsDate.add(event.getId());
                 indexDate.put(startDay, idsDate);
             } else {
@@ -176,7 +165,7 @@ public class DataStoreImpl implements DataStore {
         for (Person attender : attenders) {
             List<UUID> idsAttender = indexAttender.get(attender);
             if (idsAttender == null) {
-                idsAttender = new ArrayList<UUID>();
+                idsAttender = new ArrayList<>();
                 idsAttender.add(event.getId());
                 indexAttender.put(attender, idsAttender);
             } else {

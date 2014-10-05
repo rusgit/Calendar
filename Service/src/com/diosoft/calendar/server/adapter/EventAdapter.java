@@ -1,13 +1,14 @@
 package com.diosoft.calendar.server.adapter;
 
 import com.diosoft.calendar.server.common.Event;
-import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.util.DateParser;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @XmlRootElement(name = "event")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -22,7 +23,7 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
 
     @XmlElementWrapper(name = "attenders")
     @XmlElement(name = "attender")
-    private Set<PersonAdapter> attenders = new HashSet<PersonAdapter>();
+    private Set<PersonAdapter> attenders = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -51,9 +52,7 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
         this.description = event.getDescription();
         this.startDate = DateParser.dateToString(event.getStartDate());
         this.endDate = DateParser.dateToString(event.getEndDate());
-        for (Person attender : event.getAttenders()) {
-            attenders.add(new PersonAdapter(attender));
-        }
+        attenders.addAll(event.getAttenders().stream().map(PersonAdapter::new).collect(Collectors.toList()));
     }
 
     @Override
@@ -87,14 +86,14 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
     public int compareTo(EventAdapter event) {
         if (event == null) return 1;
         int result = startDate.compareTo(event.startDate);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = endDate.compareTo(event.endDate);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = title.compareTo(event.title);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = description.compareTo(event.description);
 
-        return (result != 0) ? (int) (result / Math.abs(result)) : 0;
+        return (result != 0) ? result / Math.abs(result) : 0;
     }
 
     @Override

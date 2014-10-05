@@ -42,7 +42,7 @@ public class JAXBHelperImpl implements JAXBHelper {
     private Event eventAdapterToEvent(EventAdapter eventAdapter) throws DateTimeFormatException {
 
         Set<PersonAdapter> personAdapterList = eventAdapter.getAttenders();
-        Set<Person> attenderSet = new HashSet<Person>();
+        Set<Person> attenderSet = new HashSet<>();
 
         for (PersonAdapter personAdapter: personAdapterList){
             Person attender = new Person.PersonBuilder()
@@ -53,7 +53,7 @@ public class JAXBHelperImpl implements JAXBHelper {
             attenderSet.add(attender);
         }
 
-        Event event = new Event.EventBuilder()
+        return new Event.EventBuilder()
                 .id(eventAdapter.getId())
                 .title(eventAdapter.getTitle())
                 .description(eventAdapter.getDescription())
@@ -61,7 +61,5 @@ public class JAXBHelperImpl implements JAXBHelper {
                 .endDate(DateParser.stringToDate(eventAdapter.getEndDate()))
                 .attendersSet(attenderSet)
                 .build();
-
-        return event;
     }
 }

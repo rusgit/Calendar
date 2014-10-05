@@ -1,21 +1,22 @@
 package com.diosoft.calendar.server.filesystem;
 
 import com.diosoft.calendar.server.common.Event;
-import com.diosoft.calendar.server.exception.DateTimeFormatException;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class EventFileVisitor extends SimpleFileVisitor<Path> {
 
-    private final List<Event> eventList = new ArrayList<Event>();
+    private final List<Event> eventList = new ArrayList<>();
     private final JAXBHelper jaxbHelper = new JAXBHelperImpl();
-    private final List<Future<Event>> futures = new ArrayList<Future<Event>>();
+    private final List<Future<Event>> futures = new ArrayList<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     @Override
@@ -25,11 +26,7 @@ public class EventFileVisitor extends SimpleFileVisitor<Path> {
         final Path fileEvent = file;
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.xml");
         if (attrs.isRegularFile() && matcher.matches(fileEvent.getFileName())) {
-           futures.add(executorService.submit(new Callable<Event>() {
-                public Event call() throws IOException, JAXBException, DateTimeFormatException {
-                    return jaxbHelper.read(Files.newBufferedReader(fileEvent));
-                }
-            }));
+           futures.add(executorService.submit(() -> jaxbHelper.read(Files.newBufferedReader(fileEvent))));
         }
         return FileVisitResult.CONTINUE;
     }

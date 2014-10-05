@@ -16,7 +16,7 @@ public class DateParser {
         if (stringDate==null) throw new IllegalArgumentException();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime dateTime = null;
+        LocalDateTime dateTime;
 
         try {
             dateTime = LocalDateTime.parse(stringDate, formatter);
@@ -35,13 +35,10 @@ public class DateParser {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         try {
-            String stringDate = dateTime.format(formatter);
-            return stringDate;
+            return dateTime.format(formatter);
         } catch (DateTimeException dte) {
             logger.error(dte.getMessage());
             throw new DateTimeException("Wrong value of year, month, day, hour or minute");
         }
     }
-
-
 }

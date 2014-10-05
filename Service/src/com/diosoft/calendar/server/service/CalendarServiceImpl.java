@@ -167,7 +167,7 @@ public class CalendarServiceImpl implements CalendarService {
         logger.info("Searching events by attender '" + attender.getName() + " " + attender.getLastName() + "' into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         List<Event> eventListByAttender = searchByAttender(attender);
-        List<Event> eventListByAttenderIntoPeriod = new ArrayList<Event>();
+        List<Event> eventListByAttenderIntoPeriod = new ArrayList<>();
         for (Event event : eventListByAttender) {
             if (isEventAndPeriodCrossing(event, startDate, endDate)) {
                 eventListByAttenderIntoPeriod.add(event);
@@ -187,7 +187,7 @@ public class CalendarServiceImpl implements CalendarService {
         if (startDay.isAfter(endDay)) throw new OrderOfArgumentsException();
 
         logger.info("Searching events into period from '" + startDay + "' to" + endDay);
-        Set<Event> eventSetIntoPeriod = new HashSet<Event>();
+        Set<Event> eventSetIntoPeriod = new HashSet<>();
 
 //  get all events from period without time (use getEventByDay method of DataStore which use index map)
         while (startDay.isBefore(endDay) || startDay.equals(endDay)) {
@@ -205,7 +205,7 @@ public class CalendarServiceImpl implements CalendarService {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        List<List<LocalDateTime>> freeTimeList = new LinkedList<List<LocalDateTime>>();
+        List<List<LocalDateTime>> freeTimeList = new LinkedList<>();
         freeTimeList.add(Arrays.asList(startDate, endDate));
         Set<Event> eventSet = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
 
@@ -240,7 +240,7 @@ public class CalendarServiceImpl implements CalendarService {
 
         Set<Event> eventListIntoPeriod = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
 
-        List<List<LocalDateTime>> freeIntervalList = new ArrayList<List<LocalDateTime>>();
+        List<List<LocalDateTime>> freeIntervalList = new ArrayList<>();
         LocalDateTime tempStartDate = startDate;
         logger.info("Searching free time into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
@@ -268,7 +268,7 @@ public class CalendarServiceImpl implements CalendarService {
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
         List<List<LocalDateTime>> freeIntervalList = searchFreeTime(startDate, endDate);
-        List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<List<LocalDateTime>>();
+        List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<>();
 
         logger.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
@@ -318,7 +318,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     private List<List<LocalDateTime>> mergeSolidInterval(List<List<LocalDateTime>> intervalList) {
 
-        List<List<LocalDateTime>> solidFreeIntervalList = new ArrayList<List<LocalDateTime>>();
+        List<List<LocalDateTime>> solidFreeIntervalList = new ArrayList<>();
         LocalDateTime left  = intervalList.get(0).get(0);
         LocalDateTime right = intervalList.get(0).get(1);
 
@@ -343,18 +343,11 @@ public class CalendarServiceImpl implements CalendarService {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        if (event.getStartDate().equals(startDate))
-            return true;
-        if (event.getEndDate().equals(endDate))
-            return true;
-        if (isDateIntoPeriod(event.getStartDate(), startDate, endDate))
-            return true;
-        if (isDateIntoPeriod(event.getEndDate(), startDate, endDate))
-            return true;
-        if (isPeriodIntoEvent(event, startDate, endDate))
-            return true;
-
-        return false;
+        return event.getStartDate().equals(startDate)
+                || event.getEndDate().equals(endDate)
+                || isDateIntoPeriod(event.getStartDate(), startDate, endDate)
+                || isDateIntoPeriod(event.getEndDate(), startDate, endDate)
+                || isPeriodIntoEvent(event, startDate, endDate);
     }
 
     private boolean isPeriodIntoEvent(Event event, LocalDateTime startDate, LocalDateTime endDate)
@@ -362,10 +355,7 @@ public class CalendarServiceImpl implements CalendarService {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        if (event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate))
-            return true;
-        else
-            return false;
+        return event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate);
     }
 
     private boolean isDateIntoPeriod(LocalDateTime date, LocalDateTime startDate, LocalDateTime endDate)
@@ -373,69 +363,53 @@ public class CalendarServiceImpl implements CalendarService {
         if (date == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        if (date.isAfter(startDate) && date.isBefore(endDate))
-            return true;
-        else
-            return false;
+        return date.isAfter(startDate) && date.isBefore(endDate);
     }
 
     private boolean isEventIncludesFreeInterval(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
-        if (event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
-                && event.getEndDate().isAfter(interval.get(1).minusMinutes(MINUTE_INTERVAL)))
-            return true;
-        else
-            return false;
+       return event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
+                && event.getEndDate().isAfter(interval.get(1).minusMinutes(MINUTE_INTERVAL));
     }
 
     private boolean isEventAndFreeIntervalCrossingInStartOfEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
-        if (event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
+
+        return event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
                 && event.getEndDate().isAfter(interval.get(0))
-                && isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(event, interval))
-            return true;
-        else
-            return false;
+                && isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(event, interval);
     }
 
     private boolean isEventAndFreeIntervalCrossingInEndOfEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
-        if (isStartOfEventAfterStartOfIntervalPlusMinuteInterval(event, interval)
+
+        return isStartOfEventAfterStartOfIntervalPlusMinuteInterval(event, interval)
                 && event.getStartDate().isBefore(interval.get(1))
-                && event.getEndDate().isAfter(interval.get(1).minusMinutes(MINUTE_INTERVAL)))
-            return true;
-        else
-            return false;
+                && event.getEndDate().isAfter(interval.get(1).minusMinutes(MINUTE_INTERVAL));
     }
 
     private boolean isFreeIntervalIncludesEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
-        if (isStartOfEventAfterStartOfIntervalPlusMinuteInterval(event, interval)
-                && isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(event, interval))
-            return true;
-        else
-            return false;
+
+        return isStartOfEventAfterStartOfIntervalPlusMinuteInterval(event, interval)
+                && isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(event, interval);
     }
 
     private boolean isStartOfEventAfterStartOfIntervalPlusMinuteInterval(Event event, List<LocalDateTime> interval)
             throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
-        if (event.getStartDate().isAfter(interval.get(0).plusMinutes(MINUTE_INTERVAL))
-                || event.getStartDate().isEqual(interval.get(0).plusMinutes(MINUTE_INTERVAL)))
-            return true;
-        else
-            return false;
+
+        return event.getStartDate().isAfter(interval.get(0).plusMinutes(MINUTE_INTERVAL))
+                || event.getStartDate().isEqual(interval.get(0).plusMinutes(MINUTE_INTERVAL));
     }
 
     private boolean isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(Event event, List<LocalDateTime> interval)
             throws IllegalArgumentException {
         if (event == null || interval == null) throw new IllegalArgumentException();
-        if (event.getEndDate().isBefore(interval.get(1).minusMinutes(MINUTE_INTERVAL))
-                || event.getEndDate().isEqual(interval.get(1).minusMinutes(MINUTE_INTERVAL)))
-            return true;
-        else
-            return false;
+
+        return event.getEndDate().isBefore(interval.get(1).minusMinutes(MINUTE_INTERVAL))
+                || event.getEndDate().isEqual(interval.get(1).minusMinutes(MINUTE_INTERVAL));
     }
 }
 
