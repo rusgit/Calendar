@@ -169,11 +169,8 @@ public class CalendarServiceImpl implements CalendarService {
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
         List<Event> eventListByAttender = searchByAttender(attender);
         List<Event> eventListByAttenderIntoPeriod = new ArrayList<>();
-        for (Event event : eventListByAttender) {
-            if (isEventAndPeriodCrossing(event, startDate, endDate)) {
-                eventListByAttenderIntoPeriod.add(event);
-            }
-        }
+        for (Event event : eventListByAttender)
+            if (isEventAndPeriodCrossing(event, startDate, endDate)) eventListByAttenderIntoPeriod.add(event);
         if (eventListByAttenderIntoPeriod.isEmpty())
             logger.info("Events not found!");
         else
@@ -206,29 +203,9 @@ public class CalendarServiceImpl implements CalendarService {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        List<List<LocalDateTime>> freeTimeList = new LinkedList<>();
-        freeTimeList.add(Arrays.asList(startDate, endDate));
-        Set<Event> eventSet = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
-
         logger.info("Searching free time into period from '" + startDate + "' to" + endDate);
-        for(Event event:eventSet) {
-            ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
-            while (it.hasNext()) {
-                List<LocalDateTime> freeTimeInterval = it.next();
-                if (isEventIncludesFreeInterval(event, freeTimeInterval))
-                    it.remove();
-                else {
-                    if (isEventAndFreeIntervalCrossingInStartOfEvent(event, freeTimeInterval))
-                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(0, event.getEndDate());
-                    if (isEventAndFreeIntervalCrossingInEndOfEvent(event, freeTimeInterval))
-                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, event.getStartDate());
-                    if ( isFreeIntervalIncludesEvent(event, freeTimeInterval)) {
-                        it.add(Arrays.asList(event.getEndDate(), freeTimeInterval.get(1)));
-                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, event.getStartDate());
-                    }
-                }
-            }
-        }
+        Set<Event> eventSet = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
+        List<List<LocalDateTime>> freeTimeList = searchFreeTimeBetweenEvents(eventSet, startDate, endDate);
         logger.info("Found "  + freeTimeList.size() + " free intervals");
         return freeTimeList;
     }
@@ -248,15 +225,12 @@ public class CalendarServiceImpl implements CalendarService {
         while (tempStartDate.isBefore(endDate)) {
             LocalDateTime tempEndDate = tempStartDate.plusMinutes(MINUTE_INTERVAL);
             boolean isFree = true;
-            for (Event event : eventListIntoPeriod) {
+            for (Event event : eventListIntoPeriod)
                 if (isEventAndPeriodCrossing(event, tempStartDate, tempEndDate)) {
                     isFree = false;
                     break;
                 }
-            }
-            if (isFree) {
-                freeIntervalList.add(Arrays.asList(tempStartDate,tempEndDate));
-            }
+            if (isFree) freeIntervalList.add(Arrays.asList(tempStartDate, tempEndDate));
             tempStartDate = tempStartDate.plusMinutes(MINUTE_INTERVAL);
         }
         logger.info("Found "  + mergeSolidInterval(freeIntervalList).size() + " free intervals");
@@ -269,18 +243,9 @@ public class CalendarServiceImpl implements CalendarService {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        List<List<LocalDateTime>> freeIntervalList = searchFreeTime(startDate, endDate);
-        List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<>();
-
         logger.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
                 DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
-        Duration durationEvent = Duration.between(event.getStartDate(), event.getEndDate());
-        for (List<LocalDateTime> freeInterval : freeIntervalList) {
-            Duration durationFreeInterval = Duration.between(freeInterval.get(0), freeInterval.get(1));
-            if (durationEvent.toMinutes() <= durationFreeInterval.toMinutes()) {
-                freeIntervalListForEvent.add(freeInterval);
-            }
-        }
+        List<List<LocalDateTime>> freeIntervalListForEvent = searchFreeIntervalsForEvent(event, startDate, endDate, searchFreeTime(startDate, endDate));
         logger.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event");
         return freeIntervalListForEvent;
     }
@@ -296,39 +261,9 @@ public class CalendarServiceImpl implements CalendarService {
                 " with attenders: " + event.getAttenders().toString());
 
         Set<Event> attendersEvents = new HashSet<>();
-        for (Person attender : event.getAttenders()) {
+        for (Person attender : event.getAttenders())
             attendersEvents.addAll(searchByAttenderIntoPeriod(attender, startDate, endDate));
-        }
-        List<List<LocalDateTime>> freeTimeList = new LinkedList<>();
-        freeTimeList.add(Arrays.asList(startDate, endDate));
-        for(Event e : attendersEvents) {
-            ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
-            while (it.hasNext()) {
-                List<LocalDateTime> freeTimeInterval = it.next();
-                if (isEventIncludesFreeInterval(e, freeTimeInterval))
-                    it.remove();
-                else {
-                    if (isEventAndFreeIntervalCrossingInStartOfEvent(e, freeTimeInterval))
-                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(0, e.getEndDate());
-                    if (isEventAndFreeIntervalCrossingInEndOfEvent(e, freeTimeInterval))
-                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, e.getStartDate());
-                    if ( isFreeIntervalIncludesEvent(e, freeTimeInterval)) {
-                        it.add(Arrays.asList(e.getEndDate(), freeTimeInterval.get(1)));
-                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, e.getStartDate());
-                    }
-                }
-            }
-        }
-
-        List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<>();
-
-        Duration durationEvent = Duration.between(event.getStartDate(), event.getEndDate());
-        for (List<LocalDateTime> freeInterval : freeTimeList) {
-            Duration durationFreeInterval = Duration.between(freeInterval.get(0), freeInterval.get(1));
-            if (durationEvent.toMinutes() <= durationFreeInterval.toMinutes()) {
-                freeIntervalListForEvent.add(freeInterval);
-            }
-        }
+        List<List<LocalDateTime>> freeIntervalListForEvent = searchFreeIntervalsForEvent(event, startDate, endDate, searchFreeTimeBetweenEvents(attendersEvents, startDate, endDate));
         logger.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event with attenders");
         return freeIntervalListForEvent;
     }
@@ -375,9 +310,8 @@ public class CalendarServiceImpl implements CalendarService {
         for (int i = 0; i < intervalList.size()-1; i++) {
             List<LocalDateTime> leftInterval = intervalList.get(i);
             List<LocalDateTime> rightInterval = intervalList.get(i+1);
-            if (leftInterval.get(1).equals(rightInterval.get(0))) {
-                right = rightInterval.get(1);
-            } else {
+            if (leftInterval.get(1).equals(rightInterval.get(0))) right = rightInterval.get(1);
+            else {
                 solidFreeIntervalList.add(Arrays.asList(left,right));
                 left = intervalList.get(i+1).get(0);
                 right = intervalList.get(i+1).get(1);
@@ -386,6 +320,51 @@ public class CalendarServiceImpl implements CalendarService {
 
         solidFreeIntervalList.add(Arrays.asList(left,intervalList.get(intervalList.size()-1).get(1)));
         return solidFreeIntervalList;
+    }
+
+    private List<List<LocalDateTime>> searchFreeTimeBetweenEvents(Set<Event> events, LocalDateTime startDate, LocalDateTime endDate)
+            throws OrderOfArgumentsException {
+        if (events == null || startDate == null || endDate == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        List<List<LocalDateTime>> freeTimeList = new LinkedList<>();
+        freeTimeList.add(Arrays.asList(startDate, endDate));
+        for(Event event : events) {
+            ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
+            while (it.hasNext()) {
+                List<LocalDateTime> freeTimeInterval = it.next();
+                if (isEventIncludesFreeInterval(event, freeTimeInterval))
+                    it.remove();
+                else {
+                    if (isEventAndFreeIntervalCrossingInStartOfEvent(event, freeTimeInterval))
+                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(0, event.getEndDate());
+                    if (isEventAndFreeIntervalCrossingInEndOfEvent(event, freeTimeInterval))
+                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, event.getStartDate());
+                    if ( isFreeIntervalIncludesEvent(event, freeTimeInterval)) {
+                        it.add(Arrays.asList(event.getEndDate(), freeTimeInterval.get(1)));
+                        freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, event.getStartDate());
+                    }
+                }
+            }
+        }
+        return freeTimeList;
+    }
+
+    private List<List<LocalDateTime>> searchFreeIntervalsForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate, List<List<LocalDateTime>> freeIntervalList)
+            throws OrderOfArgumentsException {
+        if (event == null || startDate == null || endDate == null || freeIntervalList == null) throw new IllegalArgumentException();
+        if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
+
+        List<List<LocalDateTime>> freeIntervalListForEvent = new ArrayList<>();
+
+        Duration durationEvent = Duration.between(event.getStartDate(), event.getEndDate());
+        for (List<LocalDateTime> freeInterval : freeIntervalList) {
+            Duration durationFreeInterval = Duration.between(freeInterval.get(0), freeInterval.get(1));
+            if (durationEvent.toMinutes() <= durationFreeInterval.toMinutes()) {
+                freeIntervalListForEvent.add(freeInterval);
+            }
+        }
+        return freeIntervalListForEvent;
     }
 
     private boolean isEventAndPeriodCrossing(Event event, LocalDateTime startDate, LocalDateTime endDate)
