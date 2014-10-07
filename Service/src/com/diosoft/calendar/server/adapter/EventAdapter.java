@@ -1,6 +1,7 @@
 package com.diosoft.calendar.server.adapter;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.PeriodOfEvent;
 import com.diosoft.calendar.server.util.DateParser;
 
 import javax.xml.bind.annotation.*;
@@ -25,6 +26,10 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
     @XmlElement(name = "attender")
     private Set<PersonAdapter> attenders = new HashSet<>();
 
+    @XmlElementWrapper(name = "periods")
+    @XmlElement(name = "period")
+    private Set<PeriodOfEvent> period = new HashSet<>();
+
     public UUID getId() {
         return id;
     }
@@ -34,14 +39,17 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
     public String getDescription() {
         return description;
     }
-    public String  getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
-    public String  getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
     public Set<PersonAdapter> getAttenders() {
         return attenders;
+    }
+    public Set<PeriodOfEvent> getPeriod() {
+        return period;
     }
 
     public EventAdapter(){};
@@ -52,7 +60,8 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
         this.description = event.getDescription();
         this.startDate = DateParser.dateToString(event.getStartDate());
         this.endDate = DateParser.dateToString(event.getEndDate());
-        attenders.addAll(event.getAttenders().stream().map(PersonAdapter::new).collect(Collectors.toList()));
+        this.attenders.addAll(event.getAttenders().stream().map(PersonAdapter::new).collect(Collectors.toList()));
+        this.period = event.getPeriod();
     }
 
     @Override
@@ -63,6 +72,7 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
 
         EventAdapter event = (EventAdapter) obj;
 
+        if (period != null ? !period.equals(event.period) : event.period != null) return false;
         if (attenders != null ? !attenders.equals(event.attenders) : event.attenders != null) return false;
         if (description != null ? !description.equals(event.description) : event.description != null) return false;
         if (endDate != null ? !endDate.equals(event.endDate) : event.endDate != null) return false;
@@ -79,6 +89,7 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
         result = 31 * result + (attenders != null ? attenders.hashCode() : 0);
+        result = 31 * result + (period != null ? period.hashCode() : 0);
         return result;
     }
 
@@ -104,6 +115,7 @@ public class EventAdapter implements Comparable<EventAdapter>, Serializable {
                 .append(description).append(", ")
                 .append(startDate).append(", ")
                 .append(endDate).append(", ")
+                .append(period).append(", ")
                 .append(attenders).append(" } \n");
 
         return sb.toString();

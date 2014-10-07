@@ -1,6 +1,7 @@
 package com.diosoft.calendar.server.service;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.PeriodOfEvent;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
@@ -43,9 +44,9 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEvent(String[] descriptions, Set<Person> attenders) throws IOException, IllegalArgumentException,
+    public Event createEvent(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws IOException, IllegalArgumentException,
             DateTimeFormatException, ValidationException, JAXBException {
-        if (descriptions == null || attenders == null || descriptions.length != 4) throw new IllegalArgumentException();
+        if (descriptions == null || attenders == null || period == null || descriptions.length != 4) throw new IllegalArgumentException();
 
         LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
         LocalDateTime endDate = DateParser.stringToDate(descriptions[3]);
@@ -56,6 +57,7 @@ public class CalendarServiceImpl implements CalendarService {
                 .description(descriptions[1])
                 .startDate(startDate)
                 .endDate(endDate)
+                .periodSet(period)
                 .attendersSet(attenders).build();
         logger.info("Event successfully created");
 
@@ -64,9 +66,9 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders) throws IOException, IllegalArgumentException,
+    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws IOException, IllegalArgumentException,
             DateTimeFormatException, ValidationException, JAXBException {
-        if (descriptions == null || attenders == null || descriptions.length < 3 || descriptions.length > 4)
+        if (descriptions == null || attenders == null || period == null || descriptions.length < 3 || descriptions.length > 4)
             throw new IllegalArgumentException();
 
         String startDay = descriptions[2] + " 00:00";
@@ -88,7 +90,7 @@ public class CalendarServiceImpl implements CalendarService {
         }
 
         String[] preparedDescriptions = {descriptions[0], descriptions[1], startDay, endDate};
-        return createEvent(preparedDescriptions, attenders);
+        return createEvent(preparedDescriptions, attenders, period);
     }
 
     @Override
@@ -203,7 +205,7 @@ public class CalendarServiceImpl implements CalendarService {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        logger.info("Searching free time into period from '" + startDate + "' to" + endDate);
+        logger.info("Searching free time into period from '" + startDate + "' to '" + endDate + "'");
         Set<Event> eventSet = searchIntoPeriod(startDate.toLocalDate(), endDate.toLocalDate());
         List<List<LocalDateTime>> freeTimeList = searchFreeTimeBetweenEvents(eventSet, startDate, endDate);
         logger.info("Found "  + freeTimeList.size() + " free intervals");
@@ -220,8 +222,8 @@ public class CalendarServiceImpl implements CalendarService {
 
         List<List<LocalDateTime>> freeIntervalList = new ArrayList<>();
         LocalDateTime tempStartDate = startDate;
-        logger.info("Searching free time into period from " +
-                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
+        logger.info("Searching free time into period from '" +
+                DateParser.dateToString(startDate) + "' to '" + DateParser.dateToString(endDate) + "'");
         while (tempStartDate.isBefore(endDate)) {
             LocalDateTime tempEndDate = tempStartDate.plusMinutes(MINUTE_INTERVAL);
             boolean isFree = true;
@@ -243,8 +245,8 @@ public class CalendarServiceImpl implements CalendarService {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        logger.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
-                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
+        logger.info("Searching free time for event '" +  event.getTitle() + "' into period from '" +
+                DateParser.dateToString(startDate) + "' to '" + DateParser.dateToString(endDate) + "'");
         List<List<LocalDateTime>> freeIntervalListForEvent = searchFreeIntervalsForEvent(event, startDate, endDate, searchFreeTime(startDate, endDate));
         logger.info("Found "  + freeIntervalListForEvent.size() + " free intervals for event");
         return freeIntervalListForEvent;
@@ -256,9 +258,9 @@ public class CalendarServiceImpl implements CalendarService {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        logger.info("Searching free time for event '" +  event.getTitle() + "' into period from " +
-                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate) +
-                " with attenders: " + event.getAttenders().toString());
+        logger.info("Searching free time for event '" +  event.getTitle() + "' into period from '" +
+                DateParser.dateToString(startDate) + "' to '" + DateParser.dateToString(endDate) +
+                "' with attenders: " + event.getAttenders().toString());
 
         Set<Event> attendersEvents = new HashSet<>();
         for (Person attender : event.getAttenders())
@@ -274,8 +276,8 @@ public class CalendarServiceImpl implements CalendarService {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
-        logger.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from " +
-                DateParser.dateToString(startDate) + " to " + DateParser.dateToString(endDate));
+        logger.info("Checking is attender '" + attender.getName() + " " + attender.getLastName() + "' free from '" +
+                DateParser.dateToString(startDate) + "' to '" + DateParser.dateToString(endDate) + "'");
         List<Event> eventListByAttender = searchByAttenderIntoPeriod(attender, startDate, endDate);
         if (eventListByAttender.isEmpty()) {
             logger.info("Attender free");

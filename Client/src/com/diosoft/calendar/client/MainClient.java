@@ -1,6 +1,7 @@
 package com.diosoft.calendar.client;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.PeriodOfEvent;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
@@ -46,7 +47,7 @@ public class MainClient {
                 .email("sergey_sergey@ukr.net")
                 .build();
 
-// Create List attenders
+// Create Set attenders
         Set<Person> attenders = new HashSet<>();
         logger.info("Addind 3 attenders...");
         attenders.add(person1);
@@ -54,21 +55,53 @@ public class MainClient {
         attenders.add(person3);
         logger.info("Added 3 attenders.");
 
+// Create Sets of periods
+        Set<PeriodOfEvent> periodOnce = new HashSet<>();
+        periodOnce.add(PeriodOfEvent.ONCE);
+
+        Set<PeriodOfEvent> periodEveryDay = new HashSet<>();
+        periodEveryDay.add(PeriodOfEvent.EVERY_DAY);
+
+        Set<PeriodOfEvent> periodEveryMonth = new HashSet<>();
+        periodEveryMonth.add(PeriodOfEvent.EVERY_MONTH);
+
+        Set<PeriodOfEvent> periodEveryYear = new HashSet<>();
+        periodEveryYear.add(PeriodOfEvent.EVERY_YEAR);
+
+        Set<PeriodOfEvent> periodDayOfWeek = new HashSet<>();
+        periodDayOfWeek.add(PeriodOfEvent.TUESDAY);
+        periodDayOfWeek.add(PeriodOfEvent.THURSDAY);
+
 // Create and add events
         logger.info("Creating and adding event...");
         String[] descriptions1 = {"Mega Party", "It will be a great party!", "2020-09-07 15:00", "2020-09-07 19:00"};
-        Event event1 = calendarService.createEvent(descriptions1, attenders);
+        Event event1 = calendarService.createEvent(descriptions1, attenders, periodOnce);
         logger.info("event created and added.");
 
         logger.info("Creating and adding event...");
         String[] descriptions2 = {"Mega Party 2", "It will be a second great party!", "2020-09-09 13:00", "2020-09-09 18:00"};
-        Event event2 = calendarService.createEvent(descriptions2, attenders);
+        Event event2 = calendarService.createEvent(descriptions2, attenders, periodOnce);
         logger.info("event created and added.");
 
         logger.info("Creating and adding event...");
-        String[] descriptions3 = {"New Year", "Happy New Year!", "2020-01-01 00:00", "2020-01-01 00:01"};
-        Event event3 = calendarService.createEvent(descriptions3, attenders);
+        String[] descriptions3 = {"New Year", "Happy New Year!", "2019-12-31 22:00", "2020-01-01 02:00"};
+        Event event3 = calendarService.createEvent(descriptions3, attenders, periodEveryYear);
         logger.info("event created and added.");
+
+        logger.info("Creating and adding EveryDay event...");
+        String[] descriptionsDay = {"EveryDay", "Every day event", "2020-01-01 09:00", "2020-01-01 12:00"};
+        Event event4 = calendarService.createEvent(descriptionsDay, attenders, periodEveryDay);
+        logger.info("EveryDay event created and added.");
+
+        logger.info("Creating and adding EveryMonth event...");
+        String[] descriptionsMonth = {"Apartment rent", "Pay the rent", "2020-10-20 10:00", "2020-10-20 12:00"};
+        Event event5 = calendarService.createEvent(descriptionsMonth, attenders, periodEveryMonth);
+        logger.info("EveryMonth event created and added.");
+
+        logger.info("Creating and adding EveryWeek event...");
+        String[] descriptionsWeek = {"Gym", "Gym", "2020-10-20 18:00", "2020-10-20 20:00"};
+        Event event6 = calendarService.createEvent(descriptionsWeek, attenders, periodDayOfWeek);
+        logger.info("EveryWeek event created and added.");
 
 // remove event
         logger.info("Removing event...");
@@ -103,7 +136,7 @@ public class MainClient {
 // Create event "for all day"
         logger.info("Creating event 'for all day':");
         String[] descriptions4 = {"Mega Party", "It will be a great party!", "2020-09-07"};
-        Event event = calendarService.createEventForAllDay(descriptions4, attenders);
+        Event event = calendarService.createEventForAllDay(descriptions4, attenders, periodOnce);
         System.out.println(event);
 
 // SearchFreeTime1 into period
@@ -129,6 +162,7 @@ public class MainClient {
                 .description(eventForEdit.getDescription() + "!")
                 .startDate(LocalDateTime.now().plusHours(1))
                 .endDate(LocalDateTime.now().plusHours(2))
+                .periodSet(eventForEdit.getPeriod())
                 .attendersSet(attenders).build();
         calendarService.edit(eventEdited);
         logger.info("event edited");

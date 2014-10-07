@@ -1,6 +1,7 @@
 package com.diosoft.calendar.server.datastore;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.PeriodOfEvent;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.filesystem.FileSystem;
 import org.junit.Before;
@@ -24,12 +25,14 @@ public class DataStoreImplTest {
             .build();
 
     Set<Person> attenders = new HashSet<>();
+    Set<PeriodOfEvent> period = new HashSet<>();
 
     Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
             .description("Description of testEvent")
             .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
             .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
+            .periodSet(period)
             .attendersSet(attenders).build();
 
     private FileSystem mockFileSystem;
@@ -148,11 +151,86 @@ public class DataStoreImplTest {
     public void testGetEventByDay() throws IllegalArgumentException, IOException, JAXBException {
 
         attenders.add(testPerson);
+        period.add(PeriodOfEvent.ONCE);
         List<Event> expectedEvents = new ArrayList<>();
         expectedEvents.add(testEvent);
 
         dataStore.publish(testEvent);
         List<Event> actualEvents = dataStore.getEventByDay(testEvent.getStartDate().toLocalDate());
+
+        assertEquals(expectedEvents, actualEvents);
+    }
+
+    @Test
+    public void testGetEventByDayWithPeriod() throws IllegalArgumentException, IOException, JAXBException {
+
+        attenders.add(testPerson);
+
+        Set<PeriodOfEvent> periodOnce = new HashSet<>();
+        periodOnce.add(PeriodOfEvent.ONCE);
+        Event eventOnce = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Event")
+                .description("Description of event")
+                .startDate(LocalDateTime.of(2020, 1, 1, 8, 0))
+                .endDate(LocalDateTime.of(2020, 1, 2, 10, 0))
+                .periodSet(periodOnce)
+                .attendersSet(attenders).build();
+
+        Set<PeriodOfEvent> periodYear = new HashSet<>();
+        periodYear.add(PeriodOfEvent.EVERY_YEAR);
+        Event eventYear = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Event")
+                .description("Description of event")
+                .startDate(LocalDateTime.of(2019, 1, 1, 10, 0))
+                .endDate(LocalDateTime.of(2019, 1, 2, 20, 0))
+                .periodSet(periodYear)
+                .attendersSet(attenders).build();
+
+        Set<PeriodOfEvent> periodMonth = new HashSet<>();
+        periodMonth.add(PeriodOfEvent.EVERY_MONTH);
+        Event eventMonth = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Event")
+                .description("Description of event")
+                .startDate(LocalDateTime.of(2019, 12, 1, 7, 0))
+                .endDate(LocalDateTime.of(2019, 12, 1, 9, 0))
+                .periodSet(periodMonth)
+                .attendersSet(attenders).build();
+
+        Set<PeriodOfEvent> periodDay = new HashSet<>();
+        periodDay.add(PeriodOfEvent.EVERY_DAY);
+        Event eventDay = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Event")
+                .description("Description of event")
+                .startDate(LocalDateTime.of(2019, 12, 23, 10, 0))
+                .endDate(LocalDateTime.of(2019, 12, 23, 20, 0))
+                .periodSet(periodDay)
+                .attendersSet(attenders).build();
+
+        Set<PeriodOfEvent> periodWeek = new HashSet<>();
+        periodWeek.add(PeriodOfEvent.WEDNESDAY);
+        periodWeek.add(PeriodOfEvent.FRIDAY);
+        Event eventWeek = new Event.EventBuilder()
+                .id(UUID.randomUUID()).title("Event")
+                .description("Description of event")
+                .startDate(LocalDateTime.of(2020, 1, 1, 20, 0))
+                .endDate(LocalDateTime.of(2020, 1, 1, 22, 0))
+                .periodSet(periodWeek)
+                .attendersSet(attenders).build();
+
+        Set<Event> expectedEvents = new TreeSet<>();
+        expectedEvents.add(eventOnce);
+        expectedEvents.add(eventYear);
+        expectedEvents.add(eventMonth);
+        expectedEvents.add(eventDay);
+        expectedEvents.add(eventWeek);
+
+        dataStore.publish(eventOnce);
+        dataStore.publish(eventYear);
+        dataStore.publish(eventMonth);
+        dataStore.publish(eventDay);
+        dataStore.publish(eventWeek);
+        Set<Event> actualEvents = new TreeSet<>();
+        actualEvents.addAll(dataStore.getEventByDay(LocalDateTime.of(2020, 1, 1, 22, 0).toLocalDate()));
 
         assertEquals(expectedEvents, actualEvents);
     }
@@ -228,6 +306,7 @@ public class DataStoreImplTest {
                 .description("Description of testEvent")
                 .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
                 .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
+                .periodSet(period)
                 .attendersSet(attenders).build();
 
         List<Event> expectedEventList = new ArrayList<>();

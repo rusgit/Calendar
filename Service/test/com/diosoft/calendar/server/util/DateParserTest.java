@@ -38,10 +38,10 @@ public class DateParserTest {
     public void testDateToString() throws DateTimeException, IllegalArgumentException {
 
         LocalDateTime dateTime = LocalDateTime.of(2020,1,1,0,0);
-        String expectedStrindDateTime = "2020-01-01 00:00";
+        String expectedStringDateTime = "2020-01-01 00:00";
         String actualDateTime = DateParser.dateToString(dateTime);
 
-        assertEquals(expectedStrindDateTime,actualDateTime);
+        assertEquals(expectedStringDateTime,actualDateTime);
     }
 
     @Test(expected = DateTimeException.class)

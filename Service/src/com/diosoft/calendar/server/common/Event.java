@@ -2,7 +2,6 @@ package com.diosoft.calendar.server.common;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,6 +13,7 @@ public class Event implements Comparable<Event>, Serializable {
     private final LocalDateTime startDate;
     private final LocalDateTime endDate;
     private final Set<Person> attenders;
+    private final Set<PeriodOfEvent> period;
 
     public UUID getId() {
         return id;
@@ -33,6 +33,9 @@ public class Event implements Comparable<Event>, Serializable {
     public Set<Person> getAttenders() {
         return attenders;
     }
+    public Set<PeriodOfEvent> getPeriod() {
+        return period;
+    }
 
     private Event(EventBuilder eventBuilder) {
         this.id = eventBuilder.id;
@@ -41,6 +44,7 @@ public class Event implements Comparable<Event>, Serializable {
         this.startDate = eventBuilder.startDate;
         this.endDate = eventBuilder.endDate;
         this.attenders = eventBuilder.attenders;
+        this.period = eventBuilder.period;
     }
 
     @Override
@@ -51,6 +55,7 @@ public class Event implements Comparable<Event>, Serializable {
 
         Event event = (Event) obj;
 
+        if (period != null ? !period.equals(event.period) : event.period != null) return false;
         if (attenders != null ? !attenders.equals(event.attenders) : event.attenders != null) return false;
         if (description != null ? !description.equals(event.description) : event.description != null) return false;
         if (endDate != null ? !endDate.equals(event.endDate) : event.endDate != null) return false;
@@ -67,6 +72,7 @@ public class Event implements Comparable<Event>, Serializable {
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
         result = 31 * result + (attenders != null ? attenders.hashCode() : 0);
+        result = 31 * result + (period != null ? period.hashCode() : 0);
         return result;
     }
 
@@ -74,14 +80,14 @@ public class Event implements Comparable<Event>, Serializable {
     public int compareTo(Event event) {
         if (event == null) return 1;
         int result = startDate.compareTo(event.startDate);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = endDate.compareTo(event.endDate);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = title.compareTo(event.title);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = description.compareTo(event.description);
 
-        return (result != 0) ? (int) (result / Math.abs(result)) : 0;
+        return (result != 0) ? result / Math.abs(result) : 0;
     }
 
     @Override
@@ -96,6 +102,7 @@ public class Event implements Comparable<Event>, Serializable {
               .append(description).append(", ")
               .append(startDate.toLocalDate()).append(", ")
               .append(endDate.toLocalDate().minusDays(1)).append(", ")
+              .append(period).append(", ")
               .append(attenders).append(" } \n");
         } else {
             sb.append(id).append(", ")
@@ -103,6 +110,7 @@ public class Event implements Comparable<Event>, Serializable {
               .append(description).append(", ")
               .append(startDate).append(", ")
               .append(endDate).append(", ")
+              .append(period).append(", ")
               .append(attenders).append(" } \n");
         }
 
@@ -116,6 +124,7 @@ public class Event implements Comparable<Event>, Serializable {
         private LocalDateTime startDate;
         private LocalDateTime endDate;
         private Set<Person> attenders;
+        private Set<PeriodOfEvent> period;
 
         public EventBuilder() {
         }
@@ -127,6 +136,7 @@ public class Event implements Comparable<Event>, Serializable {
             this.startDate = originalEvent.startDate;
             this.endDate = originalEvent.endDate;
             this.attenders = originalEvent.attenders;
+            this.period = originalEvent.period;
         }
 
         public EventBuilder id(UUID id) {
@@ -156,6 +166,11 @@ public class Event implements Comparable<Event>, Serializable {
 
         public EventBuilder attendersSet(Set<Person> attenders) {
             this.attenders = attenders;
+            return this;
+        }
+
+        public EventBuilder periodSet(Set<PeriodOfEvent> period) {
+            this.period = period;
             return this;
         }
 

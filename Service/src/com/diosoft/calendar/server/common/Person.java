@@ -58,15 +58,14 @@ public class Person implements Comparable<Person>,Serializable {
     }
 
     @Override
-    public int compareTo(Person obj) {
-        if (obj == null) return 1;
-        Person person = (Person) obj;
+    public int compareTo(Person person) {
+        if (person == null) return 1;
         int result = name.compareTo(person.name);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = lastName.compareTo(person.lastName);
-        if (result != 0) return (int) (result / Math.abs(result));
+        if (result != 0) return result / Math.abs(result);
         result = email.compareTo(person.email);
-        return (result != 0) ? (int) (result / Math.abs(result)) : 0;
+        return (result != 0) ? result / Math.abs(result) : 0;
     }
 
     public static class PersonBuilder {

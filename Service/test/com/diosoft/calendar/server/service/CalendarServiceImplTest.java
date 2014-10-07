@@ -1,6 +1,7 @@
 package com.diosoft.calendar.server.service;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.PeriodOfEvent;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.datastore.DataStore;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
@@ -33,11 +34,14 @@ public class CalendarServiceImplTest {
 
     private Set<Person> attenders = new HashSet<>();
 
+    private Set<PeriodOfEvent> period = new HashSet<>();
+
     private Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
             .description("Description of testEvent")
             .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
             .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
+            .periodSet(period)
             .attendersSet(attenders).build();
 
     private DataStore mockDataStore;
@@ -48,6 +52,7 @@ public class CalendarServiceImplTest {
     public void setUp() {
         mockDataStore = mock(DataStore.class);
         calendarService = new CalendarServiceImpl(mockDataStore);
+        period.add(PeriodOfEvent.ONCE);
     }
 
 
@@ -100,6 +105,7 @@ public class CalendarServiceImplTest {
                 .description("It is edited event")
                 .startDate(DateParser.stringToDate("2020-08-07 10:00"))
                 .endDate(DateParser.stringToDate("2020-08-07 20:00"))
+                .periodSet(period)
                 .attendersSet(attenders).build();
 
         calendarService.edit(expectedEvent);
@@ -220,10 +226,11 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(LocalDateTime.of(2020, 10, 15, 15, 0))
                 .endDate(LocalDateTime.of(2020, 10, 15, 20, 0))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15 15:00", "2020-10-15 20:00"};
-        Event createdEvent = calendarService.createEvent(descriptions, attendersTest);
+        Event createdEvent = calendarService.createEvent(descriptions, attendersTest, period);
 
         assertEquals(expectedEvent, createdEvent);
         verify(mockDataStore).publish(createdEvent);
@@ -241,7 +248,23 @@ public class CalendarServiceImplTest {
         Set<Person> attendersTest = new HashSet<>();
         attendersTest.add(attender);
 
-        calendarService.createEvent(null, attendersTest);
+        calendarService.createEvent(null, attendersTest, period);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateEventWithNullPeriodArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
+
+        Person attender = new Person.PersonBuilder()
+                .name("Denis")
+                .lastName("Milyaev")
+                .email("denis@ukr.net")
+                .build();
+
+        Set<Person> attendersTest = new HashSet<>();
+        attendersTest.add(attender);
+
+        String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15 15:00", "2020-10-15 20:00"};
+        calendarService.createEvent(descriptions, attendersTest, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -256,15 +279,15 @@ public class CalendarServiceImplTest {
         Set<Person> attendersTest = new HashSet<>();
         attendersTest.add(attender);
 
-        String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15 15:00" };
-        calendarService.createEvent(descriptions, attendersTest);
+        String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15 15:00"};
+        calendarService.createEvent(descriptions, attendersTest, period);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateEventWithNullAttendersArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15 15:00", "2020-10-15 20:00"};
-        calendarService.createEvent(descriptions, null);
+        calendarService.createEvent(descriptions, null, period);
     }
 
     @Test
@@ -284,10 +307,11 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(LocalDateTime.of(2020, 10, 15, 0, 0))
                 .endDate(LocalDateTime.of(2020, 10, 16, 0, 0))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15"};
-        Event createdEvent = calendarService.createEventForAllDay(descriptions, attendersTest);
+        Event createdEvent = calendarService.createEventForAllDay(descriptions, attendersTest, period);
 
         assertEquals(expectedEvent, createdEvent);
         verify(mockDataStore).publish(createdEvent);
@@ -305,7 +329,7 @@ public class CalendarServiceImplTest {
     Set<Person> attendersTest = new HashSet<>();
     attendersTest.add(attender);
 
-    calendarService.createEventForAllDay(null, attendersTest);
+    calendarService.createEventForAllDay(null, attendersTest, period);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -321,14 +345,14 @@ public class CalendarServiceImplTest {
         attendersTest.add(attender);
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis"};
-        calendarService.createEventForAllDay(descriptions, attendersTest);
+        calendarService.createEventForAllDay(descriptions, attendersTest, period);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateEventForAllDayWithNullAttendersArg() throws IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException {
 
-        String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15", "2020-10-17"};
-        calendarService.createEventForAllDay(descriptions, null);
+        String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15", "2020-10-17", "ONCE"};
+        calendarService.createEventForAllDay(descriptions, null, period);
     }
 
     @Test
@@ -345,12 +369,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-15 20:00");
         LocalDateTime endDate = DateParser.stringToDate("2020-12-31 20:00");
@@ -381,12 +407,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-09-20 15:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-10-15 15:45");
@@ -417,12 +445,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-15 18:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-12-31 21:45");
@@ -453,12 +483,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-09-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-10-30 14:45");
@@ -508,12 +540,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-15 20:00");
         LocalDateTime endDate = DateParser.stringToDate("2020-12-31 20:00");
@@ -542,12 +576,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-09-20 15:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-10-15 15:45");
@@ -577,12 +613,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-15 18:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-12-31 21:45");
@@ -613,12 +651,14 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         Event event2 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("New Year 2021")
                 .description("Happy New Year 2021")
                 .startDate(DateParser.stringToDate("2020-12-31 20:00"))
                 .endDate(DateParser.stringToDate("2021-01-01 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-15 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-10-16 14:45");
@@ -668,6 +708,7 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-31 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-31 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         Event event2 = new Event.EventBuilder()
@@ -675,6 +716,7 @@ public class CalendarServiceImplTest {
                 .description("Java conference")
                 .startDate(DateParser.stringToDate("2020-11-01 09:00"))
                 .endDate(DateParser.stringToDate("2020-11-02 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         Event event3 = new Event.EventBuilder()
@@ -682,6 +724,7 @@ public class CalendarServiceImplTest {
                 .description("Meeting with Ivan")
                 .startDate(DateParser.stringToDate("2020-11-02 12:10"))
                 .endDate(DateParser.stringToDate("2020-11-02 12:30"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         calendarService.add(event1);
@@ -746,6 +789,7 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-31 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-31 20:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         Event event2 = new Event.EventBuilder()
@@ -753,6 +797,7 @@ public class CalendarServiceImplTest {
                 .description("Java conference")
                 .startDate(DateParser.stringToDate("2020-11-01 09:00"))
                 .endDate(DateParser.stringToDate("2020-11-02 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         Event event3 = new Event.EventBuilder()
@@ -760,6 +805,7 @@ public class CalendarServiceImplTest {
                 .description("Meeting with Ivan")
                 .startDate(DateParser.stringToDate("2020-11-02 12:10"))
                 .endDate(DateParser.stringToDate("2020-11-02 12:30"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         calendarService.add(event1);
@@ -825,6 +871,7 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 22:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         Event event2 = new Event.EventBuilder()
@@ -832,6 +879,7 @@ public class CalendarServiceImplTest {
                 .description("Java conference")
                 .startDate(DateParser.stringToDate("2020-10-16 09:00"))
                 .endDate(DateParser.stringToDate("2020-10-16 18:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         Event eventForSearch = new Event.EventBuilder()
@@ -839,6 +887,7 @@ public class CalendarServiceImplTest {
                 .description("Command meeting")
                 .startDate(DateParser.stringToDate("2020-10-17 10:00"))
                 .endDate(DateParser.stringToDate("2020-10-17 21:00"))
+                .periodSet(period)
                 .attendersSet(attendersTest).build();
 
         calendarService.add(event1);
@@ -905,6 +954,7 @@ public class CalendarServiceImplTest {
                 .description("Command meeting")
                 .startDate(DateParser.stringToDate("2020-10-15 09:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 12:00"))
+                .periodSet(period)
                 .attendersSet(attendersEvent1).build();
 
         Event event2 = new Event.EventBuilder()
@@ -912,6 +962,7 @@ public class CalendarServiceImplTest {
                 .description("Skype conference")
                 .startDate(DateParser.stringToDate("2020-10-15 12:30"))
                 .endDate(DateParser.stringToDate("2020-10-15 13:30"))
+                .periodSet(period)
                 .attendersSet(attendersEvent2).build();
 
         Event event3 = new Event.EventBuilder()
@@ -919,6 +970,7 @@ public class CalendarServiceImplTest {
                 .description("Happy Birthday Denis")
                 .startDate(DateParser.stringToDate("2020-10-15 16:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 18:00"))
+                .periodSet(period)
                 .attendersSet(attendersEvent3).build();
 
         List<Event> attender2Events = new ArrayList<>();
@@ -940,6 +992,7 @@ public class CalendarServiceImplTest {
                 .description("Future event")
                 .startDate(DateParser.stringToDate("2020-10-15 12:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 14:00"))
+                .periodSet(period)
                 .attendersSet(attendersEventForSearch).build();
 
         LocalDateTime startDate = DateParser.stringToDate("2020-10-15 08:00");
@@ -976,6 +1029,7 @@ public class CalendarServiceImplTest {
                 .description("Description of testEvent")
                 .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
                 .endDate(LocalDateTime.of(2020, 1, 2, 0, 0))
+                .periodSet(period)
                 .attendersSet(attenders).build();
 
         List<Event> expectedEventList = new ArrayList<>();

@@ -60,6 +60,7 @@ public class JAXBHelperImpl implements JAXBHelper {
                 .startDate(DateParser.stringToDate(eventAdapter.getStartDate()))
                 .endDate(DateParser.stringToDate(eventAdapter.getEndDate()))
                 .attendersSet(attenderSet)
+                .periodSet(eventAdapter.getPeriod())
                 .build();
     }
 }

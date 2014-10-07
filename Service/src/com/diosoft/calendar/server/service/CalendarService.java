@@ -1,6 +1,7 @@
 package com.diosoft.calendar.server.service;
 
 import com.diosoft.calendar.server.common.Event;
+import com.diosoft.calendar.server.common.PeriodOfEvent;
 import com.diosoft.calendar.server.common.Person;
 import com.diosoft.calendar.server.exception.DateTimeFormatException;
 import com.diosoft.calendar.server.exception.OrderOfArgumentsException;
@@ -31,22 +32,25 @@ public interface CalendarService extends Remote {
      * @param descriptions [0]: "title", [1]: "description", [2]: "startDate" , [3]: "endDate";
      * format of 'startDate' and 'endDate': "yyyy-MM-dd HH:mm". Example: "2014-01-05 10:00".
      * @param persons attenders
+     * @param period of event
      * @return event
      * @throws RemoteException, IllegalArgumentException, DateTimeFormatException
      */
-    Event createEvent(String[] descriptions, Set<Person> attenders) throws RemoteException, IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException;
+    Event createEvent(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws IOException, IllegalArgumentException,
+            DateTimeFormatException, ValidationException, JAXBException;
 
     /**
      * Creates event with given array descriptions and adds it into data store. Two variant create event "for all day": use one day or interval of days.
      * @param descriptions First variant [0]: "title", [1]: "description", [2]: "day";
      * @param descriptions Second variant [0]: "title", [1]: "description", [2]: "startDay" , [3]: "endDay";
      * @param attenders
+     * @param period of event
      * @return Event
      * @throws RemoteException
      * @throws IllegalArgumentException
      * @throws DateTimeFormatException
      */
-    Event createEventForAllDay (String[] descriptions, Set<Person> attenders) throws RemoteException, IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException;
+    Event createEventForAllDay (String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws RemoteException, IOException, IllegalArgumentException, DateTimeFormatException, ValidationException, JAXBException;
 
     /**
      * Provides ability to remove event from the data store.
