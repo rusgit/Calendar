@@ -24,6 +24,7 @@ import static org.apache.log4j.Logger.*;
 public class MainClient {
     private static final Logger logger = getLogger(MainClient.class);
 
+        //local code review (vtegza): extract functionality to separated class @ 12.10.14
     public static void main(String[] args) throws IOException, DateTimeFormatException, OrderOfArgumentsException, ValidationException, JAXBException {
 
         ApplicationContext factory = new ClassPathXmlApplicationContext("app-context-client.xml");

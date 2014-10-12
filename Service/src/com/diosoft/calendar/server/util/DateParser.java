@@ -14,7 +14,7 @@ public class DateParser {
     public static LocalDateTime stringToDate(String stringDate) throws DateTimeFormatException, IllegalArgumentException {
 
         if (stringDate==null) throw new IllegalArgumentException();
-
+        //local code review (vtegza): extract pattern to constant @ 12.10.14
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         LocalDateTime dateTime;
 
@@ -31,7 +31,7 @@ public class DateParser {
     public static String dateToString(LocalDateTime dateTime) throws DateTimeException, IllegalArgumentException {
 
         if (dateTime==null) throw new IllegalArgumentException();
-
+        //local code review (vtegza): extract pattern to constant @ 12.10.14
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         try {

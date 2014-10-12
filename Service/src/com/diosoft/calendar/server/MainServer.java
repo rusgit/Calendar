@@ -16,5 +16,6 @@ public class MainServer {
         logger.info("Server starting...");
         new ClassPathXmlApplicationContext("app-context-server.xml");
         logger.info("Server started.");
+        //local code review (vtegza): register shutdown hook @ 12.10.14
     }
 }

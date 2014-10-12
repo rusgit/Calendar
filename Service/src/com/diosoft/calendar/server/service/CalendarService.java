@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+//local code review (vtegza): do not pass service exception on client, try to keep Service interfaces clean @ 12.10.14
 public interface CalendarService extends Remote {
 
     /**

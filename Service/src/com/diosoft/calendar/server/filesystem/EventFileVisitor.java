@@ -24,6 +24,7 @@ public class EventFileVisitor extends SimpleFileVisitor<Path> {
             throws IOException
     {
         final Path fileEvent = file;
+        //local code review (vtegza): extract mather pattern to constant @ 12.10.14
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.xml");
         if (attrs.isRegularFile() && matcher.matches(fileEvent.getFileName())) {
            futures.add(executorService.submit(() -> jaxbHelper.read(Files.newBufferedReader(fileEvent))));

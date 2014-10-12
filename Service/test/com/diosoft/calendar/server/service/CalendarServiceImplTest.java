@@ -1034,6 +1034,7 @@ public class CalendarServiceImplTest {
 
         List<Event> expectedEventList = new ArrayList<>();
         expectedEventList.add(testEvent);
+        //local code review (vtegza): keep code structured @ 12.10.14
         String prefix = "Tes";
         calendarService.add(testEvent);
 
@@ -1044,4 +1045,15 @@ public class CalendarServiceImplTest {
         assertEquals(expectedEventList, resultEventList);
         verify(mockDataStore).searchEventByTitleStartWith(prefix);
     }
+    // initialize variable inputs
+
+    // initialize mocks
+
+    // initialize class to test
+
+    // invoke method on class to test
+
+    // assert return value
+
+    // verify mock expectations
 }

@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+//local code review (vtegza): process all not client specific exceptions in service layer (could be dependedn on type of the application, let suppose this is a public application) @ 12.10.14
 public class CalendarServiceImpl implements CalendarService {
 
     private static final Logger logger = Logger.getLogger(CalendarServiceImpl.class);
@@ -73,14 +74,14 @@ public class CalendarServiceImpl implements CalendarService {
 
         String startDay = descriptions[2] + " 00:00";
         String endDate = null;
-
+//local code review (vtegza): remove comment and move magic number to readable constant @ 12.10.14
 //  one day "for all day"
         if (descriptions.length == 3) {
             LocalDateTime tempStartDate = DateParser.stringToDate(startDay);
             LocalDateTime tempEndDate = tempStartDate.plusDays(1);
             endDate = DateParser.dateToString(tempEndDate);
         }
-
+//local code review (vtegza): remove comment and move magic number to readable constant @ 12.10.14
 //  interval of days "for all day"
         if (descriptions.length == 4) {
             String endDay = descriptions[3] + " 00:00";
@@ -333,11 +334,14 @@ public class CalendarServiceImpl implements CalendarService {
         freeTimeList.add(Arrays.asList(startDate, endDate));
         for(Event event : events) {
             ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
+            //local code review (vtegza): make sure that you need iterator here @ 12.10.14
             while (it.hasNext()) {
                 List<LocalDateTime> freeTimeInterval = it.next();
+                //local code review (vtegza): java 8 stream api - try to use it @ 12.10.14
                 if (isEventIncludesFreeInterval(event, freeTimeInterval))
                     it.remove();
                 else {
+                    //local code review (vtegza): extract to separate method (all block) @ 12.10.14
                     if (isEventAndFreeIntervalCrossingInStartOfEvent(event, freeTimeInterval))
                         freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(0, event.getEndDate());
                     if (isEventAndFreeIntervalCrossingInEndOfEvent(event, freeTimeInterval))
@@ -373,7 +377,7 @@ public class CalendarServiceImpl implements CalendarService {
             throws OrderOfArgumentsException, IllegalArgumentException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
-
+//local code review (vtegza): extract to method @ 12.10.14
         return event.getStartDate().equals(startDate)
                 || event.getEndDate().equals(endDate)
                 || isDateIntoPeriod(event.getStartDate(), startDate, endDate)

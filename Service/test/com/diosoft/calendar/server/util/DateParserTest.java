@@ -7,11 +7,11 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import static org.junit.Assert.*;
 
+//local code review (vtegza): move patterns to constant @ 12.10.14
 public class DateParserTest {
 
     @Test
     public void testStringToDate() throws DateTimeFormatException, IllegalArgumentException {
-
         String stringDate = "2020-01-01 00:00";
         LocalDateTime expectedDateTime = LocalDateTime.of(2020,1,1,0,0);
 

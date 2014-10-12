@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
 
+//local code review (vtegza): if this is an XML specific file system name it in that way (you can pass some interface with no XML in name)@ 12.10.14
 public class FileSystemImpl implements FileSystem{
 
     final private JAXBHelperImpl jaxbHelper;

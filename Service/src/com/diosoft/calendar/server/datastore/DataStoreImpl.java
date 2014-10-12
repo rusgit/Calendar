@@ -43,6 +43,7 @@ public class DataStoreImpl implements DataStore {
         }
     }
 
+    //local code review (vtegza): no need in comments - methods name is good enoght @ 12.10.14
     @Override
     public void publish(Event event) throws IllegalArgumentException, IOException, JAXBException {
         if (event == null) throw new IllegalArgumentException();
@@ -100,7 +101,10 @@ public class DataStoreImpl implements DataStore {
         List<Event> events = new ArrayList<>();
 
         List<UUID> ids = indexDate.get(day);
-        if (ids != null) events.addAll(ids.stream().map(eventStore::get).collect(Collectors.toList()));
+        if (ids != null) events.addAll(ids.stream()
+                .map(eventStore::get)
+                .collect(Collectors.toList())
+        );
 
         List<Event> eventWithDayOfWeekPeriod = getEventByDayWithDayOfWeekPeriod(day);
         if (eventWithDayOfWeekPeriod != null) events.addAll(eventWithDayOfWeekPeriod);
@@ -156,6 +160,7 @@ public class DataStoreImpl implements DataStore {
         List<Event> eventList = new ArrayList<>();
         String dayAndMonth = date.format(DateTimeFormatter.ofPattern("dd-MM"));
         List<UUID> uuids = indexPeriodYear.get(dayAndMonth);
+        //local code review (vtegza): keep code formatted - should feet 80/180 characters @ 12.10.14
         if (uuids != null) eventList.addAll(uuids.stream().filter(uuid -> eventStore.get(uuid).getStartDate().toLocalDate().isBefore(date)
                 || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date)).map(eventStore::get).collect(Collectors.toList()));
 
@@ -194,6 +199,7 @@ public class DataStoreImpl implements DataStore {
 
     private void createIndexTitle(Event event) {
         List<UUID> idsTitle = indexTitle.get(event.getTitle());
+        //local code review (vtegza): containsKey could be more clear @ 12.10.14
         if (idsTitle == null) {
             idsTitle = new ArrayList<>();
             idsTitle.add(event.getId());

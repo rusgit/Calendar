@@ -18,6 +18,7 @@ import static org.mockito.Mockito.*;
 
 public class DataStoreImplTest {
 
+    //local code review (vtegza): make it private @ 12.10.14
     Person testPerson = new Person.PersonBuilder()
             .name("Denis")
             .lastName("Milyaev")
@@ -134,6 +135,7 @@ public class DataStoreImplTest {
     public void testGetEventByTitleNotExistsEvent() throws IllegalArgumentException  {
 
 //  empty list
+        //local code review (vtegza): Collections.emptyList() @ 12.10.14
         List<Event> expectedEvents = new ArrayList<>();
 
         List<Event> actualEvents = dataStore.getEventByTitle(testEvent.getTitle());

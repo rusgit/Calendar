@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+//local code review (vtegza): you should also check message in exceptions @ 12.10.14
 public class EventValidatorTest {
 
     @Test

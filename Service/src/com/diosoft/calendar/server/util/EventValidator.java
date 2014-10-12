@@ -12,6 +12,7 @@ public class EventValidator {
 
     public static void validate(Event event) throws IllegalArgumentException, ValidationException {
 //null check
+        //local code review (vtegza): create method that check mandatory fields, like - checkMandatoryField(value, "Field name") @ 12.10.14
         if (event == null) throw new IllegalArgumentException();
         if (event.getId() == null) throw new ValidationException("Null value of Id of event");
         if (event.getTitle() == null) throw new ValidationException("Null value of Title of event");
