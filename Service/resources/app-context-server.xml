@@ -14,7 +14,7 @@
     <bean id="jaxbHelper" class="com.diosoft.calendar.server.filesystem.JAXBHelperImpl" >
     </bean>
 
-    <bean id="fileSystem" class="com.diosoft.calendar.server.filesystem.FileSystemImpl">
+    <bean id="fileSystem" class="com.diosoft.calendar.server.filesystem.FileSystemXml">
         <constructor-arg ref="jaxbHelper"/>
         <constructor-arg name="pathToEvents" value="Service/resources/events/" />
     </bean>

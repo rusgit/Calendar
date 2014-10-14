@@ -18,17 +18,16 @@ import static org.mockito.Mockito.*;
 
 public class DataStoreImplTest {
 
-    //local code review (vtegza): make it private @ 12.10.14
-    Person testPerson = new Person.PersonBuilder()
+    private Person testPerson = new Person.PersonBuilder()
             .name("Denis")
             .lastName("Milyaev")
             .email("denis@ukr.net")
             .build();
 
-    Set<Person> attenders = new HashSet<>();
-    Set<PeriodOfEvent> period = new HashSet<>();
+    private Set<Person> attenders = new HashSet<>();
+    private Set<PeriodOfEvent> period = new HashSet<>();
 
-    Event testEvent = new Event.EventBuilder()
+    private Event testEvent = new Event.EventBuilder()
             .id(UUID.randomUUID()).title("TestEvent")
             .description("Description of testEvent")
             .startDate(LocalDateTime.of(2020, 1, 1, 0, 0))
@@ -134,9 +133,7 @@ public class DataStoreImplTest {
     @Test
     public void testGetEventByTitleNotExistsEvent() throws IllegalArgumentException  {
 
-//  empty list
-        //local code review (vtegza): Collections.emptyList() @ 12.10.14
-        List<Event> expectedEvents = new ArrayList<>();
+        List<Event> expectedEvents = Collections.emptyList();
 
         List<Event> actualEvents = dataStore.getEventByTitle(testEvent.getTitle());
 
@@ -240,8 +237,7 @@ public class DataStoreImplTest {
     @Test
     public void testGetEventByDayNotExistsEvent() throws IllegalArgumentException  {
 
-//  empty list
-        List<Event> expectedEvents = new ArrayList<>();
+        List<Event> expectedEvents = Collections.emptyList();
 
         List<Event> actualEvents = dataStore.getEventByDay(testEvent.getStartDate().toLocalDate());
 
@@ -270,8 +266,7 @@ public class DataStoreImplTest {
     @Test
     public void testGetEventByAttenderNotExistsEvent() throws IllegalArgumentException  {
 
-// empty list
-        List<Event> expectedEvents = new ArrayList<>();
+        List<Event> expectedEvents = Collections.emptyList();
 
         List<Event> actualEvents = dataStore.getEventByAttender(testPerson);
 

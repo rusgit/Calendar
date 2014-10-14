@@ -7,7 +7,6 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import static org.junit.Assert.*;
 
-//local code review (vtegza): move patterns to constant @ 12.10.14
 public class DateParserTest {
 
     @Test
@@ -30,8 +29,7 @@ public class DateParserTest {
     @Test(expected = IllegalArgumentException.class)
     public void testStringToDateWithNullArg() throws DateTimeFormatException, IllegalArgumentException {
 
-        String stringDate = null;
-        DateParser.stringToDate(stringDate);
+        DateParser.stringToDate(null);
     }
 
     @Test
@@ -55,7 +53,6 @@ public class DateParserTest {
     @Test(expected = IllegalArgumentException.class)
     public void testDateToStringWithNullArg() throws DateTimeException, IllegalArgumentException {
 
-        LocalDateTime dateTime = null;
-        DateParser.dateToString(dateTime);
+        DateParser.dateToString(null);
     }
 }

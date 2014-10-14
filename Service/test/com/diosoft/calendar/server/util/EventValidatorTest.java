@@ -11,7 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-//local code review (vtegza): you should also check message in exceptions @ 12.10.14
+import static org.junit.Assert.assertEquals;
+
 public class EventValidatorTest {
 
     @Test
@@ -36,9 +37,8 @@ public class EventValidatorTest {
         EventValidator.validate(event1);
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithNullAttenders() throws DateTimeFormatException, ValidationException {
-        Set<Person> attendersTest = null;
+    @Test
+    public void testValidateWithNullAttenders() throws DateTimeFormatException {
         Set<PeriodOfEvent> period = new HashSet<>();
         period.add(PeriodOfEvent.ONCE);
         Event event1 = new Event.EventBuilder()
@@ -47,13 +47,17 @@ public class EventValidatorTest {
                 .startDate(DateParser.stringToDate("2020-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2020-10-15 20:00"))
                 .periodSet(period)
-                .attendersSet(attendersTest).build();
+                .attendersSet(null).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Null value of Attenders of event", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithNullSomeFieldOfEvent() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithNullTitleOfEvent() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -71,11 +75,15 @@ public class EventValidatorTest {
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Null value of Title of event", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithNotSpecifiedTitle() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithNotSpecifiedTitle() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -93,11 +101,15 @@ public class EventValidatorTest {
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Not specified event title", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithNotSpecifiedDescription() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithNotSpecifiedDescription() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -115,11 +127,15 @@ public class EventValidatorTest {
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Not specified event description", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithStartDateAfterEndDate() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithStartDateAfterEndDate() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -137,11 +153,15 @@ public class EventValidatorTest {
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("startDate after endDate", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithStartDateBeforeCurrent() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithStartDateBeforeCurrent() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -154,16 +174,20 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2013-10-15 15:00"))
+                .startDate(DateParser.stringToDate("2012-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2015-10-15 10:00"))
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("startDate before current date", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithStartDateNotEqualsDayOfWeekPeriod() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithStartDateNotEqualsDayOfWeekPeriod() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -178,16 +202,20 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2013-10-21 15:00"))
+                .startDate(DateParser.stringToDate("2015-10-21 15:00"))
                 .endDate(DateParser.stringToDate("2015-10-21 19:00"))
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Start date not equals day of week in period", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithNullPeriod() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithNullPeriod() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -198,16 +226,20 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2013-10-15 15:00"))
+                .startDate(DateParser.stringToDate("2015-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2015-10-15 10:00"))
                 .periodSet(null)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Null value of Period of event", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithStartDateNotEqualsEndDateInEveryDayEvent() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithStartDateNotEqualsEndDateInEveryDayEvent() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -220,16 +252,20 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2013-10-15 15:00"))
+                .startDate(DateParser.stringToDate("2015-10-15 15:00"))
                 .endDate(DateParser.stringToDate("2015-10-16 10:00"))
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Start and End date in EveryDay event not equal", e.getMessage());
+        }
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateWithStartDateNotEqualsEndDateInEventWithDayOfWeekPeriod() throws DateTimeFormatException, ValidationException {
+    @Test
+    public void testValidateWithStartDateNotEqualsEndDateInEventWithDayOfWeekPeriod() throws DateTimeFormatException {
         Person attender = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -242,12 +278,16 @@ public class EventValidatorTest {
         Event event1 = new Event.EventBuilder()
                 .id(UUID.randomUUID()).title("Happy Birthday")
                 .description("Happy Birthday Denis")
-                .startDate(DateParser.stringToDate("2013-10-14 15:00"))
+                .startDate(DateParser.stringToDate("2015-10-14 15:00"))
                 .endDate(DateParser.stringToDate("2015-10-15 10:00"))
                 .periodSet(period)
                 .attendersSet(attendersTest).build();
 
-        EventValidator.validate(event1);
+        try {
+            EventValidator.validate(event1);
+        } catch (ValidationException e) {
+            assertEquals("Start and End date in event with DayOfWeek period not equal", e.getMessage());
+        }
     }
 
 

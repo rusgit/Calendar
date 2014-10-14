@@ -20,6 +20,5 @@ public interface FileSystem {
 
     boolean delete(UUID id) throws IOException;
 
-    //local code review (vtegza): file system should not know about xml @ 12.10.14
-    List<Event>  readAllEventsFromXMLResources() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException;
+    List<Event> readAllEvents() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException;
 }

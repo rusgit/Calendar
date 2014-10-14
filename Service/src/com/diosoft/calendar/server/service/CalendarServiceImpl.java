@@ -19,38 +19,54 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-//local code review (vtegza): process all not client specific exceptions in service layer (could be dependedn on type of the application, let suppose this is a public application) @ 12.10.14
 public class CalendarServiceImpl implements CalendarService {
 
-    private static final Logger logger = Logger.getLogger(CalendarServiceImpl.class);
+    private final static Logger logger = Logger.getLogger(CalendarServiceImpl.class);
     private final DataStore dataStore;
     final static int MINUTE_INTERVAL = 15;
+    private final static int DESCRIPTION_LENGTH_ONE_DAY = 3;
+    private final static int DESCRIPTION_LENGTH_SOME_DAYS = 4;
 
     public CalendarServiceImpl(DataStore dataStore) {
         this.dataStore = dataStore;
     }
 
     @Override
-    public void add(Event event) throws IOException, IllegalArgumentException, ValidationException, JAXBException {
+    public void add(Event event) throws RemoteException {
         if (event == null) throw new IllegalArgumentException();
 
-//  Validate
         logger.info("Validation event with title '" + event.getTitle() + "'");
-        EventValidator.validate(event);
+        try {
+            EventValidator.validate(event);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
         logger.info("Event successfully validated");
-//  Add
         logger.info("Adding event with title '" + event.getTitle() + "'");
-        dataStore.publish(event);
+        try {
+            dataStore.publish(event);
+        } catch (IOException | JAXBException e) {
+            e.printStackTrace();
+        }
         logger.info("Event successfully added");
     }
 
     @Override
-    public Event createEvent(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws IOException, IllegalArgumentException,
-            DateTimeFormatException, ValidationException, JAXBException {
-        if (descriptions == null || attenders == null || period == null || descriptions.length != 4) throw new IllegalArgumentException();
+    public Event createEvent(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws RemoteException {
+        if (descriptions == null || attenders == null || period == null || descriptions.length != DESCRIPTION_LENGTH_SOME_DAYS) throw new IllegalArgumentException();
 
-        LocalDateTime startDate = DateParser.stringToDate(descriptions[2]);
-        LocalDateTime endDate = DateParser.stringToDate(descriptions[3]);
+        LocalDateTime startDate = null;
+        try {
+            startDate = DateParser.stringToDate(descriptions[2]);
+        } catch (DateTimeFormatException e) {
+            e.printStackTrace();
+        }
+        LocalDateTime endDate = null;
+        try {
+            endDate = DateParser.stringToDate(descriptions[3]);
+        } catch (DateTimeFormatException e) {
+            e.printStackTrace();
+        }
 
         logger.info("Creating event with title '" + descriptions[0] + "'");
         Event event = new Event.EventBuilder()
@@ -67,27 +83,36 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws IOException, IllegalArgumentException,
-            DateTimeFormatException, ValidationException, JAXBException {
-        if (descriptions == null || attenders == null || period == null || descriptions.length < 3 || descriptions.length > 4)
+    public Event createEventForAllDay(String[] descriptions, Set<Person> attenders, Set<PeriodOfEvent> period) throws RemoteException {
+        if (descriptions == null || attenders == null || period == null
+                || descriptions.length < DESCRIPTION_LENGTH_ONE_DAY
+                || descriptions.length > DESCRIPTION_LENGTH_SOME_DAYS)
             throw new IllegalArgumentException();
 
         String startDay = descriptions[2] + " 00:00";
         String endDate = null;
-//local code review (vtegza): remove comment and move magic number to readable constant @ 12.10.14
-//  one day "for all day"
-        if (descriptions.length == 3) {
-            LocalDateTime tempStartDate = DateParser.stringToDate(startDay);
-            LocalDateTime tempEndDate = tempStartDate.plusDays(1);
-            endDate = DateParser.dateToString(tempEndDate);
+
+        if (descriptions.length == DESCRIPTION_LENGTH_ONE_DAY) {
+            LocalDateTime tempStartDate;
+            try {
+                tempStartDate = DateParser.stringToDate(startDay);
+                LocalDateTime tempEndDate = tempStartDate.plusDays(1);
+                endDate = DateParser.dateToString(tempEndDate);
+            } catch (DateTimeFormatException e) {
+                e.printStackTrace();
+            }
         }
-//local code review (vtegza): remove comment and move magic number to readable constant @ 12.10.14
-//  interval of days "for all day"
-        if (descriptions.length == 4) {
+
+        if (descriptions.length == DESCRIPTION_LENGTH_SOME_DAYS) {
             String endDay = descriptions[3] + " 00:00";
-            LocalDateTime tempEndDate = DateParser.stringToDate(endDay);
-            tempEndDate = tempEndDate.plusDays(1);
-            endDate = DateParser.dateToString(tempEndDate);
+            LocalDateTime tempEndDate;
+            try {
+                tempEndDate = DateParser.stringToDate(endDay);
+                tempEndDate = tempEndDate.plusDays(1);
+                endDate = DateParser.dateToString(tempEndDate);
+            } catch (DateTimeFormatException e) {
+                e.printStackTrace();
+            }
         }
 
         String[] preparedDescriptions = {descriptions[0], descriptions[1], startDay, endDate};
@@ -95,11 +120,16 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Event remove(UUID id) throws IOException, IllegalArgumentException, JAXBException {
+    public Event remove(UUID id) throws RemoteException {
         if (id == null) throw new IllegalArgumentException();
 
         logger.info("Removing event with id: '" + id + "'");
-        Event event = dataStore.remove(id);
+        Event event = null;
+        try {
+            event = dataStore.remove(id);
+        } catch (JAXBException | IOException e) {
+            e.printStackTrace();
+        }
         if (event == null) {
             logger.info("There is no such Event");
         } else {
@@ -109,7 +139,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public void edit(Event event) throws IOException, IllegalArgumentException, ValidationException, JAXBException {
+    public void edit(Event event) throws RemoteException {
         if (event == null) throw new IllegalArgumentException();
 
         logger.info("Edit event with title '" + event.getTitle() + "'");
@@ -119,7 +149,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchByTitle(String title) throws IllegalArgumentException {
+    public List<Event> searchByTitle(String title) throws RemoteException {
         if (title == null) throw new IllegalArgumentException();
 
         logger.info("Searching by title '" + title + "':");
@@ -133,7 +163,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchByDay(LocalDate day) throws IllegalArgumentException {
+    public List<Event> searchByDay(LocalDate day) throws RemoteException {
         if (day == null) throw new IllegalArgumentException();
 
         logger.info("Searching by day '" + day + "':");
@@ -148,7 +178,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchByAttender(Person attender) throws IllegalArgumentException {
+    public List<Event> searchByAttender(Person attender) throws RemoteException {
         if (attender == null) throw new IllegalArgumentException();
 
         logger.info("Searching by attender '" + attender.getName() + "':");
@@ -163,8 +193,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate)
-            throws IllegalArgumentException, OrderOfArgumentsException {
+    public List<Event> searchByAttenderIntoPeriod(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -183,7 +212,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Set<Event> searchIntoPeriod(LocalDate startDay, LocalDate endDay) throws IllegalArgumentException, OrderOfArgumentsException {
+    public Set<Event> searchIntoPeriod(LocalDate startDay, LocalDate endDay) throws RemoteException, OrderOfArgumentsException {
         if (startDay == null || endDay == null) throw new IllegalArgumentException();
         if (startDay.isAfter(endDay)) throw new OrderOfArgumentsException();
 
@@ -201,8 +230,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTime(LocalDateTime startDate, LocalDateTime endDate)
-            throws IllegalArgumentException, OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTime(LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -214,8 +242,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTime2(LocalDateTime startDate, LocalDateTime endDate)
-            throws IllegalArgumentException, OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTime2(LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
         if (startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -241,8 +268,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate)
-            throws OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTimeForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -254,8 +280,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<List<LocalDateTime>> searchFreeTimeForEventWithAttenders(Event event, LocalDateTime startDate, LocalDateTime endDate)
-            throws RemoteException, IllegalArgumentException, OrderOfArgumentsException {
+    public List<List<LocalDateTime>> searchFreeTimeForEventWithAttenders(Event event, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -272,8 +297,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate)
-            throws IllegalArgumentException, OrderOfArgumentsException {
+    public boolean isAttenderFree(Person attender, LocalDateTime startDate, LocalDateTime endDate) throws RemoteException, OrderOfArgumentsException {
         if (attender == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -290,7 +314,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public List<Event> searchEventByTitleStartWith(String prefix) throws IllegalArgumentException {
+    public List<Event> searchEventByTitleStartWith(String prefix) throws RemoteException {
         if (prefix == null) throw new IllegalArgumentException();
 
         logger.info("Searching events by title start with '" + prefix + "'");
@@ -325,8 +349,7 @@ public class CalendarServiceImpl implements CalendarService {
         return solidFreeIntervalList;
     }
 
-    private List<List<LocalDateTime>> searchFreeTimeBetweenEvents(Set<Event> events, LocalDateTime startDate, LocalDateTime endDate)
-            throws OrderOfArgumentsException {
+    private List<List<LocalDateTime>> searchFreeTimeBetweenEvents(Set<Event> events, LocalDateTime startDate, LocalDateTime endDate) throws OrderOfArgumentsException {
         if (events == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -335,17 +358,22 @@ public class CalendarServiceImpl implements CalendarService {
         for(Event event : events) {
             ListIterator<List<LocalDateTime>> it = freeTimeList.listIterator();
             //local code review (vtegza): make sure that you need iterator here @ 12.10.14
+            // I need iterator for add/remove operations in freeTimeList
             while (it.hasNext()) {
                 List<LocalDateTime> freeTimeInterval = it.next();
                 //local code review (vtegza): java 8 stream api - try to use it @ 12.10.14
+                // I don't understand where is try to use stream api
                 if (isEventIncludesFreeInterval(event, freeTimeInterval))
                     it.remove();
                 else {
                     //local code review (vtegza): extract to separate method (all block) @ 12.10.14
+                    // why extract to separate method?  How am I going to use an iterator in this case?
                     if (isEventAndFreeIntervalCrossingInStartOfEvent(event, freeTimeInterval))
                         freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(0, event.getEndDate());
+
                     if (isEventAndFreeIntervalCrossingInEndOfEvent(event, freeTimeInterval))
                         freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, event.getStartDate());
+
                     if ( isFreeIntervalIncludesEvent(event, freeTimeInterval)) {
                         it.add(Arrays.asList(event.getEndDate(), freeTimeInterval.get(1)));
                         freeTimeList.get(freeTimeList.indexOf(freeTimeInterval)).set(1, event.getStartDate());
@@ -356,8 +384,7 @@ public class CalendarServiceImpl implements CalendarService {
         return freeTimeList;
     }
 
-    private List<List<LocalDateTime>> searchFreeIntervalsForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate, List<List<LocalDateTime>> freeIntervalList)
-            throws OrderOfArgumentsException {
+    private List<List<LocalDateTime>> searchFreeIntervalsForEvent(Event event, LocalDateTime startDate, LocalDateTime endDate, List<List<LocalDateTime>> freeIntervalList) throws OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null || freeIntervalList == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
@@ -373,42 +400,40 @@ public class CalendarServiceImpl implements CalendarService {
         return freeIntervalListForEvent;
     }
 
-    private boolean isEventAndPeriodCrossing(Event event, LocalDateTime startDate, LocalDateTime endDate)
-            throws OrderOfArgumentsException, IllegalArgumentException {
+    private boolean isEventAndPeriodCrossing(Event event, LocalDateTime startDate, LocalDateTime endDate) throws OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
-//local code review (vtegza): extract to method @ 12.10.14
-        return event.getStartDate().equals(startDate)
-                || event.getEndDate().equals(endDate)
-                || isDateIntoPeriod(event.getStartDate(), startDate, endDate)
-                || isDateIntoPeriod(event.getEndDate(), startDate, endDate)
-                || isPeriodIntoEvent(event, startDate, endDate);
+
+        if (event.getStartDate().equals(startDate)) return true;
+        if (event.getEndDate().equals(endDate)) return true;
+        if (isDateIntoPeriod(event.getStartDate(), startDate, endDate)) return true;
+        if (isDateIntoPeriod(event.getEndDate(), startDate, endDate)) return true;
+
+        return isPeriodIntoEvent(event, startDate, endDate);
     }
 
-    private boolean isPeriodIntoEvent(Event event, LocalDateTime startDate, LocalDateTime endDate)
-            throws OrderOfArgumentsException, IllegalArgumentException {
+    private boolean isPeriodIntoEvent(Event event, LocalDateTime startDate, LocalDateTime endDate) throws OrderOfArgumentsException {
         if (event == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
         return event.getStartDate().isBefore(startDate) && event.getEndDate().isAfter(endDate);
     }
 
-    private boolean isDateIntoPeriod(LocalDateTime date, LocalDateTime startDate, LocalDateTime endDate)
-            throws OrderOfArgumentsException, IllegalArgumentException{
+    private boolean isDateIntoPeriod(LocalDateTime date, LocalDateTime startDate, LocalDateTime endDate) throws OrderOfArgumentsException {
         if (date == null || startDate == null || endDate == null) throw new IllegalArgumentException();
         if (startDate.isAfter(endDate)) throw new OrderOfArgumentsException();
 
         return date.isAfter(startDate) && date.isBefore(endDate);
     }
 
-    private boolean isEventIncludesFreeInterval(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
+    private boolean isEventIncludesFreeInterval(Event event, List<LocalDateTime> interval) {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
        return event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
                 && event.getEndDate().isAfter(interval.get(1).minusMinutes(MINUTE_INTERVAL));
     }
 
-    private boolean isEventAndFreeIntervalCrossingInStartOfEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
+    private boolean isEventAndFreeIntervalCrossingInStartOfEvent(Event event, List<LocalDateTime> interval) {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
         return event.getStartDate().isBefore(interval.get(0).plusMinutes(MINUTE_INTERVAL))
@@ -416,7 +441,7 @@ public class CalendarServiceImpl implements CalendarService {
                 && isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(event, interval);
     }
 
-    private boolean isEventAndFreeIntervalCrossingInEndOfEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
+    private boolean isEventAndFreeIntervalCrossingInEndOfEvent(Event event, List<LocalDateTime> interval) {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
         return isStartOfEventAfterStartOfIntervalPlusMinuteInterval(event, interval)
@@ -424,28 +449,24 @@ public class CalendarServiceImpl implements CalendarService {
                 && event.getEndDate().isAfter(interval.get(1).minusMinutes(MINUTE_INTERVAL));
     }
 
-    private boolean isFreeIntervalIncludesEvent(Event event, List<LocalDateTime> interval) throws IllegalArgumentException {
+    private boolean isFreeIntervalIncludesEvent(Event event, List<LocalDateTime> interval) {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
         return isStartOfEventAfterStartOfIntervalPlusMinuteInterval(event, interval)
                 && isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(event, interval);
     }
 
-    private boolean isStartOfEventAfterStartOfIntervalPlusMinuteInterval(Event event, List<LocalDateTime> interval)
-            throws IllegalArgumentException {
+    private boolean isStartOfEventAfterStartOfIntervalPlusMinuteInterval(Event event, List<LocalDateTime> interval) {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
         return event.getStartDate().isAfter(interval.get(0).plusMinutes(MINUTE_INTERVAL))
                 || event.getStartDate().isEqual(interval.get(0).plusMinutes(MINUTE_INTERVAL));
     }
 
-    private boolean isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(Event event, List<LocalDateTime> interval)
-            throws IllegalArgumentException {
+    private boolean isEndOfEventBeforeEndOfIntervalMinusMinuteInterval(Event event, List<LocalDateTime> interval) {
         if (event == null || interval == null) throw new IllegalArgumentException();
 
         return event.getEndDate().isBefore(interval.get(1).minusMinutes(MINUTE_INTERVAL))
                 || event.getEndDate().isEqual(interval.get(1).minusMinutes(MINUTE_INTERVAL));
     }
 }
-
-

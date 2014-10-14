@@ -128,10 +128,9 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByTitleNotExistsEvent() throws RemoteException, IllegalArgumentException {
+    public void testSearchByTitleNotExistsEvent() throws IllegalArgumentException, RemoteException {
 
-//  empty list
-        List<Event> expectedEvents = new ArrayList<>();
+        List<Event> expectedEvents = Collections.emptyList();
         when(mockDataStore.getEventByTitle(testEvent.getTitle())).thenReturn(expectedEvents);
         List<Event> actualEvents = calendarService.searchByTitle(testEvent.getTitle());
         assertEquals(expectedEvents,actualEvents);
@@ -139,14 +138,14 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSearchByTitleWithNullArg() throws RemoteException, IllegalArgumentException {
+    public void testSearchByTitleWithNullArg() throws IllegalArgumentException, RemoteException {
 
         when(mockDataStore.getEventByTitle(null)).thenThrow(new IllegalArgumentException());
         calendarService.searchByTitle(null);
     }
 
     @Test
-    public void testSearchByDay() throws RemoteException, IllegalArgumentException  {
+    public void testSearchByDay() throws IllegalArgumentException, RemoteException {
 
         attenders.add(testPerson);
         List<Event> expectedEvents = new ArrayList<>();
@@ -160,10 +159,9 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByDayNotExistsEvent() throws RemoteException, IllegalArgumentException {
+    public void testSearchByDayNotExistsEvent() throws IllegalArgumentException, RemoteException {
 
-//  empty list
-        List<Event> expectedEvents = new ArrayList<>();
+        List<Event> expectedEvents = Collections.emptyList();
         when(mockDataStore.getEventByDay(testEvent.getStartDate().toLocalDate())).thenReturn(expectedEvents);
         List<Event> actualEvents = calendarService.searchByDay(testEvent.getStartDate().toLocalDate());
         assertEquals(expectedEvents,actualEvents);
@@ -171,14 +169,14 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSearchByDayWithNullArg() throws RemoteException, IllegalArgumentException {
+    public void testSearchByDayWithNullArg() throws IllegalArgumentException, RemoteException {
 
         when(mockDataStore.getEventByDay(null)).thenThrow(new IllegalArgumentException());
         calendarService.searchByDay(null);
     }
 
     @Test
-    public void testSearchByAttender() throws RemoteException, IllegalArgumentException  {
+    public void testSearchByAttender() throws IllegalArgumentException, RemoteException {
 
         attenders.add(testPerson);
         List<Event> expectedEvents = new ArrayList<>();
@@ -192,10 +190,9 @@ public class CalendarServiceImplTest {
     }
 
     @Test
-    public void testSearchByAttenderNotExistsEvent() throws RemoteException, IllegalArgumentException {
+    public void testSearchByAttenderNotExistsEvent() throws IllegalArgumentException, RemoteException {
 
-//  empty list
-        List<Event> expectedEvents = new ArrayList<>();
+        List<Event> expectedEvents = Collections.emptyList();
         when(mockDataStore.getEventByAttender(testPerson)).thenReturn(expectedEvents);
         List<Event> actualEvents = calendarService.searchByAttender(testPerson);
         assertEquals(expectedEvents,actualEvents);
@@ -203,7 +200,7 @@ public class CalendarServiceImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSearchByAttenderWithNullArg() throws RemoteException, IllegalArgumentException {
+    public void testSearchByAttenderWithNullArg() throws IllegalArgumentException, RemoteException {
 
         when(mockDataStore.getEventByAttender(null)).thenThrow(new IllegalArgumentException());
         calendarService.searchByAttender(null);
@@ -299,7 +296,7 @@ public class CalendarServiceImplTest {
                 .email("denis@ukr.net")
                 .build();
 
-        Set<Person> attendersTest = new HashSet<>();
+        Set<Person> attendersTest = new HashSet<Person>();
         attendersTest.add(attender);
 
         Event expectedEvent = new Event.EventBuilder()
@@ -311,9 +308,11 @@ public class CalendarServiceImplTest {
                 .attendersSet(attendersTest).build();
 
         String[] descriptions = {"Happy Birthday", "Happy Birthday Denis", "2020-10-15"};
+
         Event createdEvent = calendarService.createEventForAllDay(descriptions, attendersTest, period);
 
         assertEquals(expectedEvent, createdEvent);
+
         verify(mockDataStore).publish(createdEvent);
     }
 
@@ -387,9 +386,11 @@ public class CalendarServiceImplTest {
         eventList.add(event2);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
+
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertTrue(isFreeResult);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -425,9 +426,11 @@ public class CalendarServiceImplTest {
         eventList.add(event2);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
+
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertFalse(isFreeResult);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -463,9 +466,11 @@ public class CalendarServiceImplTest {
         eventList.add(event2);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
+
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertFalse(isFreeResult);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -501,9 +506,11 @@ public class CalendarServiceImplTest {
         eventList.add(event2);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(eventList);
+
         boolean isFreeResult = calendarService.isAttenderFree(attender, startDate ,endDate);
 
         Assert.assertFalse(isFreeResult);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -523,6 +530,7 @@ public class CalendarServiceImplTest {
                 .build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-09-30 14:45");
+
         calendarService.isAttenderFree(attender, startDate, endDate);
     }
 
@@ -556,9 +564,11 @@ public class CalendarServiceImplTest {
         List<Event> expectedList = new ArrayList<>();
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -593,9 +603,11 @@ public class CalendarServiceImplTest {
         expectedList.add(event1);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -631,9 +643,11 @@ public class CalendarServiceImplTest {
         expectedList.add(event2);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -668,9 +682,11 @@ public class CalendarServiceImplTest {
         expectedList.add(event1);
 
         when(mockDataStore.getEventByAttender(attender)).thenReturn(expectedList);
+
         List<Event> resultList = calendarService.searchByAttenderIntoPeriod(attender, startDate ,endDate);
 
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore).getEventByAttender(attender);
     }
 
@@ -678,6 +694,7 @@ public class CalendarServiceImplTest {
     public void testSearchByAttenderIntoPeriodWithIllegalArg() throws RemoteException, IllegalArgumentException, DateTimeFormatException, OrderOfArgumentsException {
         LocalDateTime startDate = DateParser.stringToDate("2020-09-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-09-30 14:45");
+
         calendarService.isAttenderFree(null, startDate, endDate);
     }
 
@@ -690,6 +707,7 @@ public class CalendarServiceImplTest {
                 .build();
         LocalDateTime startDate = DateParser.stringToDate("2020-10-20 14:45");
         LocalDateTime endDate = DateParser.stringToDate("2020-09-30 14:45");
+
         calendarService.isAttenderFree(attender, startDate, endDate);
     }
 
@@ -756,7 +774,7 @@ public class CalendarServiceImplTest {
         list1.add(event1);
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-31 00:00").toLocalDate())).thenReturn(list1);
 
-        List<Event> list2 = new ArrayList<>();
+        List<Event> list2 = new ArrayList<Event>();
         list2.add(event2);
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-11-01 00:00").toLocalDate())).thenReturn(list2);
 
@@ -770,7 +788,9 @@ public class CalendarServiceImplTest {
         long finish = System.nanoTime();
         long timeConsumedMillis = finish - start;
         System.out.println("SearchFreeTime: " + timeConsumedMillis + " nanosec!!!!!!!!!!!!!!!");
+
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore,times(3)).getEventByDay(Matchers.any(LocalDate.class));
     }
 
@@ -851,7 +871,9 @@ public class CalendarServiceImplTest {
         long finish = System.nanoTime();
         long timeConsumedMillis = finish - start;
         System.out.println("SearchFreeTime2: " + timeConsumedMillis + " nanosec!!!!!!!!!!!!!!!");
+
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore,times(3)).getEventByDay(Matchers.any(LocalDate.class));
     }
 
@@ -921,13 +943,13 @@ public class CalendarServiceImplTest {
         List<Event> list2 = new ArrayList<>();
         list2.add(event2);
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-16 00:00").toLocalDate())).thenReturn(list2);
-
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-17 00:00").toLocalDate())).thenReturn(new ArrayList<>());
         when(mockDataStore.getEventByDay(DateParser.stringToDate("2020-10-18 00:00").toLocalDate())).thenReturn(new ArrayList<>());
 
         List<List<LocalDateTime>> resultList = calendarService.searchFreeTimeForEvent(eventForSearch, startDate ,endDate);
 
         Assert.assertEquals(expectedList, resultList);
+
         verify(mockDataStore,times(4)).getEventByDay(Matchers.any(LocalDate.class));
     }
 
@@ -1015,6 +1037,7 @@ public class CalendarServiceImplTest {
 
     @Test
     public void testSearchEventByTitleStartWith () throws IOException, JAXBException, ValidationException {
+        // initialize variable inputs
         Person testPerson = new Person.PersonBuilder()
                 .name("Denis")
                 .lastName("Milyaev")
@@ -1036,24 +1059,20 @@ public class CalendarServiceImplTest {
         expectedEventList.add(testEvent);
         //local code review (vtegza): keep code structured @ 12.10.14
         String prefix = "Tes";
-        calendarService.add(testEvent);
 
+        // initialize mocks in @Before
         when(mockDataStore.searchEventByTitleStartWith(prefix)).thenReturn(expectedEventList);
 
+        // initialize class to test in @Before
+        calendarService.add(testEvent);
+
+        // invoke method on class to test
         List<Event> resultEventList = calendarService.searchEventByTitleStartWith(prefix);
 
+        // assert return value
         assertEquals(expectedEventList, resultEventList);
+
+        // verify mock expectations
         verify(mockDataStore).searchEventByTitleStartWith(prefix);
     }
-    // initialize variable inputs
-
-    // initialize mocks
-
-    // initialize class to test
-
-    // invoke method on class to test
-
-    // assert return value
-
-    // verify mock expectations
 }

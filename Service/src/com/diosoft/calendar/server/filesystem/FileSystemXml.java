@@ -14,14 +14,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
 
-//local code review (vtegza): if this is an XML specific file system name it in that way (you can pass some interface with no XML in name)@ 12.10.14
-public class FileSystemImpl implements FileSystem{
+public class FileSystemXml implements FileSystem{
 
     final private JAXBHelperImpl jaxbHelper;
     final private String pathToEvents;
     private ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public FileSystemImpl(JAXBHelperImpl jaxbHelper, String pathToEvents) {
+    public FileSystemXml(JAXBHelperImpl jaxbHelper, String pathToEvents) {
         this.jaxbHelper = jaxbHelper;
         this.pathToEvents = pathToEvents;
     }
@@ -76,7 +75,7 @@ public class FileSystemImpl implements FileSystem{
     }
 
     @Override
-    public List<Event> readAllEventsFromXMLResources() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException {
+    public List<Event> readAllEvents() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException {
         EventFileVisitor eventFileVisitor = new EventFileVisitor();
         Files.walkFileTree(Paths.get(pathToEvents), eventFileVisitor);
         return eventFileVisitor.getEventList();

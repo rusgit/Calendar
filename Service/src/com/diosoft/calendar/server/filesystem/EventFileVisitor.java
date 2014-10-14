@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class EventFileVisitor extends SimpleFileVisitor<Path> {
-
+    private final static String EVENT_FILE_EXTENSION_GLOB_MATCHER_PATTERN = "glob:*.xml";
     private final List<Event> eventList = new ArrayList<>();
     private final JAXBHelper jaxbHelper = new JAXBHelperImpl();
     private final List<Future<Event>> futures = new ArrayList<>();
@@ -24,8 +24,7 @@ public class EventFileVisitor extends SimpleFileVisitor<Path> {
             throws IOException
     {
         final Path fileEvent = file;
-        //local code review (vtegza): extract mather pattern to constant @ 12.10.14
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.xml");
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher(EVENT_FILE_EXTENSION_GLOB_MATCHER_PATTERN);
         if (attrs.isRegularFile() && matcher.matches(fileEvent.getFileName())) {
            futures.add(executorService.submit(() -> jaxbHelper.read(Files.newBufferedReader(fileEvent))));
         }

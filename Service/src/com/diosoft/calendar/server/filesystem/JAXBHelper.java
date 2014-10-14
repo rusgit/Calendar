@@ -9,9 +9,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 
     //local code review (vtegza): remove jaxb exceptions @ 12.10.14
+    // and use try-catch in JAXBHelperImpl?
 public interface JAXBHelper {
 
     void write(Event event, BufferedWriter writer) throws IOException, JAXBException;
 
-    Event read(BufferedReader reader) throws JAXBException, DateTimeFormatException;
+    Event read(BufferedReader reader) throws DateTimeFormatException, JAXBException;
 }

@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class DataStoreImpl implements DataStore {
+    private final static String DAY_MONTH_PATTERN = "dd-MM";
 
     private Map<UUID, Event> eventStore = new HashMap<>();
     private Map<String, List<UUID>> indexTitle = new HashMap<>();
@@ -33,7 +34,7 @@ public class DataStoreImpl implements DataStore {
     }
 
     public void initDataStoreFromXMLResources() throws IOException, DateTimeFormatException, ExecutionException, InterruptedException {
-        List<Event> eventList = fileSystem.readAllEventsFromXMLResources();
+        List<Event> eventList = fileSystem.readAllEvents();
         for (Event event : eventList) {
             if (isEventDuplicate(event)) continue;
             eventStore.put(event.getId(), event);
@@ -43,36 +44,25 @@ public class DataStoreImpl implements DataStore {
         }
     }
 
-    //local code review (vtegza): no need in comments - methods name is good enoght @ 12.10.14
     @Override
     public void publish(Event event) throws IllegalArgumentException, IOException, JAXBException {
         if (event == null) throw new IllegalArgumentException();
         if (isEventDuplicate(event)) return;
-// add event
         eventStore.put(event.getId(), event);
-// index by title
         createIndexTitle(event);
-// index by date by period
         createIndexPeriod(event);
-// index by attender
         createIndexAttender(event);
-// create xml file with event
         fileSystem.write(event);
     }
 
     @Override
     public Event remove(UUID id) throws IllegalArgumentException, JAXBException, IOException {
         if (id == null) throw new IllegalArgumentException();
-// remove event
         Event event = eventStore.remove(id);
         if (event != null) {
-// remove index title
             removeIndexTitle(event);
-// remove index attender
             removeIndexAttender(event);
-// remove index period
             removeIndexPeriod(event);
-// delete xml file with event
             fileSystem.delete(event.getId());
         }
         return event;
@@ -158,11 +148,12 @@ public class DataStoreImpl implements DataStore {
 
     private List<Event> getEventByDayWithYearPeriod(LocalDate date) {
         List<Event> eventList = new ArrayList<>();
-        String dayAndMonth = date.format(DateTimeFormatter.ofPattern("dd-MM"));
+        String dayAndMonth = date.format(DateTimeFormatter.ofPattern(DAY_MONTH_PATTERN));
         List<UUID> uuids = indexPeriodYear.get(dayAndMonth);
-        //local code review (vtegza): keep code formatted - should feet 80/180 characters @ 12.10.14
-        if (uuids != null) eventList.addAll(uuids.stream().filter(uuid -> eventStore.get(uuid).getStartDate().toLocalDate().isBefore(date)
-                || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date)).map(eventStore::get).collect(Collectors.toList()));
+        if (uuids != null) eventList.addAll(uuids.stream()
+                .filter(uuid -> eventStore.get(uuid).getStartDate().toLocalDate().isBefore(date)
+                        || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date))
+                .map(eventStore::get).collect(Collectors.toList()));
 
         return eventList;
     }
@@ -170,8 +161,10 @@ public class DataStoreImpl implements DataStore {
     private List<Event> getEventByDayWithMonthPeriod(LocalDate date) {
         List<Event> eventList = new ArrayList<>();
         List<UUID> uuids = indexPeriodMonth.get(date.getDayOfMonth());
-        if (uuids != null) eventList.addAll(uuids.stream().filter(uuid -> eventStore.get(uuid).getStartDate().toLocalDate().isBefore(date)
-                || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date)).map(eventStore::get).collect(Collectors.toList()));
+        if (uuids != null) eventList.addAll(uuids.stream()
+                .filter(uuid -> eventStore.get(uuid).getStartDate().toLocalDate().isBefore(date)
+                        || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date))
+                .map(eventStore::get).collect(Collectors.toList()));
 
         return eventList;
     }
@@ -181,7 +174,8 @@ public class DataStoreImpl implements DataStore {
         List<UUID> uuids = indexPeriodDayOfWeek.get(date.getDayOfWeek());
         if (uuids != null) eventList.addAll(uuids.stream()
                 .filter(uuid -> eventStore.get(uuid).getStartDate().toLocalDate().isBefore(date)
-                        || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date)).map(eventStore::get).collect(Collectors.toList()));
+                        || eventStore.get(uuid).getStartDate().toLocalDate().isEqual(date))
+                .map(eventStore::get).collect(Collectors.toList()));
 
         return eventList;
     }
@@ -191,7 +185,8 @@ public class DataStoreImpl implements DataStore {
         for (LocalDate eventStartDay : indexPeriodDay.keySet())
             if (date.isEqual(eventStartDay) || date.isAfter(eventStartDay)) {
                 List<UUID> uuids = indexPeriodDay.get(eventStartDay);
-                if (uuids != null) eventList.addAll(uuids.stream().map(eventStore::get).collect(Collectors.toList()));
+                if (uuids != null) eventList.addAll(uuids.stream()
+                        .map(eventStore::get).collect(Collectors.toList()));
             }
 
         return eventList;
@@ -199,8 +194,7 @@ public class DataStoreImpl implements DataStore {
 
     private void createIndexTitle(Event event) {
         List<UUID> idsTitle = indexTitle.get(event.getTitle());
-        //local code review (vtegza): containsKey could be more clear @ 12.10.14
-        if (idsTitle == null) {
+        if (!indexTitle.containsKey(event.getTitle())) {
             idsTitle = new ArrayList<>();
             idsTitle.add(event.getId());
             indexTitle.put(event.getTitle(), idsTitle);
@@ -213,7 +207,7 @@ public class DataStoreImpl implements DataStore {
 
         while (startDay.isBefore(endDay) || startDay.equals(endDay)) {
             List<UUID> idsDate = indexDate.get(startDay);
-            if (idsDate == null) {
+            if (!indexDate.containsKey(startDay)) {
                 idsDate = new ArrayList<>();
                 idsDate.add(event.getId());
                 indexDate.put(startDay, idsDate);
@@ -252,7 +246,7 @@ public class DataStoreImpl implements DataStore {
 
     private void createIndexPeriodDayOfWeek(Event event, PeriodOfEvent period) {
         List<UUID> idsDate = indexPeriodDayOfWeek.get(DayOfWeek.valueOf(period.name()));
-        if (idsDate == null) {
+        if (!indexPeriodDayOfWeek.containsKey(DayOfWeek.valueOf(period.name()))) {
             idsDate = new ArrayList<>();
             idsDate.add(event.getId());
             indexPeriodDayOfWeek.put(DayOfWeek.valueOf(period.name()), idsDate);
@@ -261,7 +255,7 @@ public class DataStoreImpl implements DataStore {
 
     private void createIndexPeriodDay(Event event) {
         List<UUID> idsDate = indexPeriodDay.get(event.getStartDate().toLocalDate());
-        if (idsDate == null) {
+        if (!indexPeriodDay.containsKey(event.getStartDate().toLocalDate())) {
             idsDate = new ArrayList<>();
             idsDate.add(event.getId());
             indexPeriodDay.put(event.getStartDate().toLocalDate(), idsDate);
@@ -274,7 +268,7 @@ public class DataStoreImpl implements DataStore {
 
         while (startDay.isBefore(endDay) || startDay.equals(endDay)) {
             List<UUID> idsDate = indexPeriodMonth.get(startDay.getDayOfMonth());
-            if (idsDate == null) {
+            if (!indexPeriodMonth.containsKey(startDay.getDayOfMonth())) {
                 idsDate = new ArrayList<>();
                 idsDate.add(event.getId());
                 indexPeriodMonth.put(startDay.getDayOfMonth(), idsDate);
@@ -288,9 +282,9 @@ public class DataStoreImpl implements DataStore {
         LocalDate endDay = event.getEndDate().toLocalDate();
 
         while (startDay.isBefore(endDay) || startDay.equals(endDay)) {
-            String dayAndMonth = startDay.format(DateTimeFormatter.ofPattern("dd-MM"));
+            String dayAndMonth = startDay.format(DateTimeFormatter.ofPattern(DAY_MONTH_PATTERN));
             List<UUID> idsDate = indexPeriodYear.get(dayAndMonth);
-            if (idsDate == null) {
+            if (!indexPeriodYear.containsKey(dayAndMonth)) {
                 idsDate = new ArrayList<>();
                 idsDate.add(event.getId());
                 indexPeriodYear.put(dayAndMonth, idsDate);
@@ -303,7 +297,7 @@ public class DataStoreImpl implements DataStore {
         Set<Person> attenders = event.getAttenders();
         for (Person attender : attenders) {
             List<UUID> idsAttender = indexAttender.get(attender);
-            if (idsAttender == null) {
+            if (!indexAttender.containsKey(attender)) {
                 idsAttender = new ArrayList<>();
                 idsAttender.add(event.getId());
                 indexAttender.put(attender, idsAttender);
@@ -401,7 +395,7 @@ public class DataStoreImpl implements DataStore {
         LocalDate endDay = event.getEndDate().toLocalDate();
 
         while (startDay.isBefore(endDay) || startDay.equals(endDay)) {
-            String dayAndMonth = startDay.format(DateTimeFormatter.ofPattern("dd-MM"));
+            String dayAndMonth = startDay.format(DateTimeFormatter.ofPattern(DAY_MONTH_PATTERN));
             List<UUID> idsDate = indexPeriodYear.get(dayAndMonth);
             if (idsDate.size() <= 1) {
                 indexPeriodYear.remove(dayAndMonth);
